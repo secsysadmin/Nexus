@@ -114,7 +114,19 @@ try {
     const content = `DATABASE_URL=${url.toString()}\nDATABASE_SCHEMA=${schema}\n`;
     await writeFile(file, content, { mode: 0o600 });
     if (stage === "dev")
-      await writeFile(".env.local", content, { mode: 0o600 });
+      await writeFile(
+        ".env.local",
+        Object.entries({
+          ...dotenv.parse(
+            existsSync(".env.local") ? await readFile(".env.local") : "",
+          ),
+          DATABASE_URL: url.toString(),
+          DATABASE_SCHEMA: schema,
+        })
+          .map(([k, v]) => `${k}=${JSON.stringify(v)}`)
+          .join("\n") + "\n",
+        { mode: 0o600 },
+      );
     console.log(`Ready: ${schema}, restricted role ${role}`);
   }
   // Confirm both application roles lack access to the opposite environment.

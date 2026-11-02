@@ -36,3 +36,7 @@ Kraken provides reference workflows for check-in, history, form building, drafts
 ## Open decisions
 
 Brand details are implementation assumptions: maroon, warm neutral surfaces, restrained typography. Public product name: SocietyHub; Nexus is internal only. SEC logo supplied from Delphi/public/sec_favicon.png. Use SEC-issued activation links for account enrollment and recovery.
+
+## Application receipts and login motion
+
+Application submission and resubmission send a confirmation receipt to an address chosen by the submitting officer, prefilled from the latest valid imported society contact when possible. Drafts send nothing. SEC can inspect and retry failed delivery. Outbound email is enabled only in production. The login’s left panel uses flowing maroon ribbons inspired by the user’s Stripe reference, with reduced-motion and non-WebGL fallbacks.

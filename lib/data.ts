@@ -24,7 +24,7 @@ export async function getData(db: PoolClient, actor: Actor) {
   ).rows;
   const submissions = (
     await db.query(
-      `SELECT s.*,v.questions,a.display_name society_name,f.title form_title FROM submissions s JOIN form_versions v ON v.form_id=s.form_id AND v.version=s.form_version JOIN accounts a ON a.id=s.account_id JOIN forms f ON f.id=s.form_id ${admin ? "" : "WHERE s.account_id=$1"} ORDER BY s.updated_at DESC`,
+      `SELECT s.*,v.questions,a.display_name society_name,f.title form_title,email.id confirmation_email_id,email.status confirmation_status,email.attempts confirmation_attempts FROM submissions s JOIN form_versions v ON v.form_id=s.form_id AND v.version=s.form_version JOIN accounts a ON a.id=s.account_id JOIN forms f ON f.id=s.form_id LEFT JOIN LATERAL (SELECT id,status,attempts FROM application_emails WHERE submission_id=s.id ORDER BY submission_revision DESC LIMIT 1) email ON true ${admin ? "" : "WHERE s.account_id=$1"} ORDER BY s.updated_at DESC`,
       admin ? [] : [actor.id],
     )
   ).rows;

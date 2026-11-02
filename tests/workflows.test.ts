@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { PGlite } from "@electric-sql/pglite";
-import { readFile } from "node:fs/promises";
+import { readFile, readdir } from "node:fs/promises";
 import type { PoolClient } from "pg";
 import {
   adminMutation,
@@ -12,7 +12,10 @@ import {
 import { getData } from "../lib/data";
 async function fixture() {
   const db = new PGlite();
-  await db.exec(await readFile("db/001_initial.sql", "utf8"));
+  for (const file of (await readdir("db"))
+    .filter((f) => f.endsWith(".sql"))
+    .sort())
+    await db.exec(await readFile("db/" + file, "utf8"));
   const account = async (username: string, role: string) =>
     (
       await db.query<Actor>(
@@ -209,6 +212,7 @@ test("form edits preserve existing drafts; revisions prevent officer overwrites;
         formId: form.id,
         answers: { purpose: "Funding" },
         submit: true,
+        confirmationEmail: "officer@example.invalid",
         revision: 0,
       }),
     );
@@ -216,6 +220,7 @@ test("form edits preserve existing drafts; revisions prevent officer overwrites;
       formId: form.id,
       answers: { purpose: "Community workshop" },
       submit: true,
+      confirmationEmail: "officer@example.invalid",
       revision: draft.revision,
     });
     assert.equal(submitted.form_version, 1);
@@ -244,6 +249,7 @@ test("form edits preserve existing drafts; revisions prevent officer overwrites;
       formId: form.id,
       answers: { purpose: "Workshop with $100 budget" },
       submit: true,
+      confirmationEmail: "officer@example.invalid",
       revision: updated.revision,
     });
     await adminMutation(f.client, f.admin, "admin/review", {

@@ -1,5 +1,6 @@
 import { type PoolClient } from "pg";
 import { z } from "zod";
+import { receiptContent } from "./application-email";
 import { audit } from "./db";
 import { digest, token } from "./security";
 import {
@@ -101,6 +102,7 @@ export async function saveSubmission(
       ),
       submit: z.boolean(),
       revision: z.number().int().nonnegative(),
+      confirmationEmail: z.string().trim().max(254).optional(),
     })
     .parse(input);
   // Serialize society draft writes, including the first save from multiple officers.
@@ -127,6 +129,15 @@ export async function saveSubmission(
       "Another officer saved changes. Reload the application before editing.",
       409,
     );
+  const confirmationEmail =
+    b.confirmationEmail ?? existing?.confirmation_email ?? "";
+  if (
+    (b.submit || confirmationEmail) &&
+    !z.email().safeParse(confirmationEmail).success
+  )
+    throw new AppError(
+      "Enter a valid email address for your application confirmation.",
+    );
   const version = existing?.form_version ?? form.current_version;
   const {
     rows: [fv],
@@ -142,8 +153,8 @@ export async function saveSubmission(
   const {
     rows: [saved],
   } = await db.query(
-    `INSERT INTO submissions(form_id,form_version,account_id,answers,status,submitted_at) VALUES($1,$2,$3,$4,$5,CASE WHEN $6 THEN now() ELSE NULL END)
- ON CONFLICT(form_id,account_id) DO UPDATE SET answers=excluded.answers,status=excluded.status,submitted_at=CASE WHEN $6 THEN now() ELSE submissions.submitted_at END,revision=submissions.revision+1,updated_at=now() RETURNING *`,
+    `INSERT INTO submissions(form_id,form_version,account_id,answers,status,submitted_at,confirmation_email) VALUES($1,$2,$3,$4,$5,CASE WHEN $6 THEN now() ELSE NULL END,$7)
+ ON CONFLICT(form_id,account_id) DO UPDATE SET answers=excluded.answers,status=excluded.status,confirmation_email=excluded.confirmation_email,submitted_at=CASE WHEN $6 THEN now() ELSE submissions.submitted_at END,revision=submissions.revision+1,updated_at=now() RETURNING *`,
     [
       form.id,
       version,
@@ -151,6 +162,7 @@ export async function saveSubmission(
       JSON.stringify(b.answers),
       b.submit ? "SUBMITTED" : (existing?.status ?? "DRAFT"),
       b.submit,
+      confirmationEmail,
     ],
   );
   await audit(
@@ -159,6 +171,36 @@ export async function saveSubmission(
     b.submit ? "APPLICATION_SUBMITTED" : "APPLICATION_DRAFT_SAVED",
     saved.id,
   );
+  if (b.submit) {
+    const {
+      rows: [semester],
+    } = await db.query("SELECT name FROM semesters WHERE id=$1", [
+      form.semester_id,
+    ]);
+    const content = receiptContent({
+      societyName: actor.display_name,
+      formTitle: form.title,
+      semester: semester.name,
+      submissionId: saved.id,
+      submittedAt: saved.submitted_at,
+      resubmission: !!existing?.submitted_at,
+    });
+    const {
+      rows: [email],
+    } = await db.query(
+      "INSERT INTO application_emails(submission_id,submission_revision,recipient,subject,html,body) VALUES($1,$2,$3,$4,$5,$6) RETURNING id",
+      [
+        saved.id,
+        saved.revision,
+        confirmationEmail,
+        content.subject,
+        content.html,
+        content.body,
+      ],
+    );
+    saved.confirmation_email_id = email.id;
+    saved.confirmation_status = "PENDING";
+  }
   return saved;
 }
 export async function adminMutation(
@@ -170,6 +212,42 @@ export async function adminMutation(
   if (actor.role !== "admin")
     throw new AppError("SEC administrator access is required.", 403);
   switch (path) {
+    case "admin/email-retry": {
+      const b = z.object({ id: uuid }).parse(input);
+      const {
+        rows: [email],
+      } = await db.query(
+        "SELECT * FROM application_emails WHERE id=$1 FOR UPDATE",
+        [b.id],
+      );
+      if (!email) throw new AppError("Confirmation email not found.", 404);
+      if (email.status === "SENT")
+        throw new AppError("This confirmation was already sent.", 409);
+      if (
+        email.status === "SENDING" &&
+        email.lease_until &&
+        new Date(email.lease_until).getTime() > Date.now()
+      )
+        throw new AppError("This email is currently being sent.", 409);
+      if (email.attempts >= 5)
+        throw new AppError(
+          "Retry limit reached. Check the provider configuration before contacting support.",
+          409,
+        );
+      await db.query(
+        "UPDATE application_emails SET status='PENDING',lease_token=NULL,lease_until=NULL WHERE id=$1",
+        [email.id],
+      );
+      await audit(
+        db,
+        actor.id,
+        "APPLICATION_CONFIRMATION_RETRY",
+        email.submission_id,
+        { emailId: email.id },
+      );
+      return { ok: true, confirmation_email_id: email.id };
+    }
+
     case "admin/societies": {
       const b = z
         .object({

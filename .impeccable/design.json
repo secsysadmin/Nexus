@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-11-02T20:07:01.029680+00:00",
+  "generatedAt": "2026-11-02T20:27:48.236788+00:00",
   "title": "Design System: SocietyHub",
   "extensions": {
     "colorMeta": {
@@ -339,6 +339,11 @@
         "name": "reduced-motion",
         "value": "none",
         "purpose": "Disable animation and transition when reduced motion is requested."
+      },
+      {
+        "name": "auth-maroon-ribbons",
+        "value": "WebGL flowing ribbons; approximately 30fps; maximum DPR 1.5",
+        "purpose": "Decorative auth-story background only. Static frame for reduced motion; pause while hidden; CSS fallback when WebGL is unavailable or context is lost."
       }
     ],
     "breakpoints": [
@@ -380,6 +385,28 @@
         "logoWidth": "48px",
         "logoHeight": "48px"
       }
+    },
+    "authStoryBackground": {
+      "description": "The sign-in story surface adds slow, flowing maroon ribbons rendered locally with WebGL behind its content. A dark veil preserves text readability; the CSS gradient remains visible when WebGL is unavailable or its context is lost. Reduced-motion preference renders a static frame. Animation pauses while the document is hidden, runs at approximately (30fps), and caps device pixel ratio at (1.5). This decoration is pointer-inert and hidden from assistive technology; it uses no external assets. The compact mobile brand header remains the mobile composition.",
+      "fallback": "radial-gradient(ellipse at 85% 15%, #842b3f, transparent 62%), radial-gradient(ellipse at 70% 85%, #6c162a, transparent 65%), #39000b",
+      "veil": "linear-gradient(90deg, rgba(34, 0, 8, 0.58), rgba(34, 0, 8, 0.12)), linear-gradient(0deg, rgba(34, 0, 8, 0.36), transparent 50%)",
+      "headingColor": "#fff5e9",
+      "pointerEvents": "none",
+      "ariaHidden": true,
+      "externalAssets": false
+    },
+    "applicationReceipts": {
+      "description": "Application forms add a labeled confirmation-email field using the existing control style, with help text explaining the receipt destination and acceptance of an officer\u2019s personal email. Receipt status is a normal paragraph (13px), with (16px 0 22px) margins and wrapping for long addresses; written messages distinguish queued, sent, and failed delivery while confirming that a failed email leaves the application saved. SEC review offers the existing secondary-button style to retry eligible unsent receipts, disabled while busy. These additions retain the ordinary form and record hierarchy.",
+      "fieldLabel": "Confirmation email",
+      "fieldHelp": "We\u2019ll send a receipt here when you submit. An officer\u2019s personal email is fine.",
+      "inputType": "email",
+      "autoComplete": "email",
+      "statusTypography": "13px body font",
+      "statusMargin": "16px 0 22px",
+      "statusOverflowWrap": "anywhere",
+      "retryVariant": "button-secondary",
+      "retryVisibility": "Receipt exists, status is not SENT, and confirmation attempts are below 5.",
+      "retryBusyState": "disabled"
     }
   },
   "components": [

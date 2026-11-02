@@ -33,3 +33,7 @@ The original CSV remains outside the repository. `roster_candidates` stores each
 ## Verification
 
 The in-memory PostgreSQL workflow suite loads the same SQL migration as Neon and tests category rules, duplicate and revoked attendance, closed and historical windows, authorization, form versions, revision conflicts, review/resubmission, and semester history. Playwright exercises real Next.js handlers against development Neon, including simultaneous requests, SEC authorization, one-time activation, and responsive layouts. Generated fixtures and browser artifacts are excluded from production and Git.
+
+## Application email receipts
+
+Migration 002 adds the submission confirmation address and `application_emails` outbox. A submit transaction stores the exact receipt content and a unique submission/revision job. Sending starts only after the transaction commits. A lease and atomic claim exclude overlapping senders, and a sent job is never claimed again. Failures retain the submitted application and a generic delivery error for SEC retry. The transport reuses Delphi’s SES/Resend selection and MIME/throttling behavior; mail credentials live outside Git and are enabled only in Production. Receipts include application title, society name, semester, submission time, and reference; they exclude answers. A pending/failed latest receipt can be retried by SEC from the submission review screen. Society sessions cannot retry or inspect another society’s receipts.

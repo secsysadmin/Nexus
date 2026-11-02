@@ -1465,3 +1465,50 @@ td strong {
 .auth-form .auth-mark {
   margin-bottom: 28px;
 }
+
+.auth-story {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+.auth-story > :not(.maroon-ribbons) {
+  position: relative;
+  z-index: 1;
+}
+.maroon-ribbons {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse at 85% 15%, #842b3f, transparent 62%),
+    radial-gradient(ellipse at 70% 85%, #6c162a, transparent 65%), #39000b;
+}
+.maroon-ribbons canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.maroon-ribbons::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(90deg, rgba(34, 0, 8, 0.58), rgba(34, 0, 8, 0.12)),
+    linear-gradient(0deg, rgba(34, 0, 8, 0.36), transparent 50%);
+}
+.auth-story h1 {
+  color: #fff5e9;
+}
+.auth-story .auth-topics span {
+  border-color: rgba(232, 211, 199, 0.35);
+}
+.receipt-status {
+  margin: 16px 0 22px;
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+@media (prefers-reduced-motion: reduce) {
+  .maroon-ribbons canvas {
+    transition: none;
+  }
+}

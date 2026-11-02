@@ -151,7 +151,9 @@ Tables scroll within their own container, retain a (650px) minimum width, and sh
 
 Tonal layers and thin rules carry most depth. Panels remain flat, without resting shadows. A primary button hover adds a small shadow (`0 3px 8px #50000016`); the open mobile drawer uses an edge shadow (`10px 0 40px #28000033`).
 
-Panel entry uses a (0.24s) clip-and-brightness reveal with `cubic-bezier(0.16, 1, 0.3, 1)`. Navigation and button hover transitions take (0.15s); the drawer takes (0.2s). Reduced-motion preference disables animations and transitions.
+Panel entry uses a (0.24s) clip-and-brightness reveal with `cubic-bezier(0.16, 1, 0.3, 1)`. Navigation and button hover transitions take (0.15s); the drawer takes (0.2s). Reduced-motion preference disables CSS animations and transitions.
+
+The sign-in story surface adds slow, flowing maroon ribbons rendered locally with WebGL behind its content. A dark veil preserves text readability; the CSS gradient remains visible when WebGL is unavailable or its context is lost. Reduced-motion preference renders a static frame. Animation pauses while the document is hidden, runs at approximately (30fps), and caps device pixel ratio at (1.5). This decoration is pointer-inert and hidden from assistive technology; it uses no external assets. The compact mobile brand header remains the mobile composition.
 
 ## Shapes
 
@@ -168,6 +170,8 @@ Fields place a persistent label above a white control with the input-line stroke
 Navigation uses full-width rows on the maroon surface, muted pale text at rest, and a warm pale active row with maroon text. The active destination exposes `aria-current="page"`. The mobile toggle exposes `aria-expanded` and `aria-controls`; closed navigation is both translated off-screen and hidden with `visibility: hidden`, removing its controls from keyboard navigation. Opening focuses its close button. Escape, close, and destination selection close the drawer and return focus to the toggle. A skip link becomes visible on focus.
 
 Pills carry short written states with positive, pending, maroon, or neutral tones. The semester strip presents period context above the point register. Point trackers keep PRT, Standard, and High Impact separate; only PRT shows minimum progress. Lists, applications, and attendance tables use ruled rows and compact metadata.
+
+Application forms add a labeled confirmation-email field using the existing control style, with help text explaining the receipt destination and acceptance of an officer’s personal email. Receipt status is a normal paragraph (13px), with (16px 0 22px) margins and wrapping for long addresses; written messages distinguish queued, sent, and failed delivery while confirming that a failed email leaves the application saved. SEC review offers the existing secondary-button style to retry eligible unsent receipts, disabled while busy. These additions retain the ordinary form and record hierarchy.
 
 ## Do's and Don'ts
 

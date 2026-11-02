@@ -1,4 +1,5 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse, after } from "next/server";
+import { deliverApplicationEmail } from "../../../lib/email-outbox";
 import { z } from "zod";
 import { transaction, audit } from "../../../lib/db";
 import {
@@ -18,6 +19,7 @@ import {
 import { getData } from "../../../lib/data";
 import type { PoolClient } from "pg";
 export const runtime = "nodejs";
+export const maxDuration = 60;
 export const dynamic = "force-dynamic";
 const password = z.string().min(12, "Use at least 12 characters.").max(128);
 function json(body: unknown, status = 200) {
@@ -205,6 +207,21 @@ async function handle(
       if (path === "submissions/save") return saveSubmission(db, actor, body);
       return adminMutation(db, actor, path, body);
     });
+    if (
+      result?.confirmation_email_id &&
+      (path === "submissions/save" || path === "admin/email-retry")
+    ) {
+      const id = result.confirmation_email_id as string;
+      after(async () => {
+        try {
+          await deliverApplicationEmail(id);
+        } catch {
+          console.error(
+            "SocietyHub confirmation dispatch failed; receipt remains available for retry.",
+          );
+        }
+      });
+    }
     const response = json(result);
     if (path === "auth/logout" || path === "auth/password")
       response.cookies.delete(sessionCookie);
@@ -233,7 +250,7 @@ async function handle(
         );
     }
     console.error(
-      "Nexus request failed",
+      "SocietyHub request failed",
       error instanceof Error ? error.message : "Unknown error",
     );
     return json(

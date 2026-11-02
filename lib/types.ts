@@ -53,6 +53,10 @@ export type Form = {
   questions: Question[];
 };
 export type Submission = {
+  confirmation_email: string;
+  confirmation_email_id?: string;
+  confirmation_status?: "PENDING" | "SENDING" | "SENT" | "FAILED";
+  confirmation_attempts?: number;
   id: string;
   form_id: string;
   form_version: number;

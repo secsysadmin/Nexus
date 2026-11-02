@@ -317,6 +317,9 @@ test("society hub end-to-end: admin, concurrent check-in, drafts, review, QR and
     .getByLabel("What will the funding support? *", { exact: true })
     .fill("An engineering outreach workshop for our members.");
   await society
+    .getByLabel("Confirmation email")
+    .fill("officer@example.invalid");
+  await society
     .getByRole("button", { name: "Save draft", exact: true })
     .click();
   await expect(society.getByRole("status")).toContainText("Draft saved.");
@@ -326,6 +329,30 @@ test("society hub end-to-end: admin, concurrent check-in, drafts, review, QR and
   await expect(society.getByRole("status")).toContainText(
     "Application submitted.",
   );
+  await mkdir(".impeccable/review", { recursive: true });
+  await expect(
+    society.getByText(
+      "Confirmation email to officer@example.invalid is queued for sending.",
+    ),
+  ).toBeVisible();
+  await society.setViewportSize({ width: 1440, height: 1000 });
+  await society.screenshot({
+    path: ".impeccable/review/application-email-desktop.png",
+    fullPage: true,
+    animations: "disabled",
+  });
+  await society.setViewportSize({ width: 390, height: 844 });
+  expect(
+    await society.evaluate(
+      () => document.documentElement.scrollWidth <= innerWidth,
+    ),
+  ).toBe(true);
+  await society.screenshot({
+    path: ".impeccable/review/application-email-mobile.png",
+    fullPage: true,
+    animations: "disabled",
+  });
+  await society.setViewportSize({ width: 1440, height: 1000 });
   await admin
     .getByRole("button", { name: "Review queue", exact: true })
     .click();

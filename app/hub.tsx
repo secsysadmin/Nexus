@@ -30,6 +30,8 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import QRCode from "qrcode";
+import MaroonRibbons from "./maroon-ribbons";
+import { defaultConfirmationEmail } from "../lib/application-email";
 import type {
   HubData,
   Event,
@@ -1116,6 +1118,10 @@ export default function Hub() {
               <ApplicationView
                 key={application.id}
                 form={application}
+                defaultEmail={defaultConfirmationEmail(
+                  data.accounts.find((a) => a.id === data.actor.id)?.contacts ??
+                    {},
+                )}
                 existing={data.submissions.find(
                   (s) => s.form_id === application.id,
                 )}
@@ -1207,6 +1213,13 @@ export default function Hub() {
             admin &&
             (review ? (
               <ReviewView
+                retryEmail={async (id) => {
+                  await run(
+                    "admin/email-retry",
+                    { id },
+                    "Confirmation email queued for retry.",
+                  );
+                }}
                 submission={
                   data.submissions.find((s) => s.id === review.id) ?? review
                 }
@@ -1507,6 +1520,7 @@ function AuthScreen({
   return (
     <main className="auth-page">
       <section className="auth-story">
+        <MaroonRibbons />
         <a className="brand" href="/">
           <img
             src="/sec-logo.png"
@@ -2335,6 +2349,7 @@ function AnswerFields({
 }
 function ApplicationView({
   form,
+  defaultEmail,
   existing,
   admin,
   busy,
@@ -2342,12 +2357,16 @@ function ApplicationView({
   save,
 }: {
   form: Form;
+  defaultEmail: string;
   existing?: Submission;
   admin: boolean;
   busy: boolean;
   cancel: () => void;
   save: (b: unknown) => Promise<Submission | undefined>;
 }) {
+  const [confirmationEmail, setConfirmationEmail] = useState(
+    existing?.confirmation_email || defaultEmail,
+  );
   const [answers, setAnswers] = useState<Answers>(existing?.answers ?? {}),
     [revision, setRevision] = useState(existing?.revision ?? 0),
     [savedAt, setSavedAt] = useState(existing?.updated_at ?? "");
@@ -2360,7 +2379,13 @@ function ApplicationView({
     !!(existing && !["DRAFT", "CHANGES_REQUESTED"].includes(existing.status));
   const questions = existing?.questions ?? form.questions;
   const persist = async (submit: boolean) => {
-    const r = await save({ formId: form.id, answers, submit, revision });
+    const r = await save({
+      formId: form.id,
+      answers,
+      submit,
+      revision,
+      confirmationEmail,
+    });
     if (r) {
       setRevision(r.revision);
       setSavedAt(r.updated_at);
@@ -2410,6 +2435,20 @@ function ApplicationView({
           void persist(true);
         }}
       >
+        <Field
+          label="Confirmation email"
+          hint="We’ll send a receipt here when you submit. An officer’s personal email is fine."
+        >
+          <input
+            type="email"
+            autoComplete="email"
+            maxLength={254}
+            value={confirmationEmail}
+            onChange={(e) => setConfirmationEmail(e.target.value)}
+            disabled={readOnly || busy}
+          />
+        </Field>
+        <ReceiptStatus submission={existing} />
         <AnswerFields
           questions={questions}
           answers={answers}
@@ -2438,11 +2477,13 @@ function ApplicationView({
 }
 function ReviewView({
   submission: s,
+  retryEmail,
   busy,
   cancel,
   save,
 }: {
   submission: Submission;
+  retryEmail: (id: string) => Promise<void>;
   busy: boolean;
   cancel: () => void;
   save: (b: unknown) => Promise<void>;
@@ -2472,6 +2513,18 @@ function ReviewView({
           {s.submitted_at ? when(s.submitted_at) : "—"}
         </small>
       </div>
+      <ReceiptStatus submission={s} />
+      {s.confirmation_email_id &&
+        s.confirmation_status !== "SENT" &&
+        (s.confirmation_attempts ?? 0) < 5 && (
+          <Button
+            secondary
+            disabled={busy}
+            onClick={() => void retryEmail(s.confirmation_email_id!)}
+          >
+            Retry confirmation email
+          </Button>
+        )}
       <div className="review-answers">
         {s.questions.map((q) => (
           <section key={q.id}>
@@ -2863,4 +2916,17 @@ function exportCredits(credits: HubData["credits"]) {
   a.download = "society-attendance.csv";
   a.click();
   URL.revokeObjectURL(url);
+}
+
+function ReceiptStatus({ submission: s }: { submission?: Submission }) {
+  if (!s?.confirmation_status) return null;
+  return (
+    <p className="receipt-status">
+      {s.confirmation_status === "SENT"
+        ? `Confirmation email sent to ${s.confirmation_email}.`
+        : s.confirmation_status === "FAILED"
+          ? `Your application is saved. The confirmation email to ${s.confirmation_email} could not be sent; SEC can retry it.`
+          : `Confirmation email to ${s.confirmation_email} is queued for sending.`}
+    </p>
+  );
 }
