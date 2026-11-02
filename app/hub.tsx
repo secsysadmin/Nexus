@@ -3103,7 +3103,7 @@ function ApplicationView({
           >
             <Field
               label="Confirmation email"
-              hint="We’ll send a receipt here when you submit. An officer’s personal email is fine."
+              hint="We’ll send a receipt here when you submit. An officer’s personal email or a society email works."
             >
               <input
                 type="email"

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-11-02T23:44:16.576986+00:00",
+  "generatedAt": "2026-11-02T23:59:07.191185+00:00",
   "title": "Design System: SocietyHub",
   "extensions": {
     "colorMeta": {
@@ -451,7 +451,17 @@
       {
         "name": "society-greeting",
         "value": "520ms cubic-bezier(0.16, 1, 0.3, 1); 60ms word stagger capped at 600ms",
-        "purpose": "The society greeting\u2019s words are individual inline blocks that fade from opacity (0) to (1) and slide from horizontal offset (-16px) to (0) over (520ms), with `cubic-bezier(0.16, 1, 0.3, 1)` easing. Words stagger by (60ms), capped at (600ms). It plays once per authenticated session and resets on an authentication-required (401) response. Reduced-motion preference disables the greeting animation. This explicitly requested greeting motion leaves the ribbon and points ledger static."
+        "purpose": "The society greeting\u2019s words are individual inline blocks that fade from opacity (0) to (1) and slide from horizontal offset (-16px) to (0) over (520ms), with `cubic-bezier(0.16, 1, 0.3, 1)` easing. Words stagger by (60ms), capped at (600ms). It plays once per authenticated session and resets on an authentication-required (401) response. Reduced-motion preference disables the greeting animation. The login ribbon remains static; earned-share bars and the completed PRT ring use the scoped draw motion described below."
+      },
+      {
+        "name": "earned-share-bar",
+        "value": "460ms cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "Nonzero bars scaleX(0) to scaleX(1), origin left center; replay only on mount or society/semester/category-value/earned-total key changes; reduced motion shows final state."
+      },
+      {
+        "name": "prt-requirement-draw",
+        "value": "850ms cubic-bezier(0.22, 1, 0.36, 1)",
+        "purpose": "Met ring draws clockwise from top with stroke-dashoffset 100 to 0; key is society/semester/met state; no replay from a higher already-met PRT amount; reduced motion shows final state."
       }
     ],
     "breakpoints": [
@@ -524,9 +534,9 @@
       ]
     },
     "applicationReceipts": {
-      "description": "Application forms add a labeled confirmation-email field using the existing control style, with help text explaining the receipt destination and acceptance of an officer\u2019s personal email. Receipt status is a normal paragraph (13px), with (16px 0 22px) margins and wrapping for long addresses; written messages distinguish queued, sent, and failed delivery while confirming that a failed email leaves the application saved. SEC review offers the existing secondary-button style to retry eligible unsent receipts, disabled while busy. These additions retain the ordinary form and record hierarchy.",
+      "description": "Application forms add a labeled confirmation-email field using the existing control style, with help text explaining the receipt destination and acceptance of an officer\u2019s personal email or a society email. Receipt status is a normal paragraph (13px), with (16px 0 22px) margins and wrapping for long addresses; written messages distinguish queued, sent, and failed delivery while confirming that a failed email leaves the application saved. SEC review offers the existing secondary-button style to retry eligible unsent receipts, disabled while busy. These additions retain the ordinary form and record hierarchy.",
       "fieldLabel": "Confirmation email",
-      "fieldHelp": "We\u2019ll send a receipt here when you submit. An officer\u2019s personal email is fine.",
+      "fieldHelp": "We\u2019ll send a receipt here when you submit. An officer\u2019s personal email or a society email works.",
       "inputType": "email",
       "autoComplete": "email",
       "statusTypography": "13px body font",
@@ -613,7 +623,7 @@
         "countFontSize": "14px",
         "countFontWeight": 500,
         "contextRow": "Unboxed; no ribbon artwork.",
-        "motion": "Greeting words animate once per authenticated session; other dashboard visualizations and login ribbon stay static.",
+        "motion": "Greeting words animate once per authenticated session; nonzero earned-share bars and the completed PRT ring draw on mount or keyed state changes; login ribbon remains static.",
         "primaryHeaderActionPriority": [
           "Review next application: oldest pending submission",
           "Manage next event: earliest upcoming event",
@@ -674,7 +684,7 @@
       "markerLeft": "0"
     },
     "semesterPoints": {
-      "description": "Semester points is a category ledger with Category, Earned, and Minimum columns, an actual earned-total heading, and an Attendance history action. Each ruled category row has a status icon, its point rate, and a (7px) bar showing that category\u2019s share of total earned points, with no implied target. PRT uses maroon, Standard uses chart-standard rose, and High Impact uses chart-high-impact slate. Only PRT has a minimum of one point; Standard and High Impact display None. A separate (180px) ring shows the PRT requirement capped at 0 / 1 or 1 / 1, with (10px) strokes and an explicit requirement status; the ledger and accessible ring label retain the true PRT total even above one. Completed status uses semantic green. A zero total leaves all share bars empty and states that no points are recorded. Totals use only the selected society/semester\u2019s nonrevoked credits. The display has no timeline, forecast, category-filter controls, or monthly-data disclosure and adds no motion.",
+      "description": "Semester points is a category ledger with Category, Earned, and Minimum columns, an actual earned-total heading, and an Attendance history action. Each ruled category row has a status icon, its point rate, and a (7px) bar showing that category\u2019s share of total earned points, with no implied target. PRT uses maroon, Standard uses chart-standard rose, and High Impact uses chart-high-impact slate. Only PRT has a minimum of one point; Standard and High Impact display None. A separate (180px) ring shows the PRT requirement capped at 0 / 1 or 1 / 1, with (10px) strokes and an explicit requirement status; the ledger and accessible ring label retain the true PRT total even above one. Completed status uses semantic green. A zero total leaves all share bars empty and states that no points are recorded. Totals use only the selected society/semester\u2019s nonrevoked credits. The display has no timeline, forecast, category-filter controls, or monthly-data disclosure. Its nonzero share bars and completed requirement ring use a brief draw entrance while text and numbers stay constant.",
       "layout": "minmax(0, 2fr) minmax(240px, 1fr)",
       "gap": "44px",
       "requirementBorder": "1px solid var(--line)",
@@ -707,7 +717,7 @@
         "cap": 1,
         "label": "Includes capped requirement and actual PRT total."
       },
-      "motion": "none"
+      "motion": "Earned-share bars scale horizontally from (0) to (1), anchored at the left center, over (460ms) with `cubic-bezier(0.16, 1, 0.3, 1)` easing. The completed PRT ring draws clockwise from the top by changing stroke dash offset from (100) to (0) over (850ms) with `cubic-bezier(0.22, 1, 0.36, 1)` easing. These draw once on mount or when their keyed state changes: bars key society, semester, category value, and total; the ring keys society, semester, and whether the minimum is met. Increasing an already-met PRT total does not replay the ring. Zero bars and an unmet ring have no draw animation. Reduced-motion preference shows the final state immediately, with all numeric values and status text stable throughout."
     },
     "semesterPicker": {
       "description": "The semester control is a custom combobox rather than a native select. Its white trigger uses the control radius, a line border, (40px) minimum height, maroon CalendarDays/ChevronDown icons, and a pale rose Current badge. The white listbox opens (8px) below and aligns right, with (270px) minimum width, (250px) on mobile, (300px) maximum height, (6px) padding and radius, a (1px #ead4d8) border, and shadow (`0 12px 30px #29000b18`). Highlighted options use (#fcf5f5); each option shows dates, a current label when applicable, and a selected check. Arrow keys, Home/End, Enter/Space, Escape, Tab, outside pointer dismissal, and typeahead are supported. Selection restores trigger focus. The adjacent refresh action exposes the tooltip \u201cReload the latest workspace data\u201d; automatic refresh remains every (30s).",

@@ -2822,3 +2822,34 @@ td strong {
     gap: 14px;
   }
 }
+
+/* Draw earned progress once on arrival or when its value changes. */
+.points-share-fill {
+  transform-origin: left center;
+  animation: points-bar-fill 460ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.prt-ring-draw {
+  animation: prt-ring-fill 850ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes points-bar-fill {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+@keyframes prt-ring-fill {
+  from {
+    stroke-dashoffset: 100;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .points-share-fill,
+  .prt-ring-draw {
+    animation: none;
+  }
+}

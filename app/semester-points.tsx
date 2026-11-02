@@ -79,6 +79,10 @@ export default function SemesterPoints({
                     </div>
                     <div className="points-share-track" aria-hidden="true">
                       <span
+                        key={`${accountId}-${semester.id}-${category}-${totals[category]}-${total}`}
+                        className={
+                          totals[category] > 0 ? "points-share-fill" : undefined
+                        }
                         style={{
                           width: `${total ? (totals[category] / total) * 100 : 0}%`,
                           background: colors[category],
@@ -109,7 +113,8 @@ export default function SemesterPoints({
             <svg viewBox="0 0 180 180" aria-hidden="true">
               <circle className="prt-ring-track" cx="90" cy="90" r="76" />
               <circle
-                className="prt-ring-fill"
+                key={`${accountId}-${semester.id}-${met}`}
+                className={"prt-ring-fill" + (met ? " prt-ring-draw" : "")}
                 cx="90"
                 cy="90"
                 r="76"
