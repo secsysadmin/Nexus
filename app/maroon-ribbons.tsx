@@ -6,24 +6,23 @@ import { useEffect, useRef } from "react";
 const vertex = `attribute vec2 position;void main(){gl_Position=vec4(position,0.,1.);}`;
 const fragment = `precision mediump float;
 uniform vec2 resolution;uniform float time;
-vec3 ribbon(vec2 uv,float phase,float width,vec3 tint){
- float y=uv.y;float flow=time*.17+phase;
- float center=.57+.27*sin(y*3.2+flow)+.12*sin(y*6.1-flow*.6)+.18*(y-.5);
+vec4 ribbon(vec2 uv,float phase,float width,vec3 tint){
+ float y=uv.y;float flow=time*.15+phase;
+ float center=.88+.18*sin(y*3.2+flow)+.10*sin(y*5.1-flow*.6)+.08*(y-.5);
  float cross=(uv.x-center)/width;
  float edge=1.-smoothstep(.84,1.08,abs(cross));
- float turn=.5+.5*sin(cross*3.8+y*2.7+flow*.6);
- float sheen=pow(max(0.,sin(cross*3.1+y*1.5+flow)),18.);
- float filament=.5+.5*sin(cross*190.+sin(y*9.+flow)*4.);
- float shade=.42+.58*turn;
- vec3 fabric=tint*shade+vec3(.35,.13,.13)*sheen+vec3(.055,.018,.018)*filament;
- return fabric*edge;
+ float fold=.5+.5*sin(cross*3.8+y*2.7+flow*.6);
+ float sheen=pow(max(0.,sin(cross*3.1+y*1.5+flow)),14.);
+ float filament=.5+.5*sin(cross*150.+sin(y*9.+flow)*3.);
+ vec3 fabric=mix(tint,vec3(.88,.74,.78),.32*fold+.18*sheen+.035*filament);
+ return vec4(fabric,edge*.87);
 }
-void main(){vec2 uv=gl_FragCoord.xy/resolution;vec3 color=vec3(.19,.003,.018);
- color+=ribbon(uv,0.,.31,vec3(.44,.035,.082));
- color+=ribbon(uv,1.65,.23,vec3(.38,.02,.055));
- color+=ribbon(uv,3.6,.17,vec3(.47,.065,.10));
- float vignette=1.-.26*length(uv-vec2(.65,.55));
- gl_FragColor=vec4(color*vignette,1.);}`;
+void main(){vec2 uv=gl_FragCoord.xy/resolution;vec3 color=vec3(1.);
+ vec4 a=ribbon(uv,0.,.17,vec3(.31,.0,.035));
+ vec4 b=ribbon(uv,1.65,.14,vec3(.40,.065,.12));
+ vec4 c=ribbon(uv,3.6,.12,vec3(.34,.025,.08));
+ color=mix(color,a.rgb,a.a);color=mix(color,b.rgb,b.a);color=mix(color,c.rgb,c.a);
+ gl_FragColor=vec4(color,1.);}`;
 export default function MaroonRibbons() {
   const ref = useRef<HTMLCanvasElement>(null);
   useEffect(() => {

@@ -1512,3 +1512,44 @@ td strong {
     transition: none;
   }
 }
+
+/* The login is one white surface; maroon is reserved for the ribbons and actions. */
+.auth-page {
+  background: #fff;
+  --ground: #fff;
+  --line: #e5e2df;
+}
+.auth-story,
+.auth-main {
+  background: #fff;
+}
+.auth-story,
+.auth-story h1 {
+  color: var(--ink);
+}
+.auth-story .brand {
+  color: var(--maroon);
+}
+.auth-story p,
+.auth-story p.auth-footer,
+.auth-story .auth-topics {
+  color: var(--muted);
+}
+.auth-story .auth-topics span {
+  border-color: var(--line);
+}
+.maroon-ribbons {
+  background: #fff;
+}
+.maroon-ribbons::after {
+  background: linear-gradient(
+    90deg,
+    #fff 8%,
+    rgba(255, 255, 255, 0.94) 38%,
+    rgba(255, 255, 255, 0.58) 72%,
+    rgba(255, 255, 255, 0.18) 100%
+  );
+}
+.auth-page :focus-visible {
+  outline-color: #8c4658;
+}

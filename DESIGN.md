@@ -145,7 +145,7 @@ The fixed desktop sidebar is (244px) wide; the main region offsets by the same a
 
 At (1150px) and below, the sidebar becomes (215px), the main offset matches, content uses tablet insets, and the overview grid becomes one column. At (760px) and below, a (260px) navigation drawer replaces the sidebar, the main offset clears, and a sticky (65px) top bar carries the labeled menu control. Content uses mobile insets, panels use (20px 18px), point trackers become stacked rows, and forms become one column. At (1600px) and above, content top padding becomes (52px).
 
-Tables scroll within their own container, retain a (650px) minimum width, and show a horizontal-scroll instruction on mobile. Long record names wrap. Login uses a maroon story region beside the form on desktop and a compact brand header above the form on mobile.
+Tables scroll within their own container, retain a (650px) minimum width, and show a horizontal-scroll instruction on mobile. Long record names wrap. Login uses two white regions for the story and form on desktop and a compact white brand header above the form on mobile.
 
 ## Elevation & Depth
 
@@ -153,7 +153,7 @@ Tonal layers and thin rules carry most depth. Panels remain flat, without restin
 
 Panel entry uses a (0.24s) clip-and-brightness reveal with `cubic-bezier(0.16, 1, 0.3, 1)`. Navigation and button hover transitions take (0.15s); the drawer takes (0.2s). Reduced-motion preference disables CSS animations and transitions.
 
-The sign-in story surface adds slow, flowing maroon ribbons rendered locally with WebGL behind its content. A dark veil preserves text readability; the CSS gradient remains visible when WebGL is unavailable or its context is lost. Reduced-motion preference renders a static frame. Animation pauses while the document is hidden, runs at approximately (30fps), and caps device pixel ratio at (1.5). This decoration is pointer-inert and hidden from assistive technology; it uses no external assets. The compact mobile brand header remains the mobile composition.
+The user-pinned sign-in foundation is white (#ffffff) across the page, story, form region, and ribbon background. Slow, flowing maroon ribbons render locally with WebGL over a white shader base, using color mixing for soft fabric shading. A white readability veil preserves dark-ink headings and muted body copy; the brand remains maroon. The fallback is solid white when WebGL is unavailable or its context is lost. Reduced-motion preference renders a static frame. Animation pauses while the document is hidden, runs at approximately (30fps), and caps device pixel ratio at (1.5). This decoration is pointer-inert and hidden from assistive technology; it uses no external assets. The compact mobile white brand header remains the mobile composition. Login locally uses white ground, pale rules (#e5e2df), and a muted maroon focus outline (#8c4658); authenticated workspace tokens retain their warm surfaces.
 
 ## Shapes
 

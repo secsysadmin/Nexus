@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-11-02T20:27:48.236788+00:00",
+  "generatedAt": "2026-11-02T20:34:53.708190+00:00",
   "title": "Design System: SocietyHub",
   "extensions": {
     "colorMeta": {
@@ -387,13 +387,20 @@
       }
     },
     "authStoryBackground": {
-      "description": "The sign-in story surface adds slow, flowing maroon ribbons rendered locally with WebGL behind its content. A dark veil preserves text readability; the CSS gradient remains visible when WebGL is unavailable or its context is lost. Reduced-motion preference renders a static frame. Animation pauses while the document is hidden, runs at approximately (30fps), and caps device pixel ratio at (1.5). This decoration is pointer-inert and hidden from assistive technology; it uses no external assets. The compact mobile brand header remains the mobile composition.",
-      "fallback": "radial-gradient(ellipse at 85% 15%, #842b3f, transparent 62%), radial-gradient(ellipse at 70% 85%, #6c162a, transparent 65%), #39000b",
-      "veil": "linear-gradient(90deg, rgba(34, 0, 8, 0.58), rgba(34, 0, 8, 0.12)), linear-gradient(0deg, rgba(34, 0, 8, 0.36), transparent 50%)",
-      "headingColor": "#fff5e9",
+      "description": "The user-pinned sign-in foundation is white (#ffffff) across the page, story, form region, and ribbon background. Slow, flowing maroon ribbons render locally with WebGL over a white shader base, using color mixing for soft fabric shading. A white readability veil preserves dark-ink headings and muted body copy; the brand remains maroon. The fallback is solid white when WebGL is unavailable or its context is lost. Reduced-motion preference renders a static frame. Animation pauses while the document is hidden, runs at approximately (30fps), and caps device pixel ratio at (1.5). This decoration is pointer-inert and hidden from assistive technology; it uses no external assets. The compact mobile white brand header remains the mobile composition. Login locally uses white ground, pale rules (#e5e2df), and a muted maroon focus outline (#8c4658); authenticated workspace tokens retain their warm surfaces.",
+      "fallback": "#ffffff",
+      "veil": "linear-gradient(90deg, #fff 8%, rgba(255, 255, 255, 0.94) 38%, rgba(255, 255, 255, 0.58) 72%, rgba(255, 255, 255, 0.18) 100%)",
+      "headingColor": "var(--ink)",
       "pointerEvents": "none",
       "ariaHidden": true,
-      "externalAssets": false
+      "externalAssets": false,
+      "surfaceColor": "#ffffff",
+      "bodyColor": "var(--muted)",
+      "brandColor": "var(--maroon)",
+      "focusColor": "#8c4658",
+      "lineColor": "#e5e2df",
+      "shaderBase": "vec3(1.)",
+      "shaderComposition": "Mix soft maroon fabric ribbons over white; no additive glow or dark vignette."
     },
     "applicationReceipts": {
       "description": "Application forms add a labeled confirmation-email field using the existing control style, with help text explaining the receipt destination and acceptance of an officer\u2019s personal email. Receipt status is a normal paragraph (13px), with (16px 0 22px) margins and wrapping for long addresses; written messages distinguish queued, sent, and failed delivery while confirming that a failed email leaves the application saved. SEC review offers the existing secondary-button style to retry eligible unsent receipts, disabled while busy. These additions retain the ordinary form and record hierarchy.",
