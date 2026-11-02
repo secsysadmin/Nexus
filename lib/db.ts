@@ -2,10 +2,11 @@ import pg, { type PoolClient } from "pg";
 import { resolveEnvironment } from "./domain";
 const globalDb = globalThis as unknown as { nexusPool?: pg.Pool };
 function pool() {
-  if (!process.env.DATABASE_URL)
+  const connectionString = process.env.NEXUS_DATABASE_URL || process.env.DATABASE_URL;
+  if (!connectionString)
     throw new Error("Database is not configured. See README setup.");
   return (globalDb.nexusPool ??= new pg.Pool({
-    connectionString: process.env.DATABASE_URL,
+    connectionString,
     max: 2,
     idleTimeoutMillis: 10000,
     connectionTimeoutMillis: 10000,
