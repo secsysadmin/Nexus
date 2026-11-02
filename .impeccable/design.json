@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-11-02T23:06:10.686052+00:00",
+  "generatedAt": "2026-11-02T23:17:04.223123+00:00",
   "title": "Design System: SocietyHub",
   "extensions": {
     "colorMeta": {
@@ -486,8 +486,7 @@
       }
     },
     "authStoryBackground": {
-      "description": "The user-pinned sign-in foundation is white (#ffffff) across the page, story, form region, and decorative background, retaining the desktop left/right split. Static maroon ribbon artwork uses broad, overlapping fabric curves from the SEC reference, served locally as `public/society-ribbon.svg`. Its source is `https://ragnarok-flame-iota.vercel.app/brand/sign-in-ribbon.svg`; the local adaptation uses a (720 \u00d7 900) viewBox with `translate(-250 0) scale(.9 1)` to fit the story region. A white readability veil preserves dark-ink headings and muted body copy; the brand remains maroon. The decoration is a static image, pointer-inert and hidden from assistive technology, with no animation or client rendering loop and no runtime external asset request. The compact mobile white brand header remains the mobile composition. The authenticated workspace continues the same white foundation, pale rules, and muted maroon focus outline. A right-edge mask (`linear-gradient(90deg, #000 82%, transparent 100%)`) softly fades the artwork into the white split instead of ending at a hard cutoff.",
-      "veil": "linear-gradient(90deg, #fff 38%, rgba(255, 255, 255, 0.94) 60%, rgba(255, 255, 255, 0.65) 72%, rgba(255, 255, 255, 0) 94%)",
+      "description": "The user-pinned sign-in foundation is white (#ffffff), with equal desktop design/form columns. The static maroon artwork retains the SEC reference geometry, served locally as `public/society-ribbon.svg` from `https://ragnarok-flame-iota.vercel.app/brand/sign-in-ribbon.svg`. Its centered framing uses viewBox `480 -100 1060 1120` and `xMidYMid meet`, with no artwork transform. The image is contained at opacity (0.88), inset (124px 7% 132px) within the left panel. A vertical mask (`linear-gradient(180deg, transparent, #000 12%, #000 85%, transparent)`) fades both ends; no readability veil or right-edge fade is used. The decorative image is pointer-inert, hidden from assistive technology, and has no animation, client rendering loop, or runtime external request. The panel contains only its top brand, artwork, and bottom description, \u201cThe home for Texas A&M engineering societies and SEC.\u201d Mobile hides the artwork and description, retaining a compact brand header and bottom divider. The authenticated workspace keeps the same white foundation, pale rules, and muted maroon focus outline.",
       "headingColor": "var(--ink)",
       "pointerEvents": "none",
       "ariaHidden": true,
@@ -498,14 +497,16 @@
       "focusColor": "#8c4658",
       "lineColor": "#e5e2df",
       "renderer": "Static local SVG image",
-      "viewBox": "0 0 720 900",
+      "viewBox": "480 -100 1060 1120",
       "animation": "none",
       "asset": "public/society-ribbon.svg",
       "sourceAsset": "https://ragnarok-flame-iota.vercel.app/brand/sign-in-ribbon.svg",
-      "artworkTransform": "translate(-250 0) scale(.9 1)",
-      "headingFontSize": "clamp(36px, 3.6vw, 56px)",
-      "headingMaxWidth": "480px",
-      "maskImage": "linear-gradient(90deg, #000 82%, transparent 100%)"
+      "maskImage": "linear-gradient(180deg, transparent, #000 12%, #000 85%, transparent)",
+      "preserveAspectRatio": "xMidYMid meet",
+      "imageObjectFit": "contain",
+      "imageOpacity": 0.88,
+      "inset": "124px 7% 132px",
+      "mobileVisibility": "hidden at 760px and below"
     },
     "applicationReceipts": {
       "description": "Application forms add a labeled confirmation-email field using the existing control style, with help text explaining the receipt destination and acceptance of an officer\u2019s personal email. Receipt status is a normal paragraph (13px), with (16px 0 22px) margins and wrapping for long addresses; written messages distinguish queued, sent, and failed delivery while confirming that a failed email leaves the application saved. SEC review offers the existing secondary-button style to retry eligible unsent receipts, disabled while busy. These additions retain the ordinary form and record hierarchy.",
@@ -605,7 +606,7 @@
       }
     },
     "loginHelp": {
-      "description": "The login combines account setup and password-reset help in one pale rose card (#fcf5f5) with a (1px #ead4d8) border, the input-matching (6px) radius, (18px) padding, and a (32px minmax(0, 1fr)) grid with a (12px) gap. A maroon KeyRound icon (17px) sits in a white circular holder (32px). The bold title and body are (12px); body margins are (7px 0 10px). The \u201cContact an SEC chair\u201d action is maroon (12px, weight 650), with an ArrowRight icon, (8px) gap, and (36px) minimum height; hover underlines the label. Its mail link targets `society@sec.tamu.edu` with subject \u201cSocietyHub account help.\u201d Story topic rows use ink (13px, weight 500), a (10px) flex gap, and maroon FileText, CalendarDays, and Users icons (17px). Autofilled sign-in inputs retain white fill with a (1000px) inset white shadow, ink text and text fill, and a maroon caret through `:is(:autofill, :-webkit-autofill)`.",
+      "description": "The login combines account setup and password-reset help in one pale rose card (#fcf5f5) with a (1px #ead4d8) border, the input-matching (6px) radius, (18px) padding, and a (32px minmax(0, 1fr)) grid with a (12px) gap. A maroon KeyRound icon (17px) sits in a white circular holder (32px). The bold title and body are (12px); body margins are (7px 0 10px). The \u201cContact an SEC chair\u201d action is maroon (12px, weight 650), with an ArrowRight icon, (8px) gap, and (36px) minimum height; hover underlines the label. Its mail link targets `society@sec.tamu.edu` with subject \u201cSocietyHub account help.\u201d Autofilled sign-in inputs retain white fill with a (1000px) inset white shadow, ink text and text fill, and a maroon caret through `:is(:autofill, :-webkit-autofill)`.",
       "background": "#fcf5f5",
       "border": "1px solid #ead4d8",
       "radius": "6px",
@@ -637,20 +638,6 @@
         "minHeight": "36px",
         "hover": "underline"
       }
-    },
-    "loginTopics": {
-      "fontSize": "13px",
-      "fontWeight": 500,
-      "color": "var(--ink)",
-      "display": "flex",
-      "gap": "10px",
-      "icons": [
-        "FileText",
-        "CalendarDays",
-        "Users"
-      ],
-      "iconSize": "17px",
-      "iconColor": "var(--maroon)"
     },
     "loginAutofill": {
       "selector": ".auth-form input:is(:autofill, :-webkit-autofill)",
@@ -769,6 +756,35 @@
       "light": "#ffffff",
       "downloadLabel": "Download PNG",
       "linkBinding": "Current check-in link only; invalidate outdated image."
+    },
+    "loginLayout": {
+      "description": "Login uses equal white columns separated by a thin vertical rule. The left design panel has (48px 56px) padding, its SEC/SocietyHub brand at the top, centered contained artwork, and a short centered description at the bottom (14px, maximum 34ch). The form column uses (64px clamp(40px, 7vw, 112px)) padding and a (400px) form maximum width. At (760px) and below, art and description are hidden, leaving a compact brand header with (25px 24px) padding and a bottom divider; the form uses (36px 24px) padding and a (440px) maximum width.",
+      "columns": "1fr 1fr",
+      "divider": "1px solid var(--line)",
+      "designPanelPadding": "48px 56px",
+      "descriptionText": "The home for Texas A&M engineering societies and SEC.",
+      "descriptionFontSize": "14px",
+      "descriptionMaxWidth": "34ch",
+      "descriptionAlign": "center",
+      "formColumnPadding": "64px clamp(40px, 7vw, 112px)",
+      "formMaxWidth": "400px",
+      "primaryHeading": {
+        "element": "h1",
+        "fontSize": "28px",
+        "mobileFontSize": "26px",
+        "letterSpacing": "-0.03em",
+        "lineHeight": 1.25,
+        "margin": "0 0 14px"
+      },
+      "mobile": {
+        "maxWidth": "760px",
+        "columns": "1fr",
+        "artAndDescription": "hidden",
+        "brandPadding": "25px 24px",
+        "brandBorderBottom": "1px solid var(--line)",
+        "formPadding": "36px 24px",
+        "formMaxWidth": "440px"
+      }
     }
   },
   "components": [

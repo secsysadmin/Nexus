@@ -986,28 +986,10 @@ summary {
 .auth-story > .brand {
   padding: 0;
 }
-.auth-story h1 {
-  font-size: clamp(36px, 4.4vw, 66px);
-  line-height: 1.15;
-  letter-spacing: -0.04em;
-  margin: 60px 0 24px;
-}
 .auth-story p {
   color: #dfc7bd;
   font-size: 16px;
   max-width: 38ch;
-}
-.auth-topics {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  margin-top: 42px;
-  font-size: 12px;
-  color: #e8d3c7;
-}
-.auth-topics span {
-  border-bottom: 1px solid #814c46;
-  padding-bottom: 14px;
 }
 .auth-story p.auth-footer {
   font-size: 11px;
@@ -1026,7 +1008,7 @@ summary {
   width: 100%;
   max-width: 380px;
 }
-.auth-form h2 {
+.auth-form h1 {
   font-size: 28px;
   letter-spacing: -0.03em;
   line-height: 1.25;
@@ -1350,7 +1332,7 @@ td strong {
     align-items: flex-start;
     min-height: calc(100dvh - 100px);
   }
-  .auth-form h2 {
+  .auth-form h1 {
     font-size: 26px;
   }
   .auth-form {
@@ -1508,23 +1490,14 @@ td strong {
 .auth-main {
   background: #fff;
 }
-.auth-story,
-.auth-story h1 {
+.auth-story {
   color: var(--ink);
 }
 .auth-story .brand {
   color: var(--maroon);
 }
-.auth-story p,
-.auth-story p.auth-footer,
-.auth-story .auth-topics {
+.auth-story p {
   color: var(--muted);
-}
-.auth-story .auth-topics span {
-  border-color: var(--line);
-}
-.maroon-ribbons {
-  background: #fff;
 }
 .maroon-ribbons::after {
   content: "";
@@ -1540,12 +1513,6 @@ td strong {
 }
 .auth-page :focus-visible {
   outline-color: #8c4658;
-}
-
-/* Keep the message clear of the reference ribbon's broad outer curve. */
-.auth-story h1 {
-  max-width: 480px;
-  font-size: clamp(36px, 3.6vw, 56px);
 }
 
 /* Shared white and maroon workspace, continuing the sign-in surface. */
@@ -1602,21 +1569,7 @@ td strong {
   caret-color: var(--maroon);
   box-shadow: 0 0 0 1000px #fff inset;
 }
-.auth-story .auth-topics {
-  color: var(--ink);
-  font-size: 13px;
-  font-weight: 500;
-}
-.auth-topics span {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.auth-topics svg {
-  color: var(--maroon);
-  flex-shrink: 0;
-}
-.maroon-ribbons {
+.auth-story .maroon-ribbons {
   -webkit-mask-image: linear-gradient(90deg, #000 82%, transparent 100%);
   mask-image: linear-gradient(90deg, #000 82%, transparent 100%);
 }
@@ -2311,5 +2264,73 @@ td strong {
   .calendar-day-details .record {
     flex-direction: column;
     align-items: flex-start;
+  }
+}
+
+/* A quiet design panel, separated from the sign-in workspace. */
+.auth-page {
+  grid-template-columns: 1fr 1fr;
+}
+.auth-story {
+  padding: 48px 56px;
+  border-right: 1px solid var(--line);
+}
+.auth-story .maroon-ribbons {
+  inset: 124px 7% 132px;
+  background: transparent;
+  -webkit-mask-image: linear-gradient(
+    180deg,
+    transparent,
+    #000 12%,
+    #000 85%,
+    transparent
+  );
+  mask-image: linear-gradient(
+    180deg,
+    transparent,
+    #000 12%,
+    #000 85%,
+    transparent
+  );
+}
+.auth-story .maroon-ribbons::after {
+  content: none;
+}
+.auth-story .maroon-ribbons img {
+  object-fit: contain;
+  opacity: 0.88;
+}
+.auth-story p.auth-description {
+  align-self: center;
+  text-align: center;
+  font-size: 14px;
+  max-width: 34ch;
+  color: var(--muted);
+  margin: 0;
+}
+.auth-main {
+  padding: 64px clamp(40px, 7vw, 112px);
+}
+.auth-form {
+  max-width: 400px;
+}
+@media (max-width: 760px) {
+  .auth-page {
+    grid-template-columns: 1fr;
+  }
+  .auth-story {
+    min-height: 0;
+    padding: 25px 24px;
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .auth-story .auth-description {
+    display: none;
+  }
+  .auth-main {
+    padding: 36px 24px;
+  }
+  .auth-form {
+    max-width: 440px;
   }
 }

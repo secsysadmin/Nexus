@@ -1903,44 +1903,19 @@ function AuthScreen({
           />
           <span>SocietyHub</span>
         </a>
-        <div>
-          <h1>
-            Engineering is better
-            <br />
-            together.
-          </h1>
-          <p>
-            The shared home for Texas A&M’s engineering societies and the
-            Student Engineers’ Council.
-          </p>
-          <div className="auth-topics">
-            <span>
-              <FileText size={17} aria-hidden="true" />
-              Society funding
-            </span>
-            <span>
-              <CalendarDays size={17} aria-hidden="true" />
-              Event check-in
-            </span>
-            <span>
-              <Users size={17} aria-hidden="true" />
-              Cross-collaboration
-            </span>
-          </div>
-        </div>
-        <p className="auth-footer">
-          Built around your society. Connected through SEC.
+        <p className="auth-description">
+          The home for Texas A&M engineering societies and SEC.
         </p>
       </section>
       <section className="auth-main">
         <div className="auth-form">
-          <h2>
+          <h1>
             {activate
               ? "Set your account password"
               : checkin
                 ? "Sign in to check in"
                 : "Welcome to SocietyHub"}
-          </h2>
+          </h1>
           <p>
             {activate
               ? "Your society can share this password with its authorized officers."
