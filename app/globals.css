@@ -1040,21 +1040,44 @@ summary {
   width: 100%;
   margin-top: 5px;
 }
-.auth-mark {
-  color: var(--maroon);
-  margin-bottom: 28px;
-}
 .auth-help {
-  border-top: 1px solid var(--line);
-  padding-top: 24px;
-  margin-top: 32px;
+  display: grid;
+  grid-template-columns: 32px minmax(0, 1fr);
+  gap: 12px;
+  background: #fcf5f5;
+  border: 1px solid #ead4d8;
+  border-radius: 6px;
+  padding: 18px;
+  margin-top: 28px;
 }
 .auth-help strong {
   font-size: 12px;
 }
 .auth-help p {
   font-size: 12px;
-  margin: 7px 0 0;
+  margin: 7px 0 10px;
+}
+.auth-help-icon {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #fff;
+  color: var(--maroon);
+}
+.auth-help-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 36px;
+  color: var(--maroon);
+  font-size: 12px;
+  font-weight: 650;
+  text-decoration: none;
+}
+.auth-help-action:hover {
+  text-decoration: underline;
 }
 .sr-only {
   position: absolute;
@@ -1327,9 +1350,6 @@ td strong {
     align-items: flex-start;
     min-height: calc(100dvh - 100px);
   }
-  .auth-mark {
-    display: none;
-  }
   .auth-form h2 {
     font-size: 26px;
   }
@@ -1450,9 +1470,6 @@ td strong {
 }
 .auth-story .brand {
   gap: 14px;
-}
-.auth-form .auth-mark {
-  margin-bottom: 28px;
 }
 
 .auth-story {
@@ -1575,4 +1592,31 @@ td strong {
     flex-direction: column;
     gap: 8px;
   }
+}
+
+/* Preserve the white sign-in fields when browsers fill saved credentials. */
+.auth-form input:is(:autofill, :-webkit-autofill) {
+  background-color: #fff !important;
+  color: var(--ink) !important;
+  -webkit-text-fill-color: var(--ink);
+  caret-color: var(--maroon);
+  box-shadow: 0 0 0 1000px #fff inset;
+}
+.auth-story .auth-topics {
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 500;
+}
+.auth-topics span {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.auth-topics svg {
+  color: var(--maroon);
+  flex-shrink: 0;
+}
+.maroon-ribbons {
+  -webkit-mask-image: linear-gradient(90deg, #000 82%, transparent 100%);
+  mask-image: linear-gradient(90deg, #000 82%, transparent 100%);
 }

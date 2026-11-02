@@ -28,6 +28,7 @@ import {
   Menu,
   X,
   ShieldCheck,
+  KeyRound,
 } from "lucide-react";
 import QRCode from "qrcode";
 import MaroonRibbons from "./maroon-ribbons";
@@ -1777,9 +1778,18 @@ function AuthScreen({
             Student Engineers’ Council.
           </p>
           <div className="auth-topics">
-            <span>Society funding</span>
-            <span>Event check-in</span>
-            <span>Cross-collaboration</span>
+            <span>
+              <FileText size={17} aria-hidden="true" />
+              Society funding
+            </span>
+            <span>
+              <CalendarDays size={17} aria-hidden="true" />
+              Event check-in
+            </span>
+            <span>
+              <Users size={17} aria-hidden="true" />
+              Cross-collaboration
+            </span>
           </div>
         </div>
         <p className="auth-footer">
@@ -1788,13 +1798,6 @@ function AuthScreen({
       </section>
       <section className="auth-main">
         <div className="auth-form">
-          <img
-            src="/sec-logo.png"
-            alt="Student Engineers’ Council"
-            width={48}
-            height={48}
-            className="auth-mark brand-logo"
-          />
           <h2>
             {activate
               ? "Set your account password"
@@ -1875,15 +1878,23 @@ function AuthScreen({
             </Button>
           </form>
           <div className="auth-help">
-            <strong>
-              {activate
-                ? "Link not working?"
-                : "New society or forgot your password?"}
-            </strong>
-            <p>
-              Ask an SEC chair for a one-time account setup or password reset
-              link.
-            </p>
+            <span className="auth-help-icon" aria-hidden="true">
+              <KeyRound size={17} />
+            </span>
+            <div>
+              <strong>
+                {activate
+                  ? "Link not working?"
+                  : "New society or forgot your password?"}
+              </strong>
+              <p>Request a one-time setup or password reset link.</p>
+              <a
+                className="auth-help-action"
+                href="mailto:society@sec.tamu.edu?subject=SocietyHub%20account%20help"
+              >
+                Contact an SEC chair <ArrowRight size={17} aria-hidden="true" />
+              </a>
+            </div>
           </div>
         </div>
       </section>
