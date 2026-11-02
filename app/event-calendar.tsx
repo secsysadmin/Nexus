@@ -7,6 +7,7 @@ import {
   calendarDays,
   centralDay,
   calendarEvents,
+  calendarWeekSpans,
   shiftDay,
   shiftMonth,
 } from "../lib/event-calendar";
@@ -112,8 +113,8 @@ export default function EventCalendar({
         </div>
       </div>
       <p className="section-intro">
-        Select a day to see events and their check-in windows. Dates and times
-        use Central time.
+        Bars span each event’s check-in window. Select any day for details.
+        Dates and times use Central time.
       </p>
       <div
         className="calendar-grid"
@@ -127,79 +128,101 @@ export default function EventCalendar({
             </div>
           ))}
         </div>
-        {Array.from({ length: days.length / 7 }, (_, week) => (
-          <div className="calendar-week" role="row" key={week}>
-            {days.slice(week * 7, week * 7 + 7).map((day, i) => {
-              const found = day ? onDay(day) : [];
-              return (
-                <div
-                  className={"calendar-cell" + (!day ? " outside" : "")}
-                  role="gridcell"
-                  aria-selected={day === selected}
-                  key={day ?? i}
-                >
-                  {day && (
-                    <button
-                      id={id + "-" + day}
-                      className={
-                        "calendar-day" + (day === selected ? " selected" : "")
-                      }
-                      tabIndex={day === selected ? 0 : -1}
-                      aria-label={`${fullDate(day)}, ${found.length} ${found.length === 1 ? "event" : "events"}`}
-                      aria-current={day === today ? "date" : undefined}
-                      onClick={() => setSelected(day)}
-                      onKeyDown={(e) => {
-                        const offset = (
-                          {
-                            ArrowLeft: -1,
-                            ArrowRight: 1,
-                            ArrowUp: -7,
-                            ArrowDown: 7,
-                          } as Record<string, number>
-                        )[e.key];
-                        if (offset) {
-                          e.preventDefault();
-                          move(shiftDay(day, offset), true);
-                        } else if (e.key === "Home" || e.key === "End") {
-                          e.preventDefault();
-                          const dow = new Date(day + "T12:00:00Z").getUTCDay();
-                          move(
-                            shiftDay(day, e.key === "Home" ? -dow : 6 - dow),
-                            true,
-                          );
+        {Array.from({ length: days.length / 7 }, (_, week) => {
+          const weekDays = days.slice(week * 7, week * 7 + 7);
+          const spans = calendarWeekSpans(events, weekDays);
+          const laneCount = Math.max(0, ...spans.map((s) => s.lane + 1));
+          return (
+            <div
+              className="calendar-week"
+              role="row"
+              key={week}
+              style={{ minHeight: Math.max(96, 44 + laneCount * 26) }}
+            >
+              {days.slice(week * 7, week * 7 + 7).map((day, i) => {
+                const found = day ? onDay(day) : [];
+                return (
+                  <div
+                    className={"calendar-cell" + (!day ? " outside" : "")}
+                    role="gridcell"
+                    aria-selected={day === selected}
+                    key={day ?? i}
+                  >
+                    {day && (
+                      <button
+                        id={id + "-" + day}
+                        className={
+                          "calendar-day" + (day === selected ? " selected" : "")
                         }
+                        tabIndex={day === selected ? 0 : -1}
+                        aria-label={`${fullDate(day)}, ${found.length} ${found.length === 1 ? "event" : "events"}`}
+                        aria-current={day === today ? "date" : undefined}
+                        onClick={() => setSelected(day)}
+                        onKeyDown={(e) => {
+                          const offset = (
+                            {
+                              ArrowLeft: -1,
+                              ArrowRight: 1,
+                              ArrowUp: -7,
+                              ArrowDown: 7,
+                            } as Record<string, number>
+                          )[e.key];
+                          if (offset) {
+                            e.preventDefault();
+                            move(shiftDay(day, offset), true);
+                          } else if (e.key === "Home" || e.key === "End") {
+                            e.preventDefault();
+                            const dow = new Date(
+                              day + "T12:00:00Z",
+                            ).getUTCDay();
+                            move(
+                              shiftDay(day, e.key === "Home" ? -dow : 6 - dow),
+                              true,
+                            );
+                          }
+                        }}
+                      >
+                        <span className="calendar-date">
+                          {Number(day.slice(-2))}
+                        </span>
+                      </button>
+                    )}
+                  </div>
+                );
+              })}
+              <div className="calendar-spans" aria-hidden="true">
+                {spans.map(
+                  ({
+                    event,
+                    startColumn,
+                    endColumn,
+                    lane,
+                    continuesBefore,
+                    continuesAfter,
+                  }) => (
+                    <div
+                      key={event.id}
+                      className={
+                        "calendar-span category-" +
+                        event.category.toLowerCase() +
+                        (continuesBefore ? " continues-before" : "") +
+                        (continuesAfter ? " continues-after" : "")
+                      }
+                      style={{
+                        gridColumn: `${startColumn + 1} / ${endColumn + 2}`,
+                        gridRow: lane + 1,
                       }}
                     >
-                      <span className="calendar-date">
-                        {Number(day.slice(-2))}
-                      </span>
-                      <span
-                        className="calendar-event-markers"
-                        aria-hidden="true"
-                      >
-                        {found.slice(0, 2).map((event) => (
-                          <span
-                            className={
-                              "calendar-event category-" +
-                              event.category.toLowerCase()
-                            }
-                            key={event.id}
-                          >
-                            <i />
-                            <span>{event.name}</span>
-                          </span>
-                        ))}
-                        {found.length > 2 && (
-                          <small>+{found.length - 2} more</small>
-                        )}
-                      </span>
-                    </button>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        ))}
+                      {continuesBefore && <ChevronLeft size={12} />}
+                      <span>{event.name}</span>
+                      {continuesAfter && <ChevronRight size={12} />}
+                    </div>
+                  ),
+                )}
+              </div>
+            </div>
+          );
+        })}
       </div>
       <div className="calendar-legend">
         {["PRT", "STANDARD", "HIGH_IMPACT"].map((c) => (

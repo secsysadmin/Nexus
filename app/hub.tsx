@@ -455,7 +455,7 @@ export default function Hub() {
     );
   const dashboard = dashboardItems(data, semester, Date.now());
   const title: Record<string, string> = {
-    overview: admin ? "SEC dashboard" : `Hello ${data.actor.display_name}`,
+    overview: admin ? "SEC dashboard" : `Hello, ${data.actor.display_name}`,
     events: "Events & check-in",
     applications: "Applications",
     activity: "Attendance & points",
@@ -1198,28 +1198,29 @@ export default function Hub() {
               />
             ) : (
               <>
+                <div className="events-view-toolbar">
+                  <span>View events</span>
+                  <div
+                    className="view-switch"
+                    role="group"
+                    aria-label="Event view"
+                  >
+                    <button
+                      aria-pressed={eventsView === "list"}
+                      onClick={() => setEventsView("list")}
+                    >
+                      List
+                    </button>
+                    <button
+                      aria-pressed={eventsView === "calendar"}
+                      onClick={() => setEventsView("calendar")}
+                    >
+                      Calendar
+                    </button>
+                  </div>
+                </div>
                 <Panel
                   title={admin ? "Semester events" : "Events this semester"}
-                  action={
-                    <div
-                      className="view-switch"
-                      role="group"
-                      aria-label="Event view"
-                    >
-                      <button
-                        aria-pressed={eventsView === "list"}
-                        onClick={() => setEventsView("list")}
-                      >
-                        List
-                      </button>
-                      <button
-                        aria-pressed={eventsView === "calendar"}
-                        onClick={() => setEventsView("calendar")}
-                      >
-                        Calendar
-                      </button>
-                    </div>
-                  }
                 >
                   {eventsView === "calendar" && current ? (
                     <EventCalendar
@@ -1285,8 +1286,9 @@ export default function Hub() {
                                   >
                                     QR & link
                                   </Button>
-                                  <Button
-                                    secondary
+                                  <button
+                                    className="event-checkin-toggle"
+                                    aria-pressed={e.checkin_open}
                                     disabled={busy}
                                     onClick={() =>
                                       void run(
@@ -1301,7 +1303,7 @@ export default function Hub() {
                                     {e.checkin_open
                                       ? "Close check-in"
                                       : "Open check-in"}
-                                  </Button>
+                                  </button>
                                 </>
                               )}
                             </div>
@@ -1324,14 +1326,16 @@ export default function Hub() {
                     }
                     close={() => setQrEvent(null)}
                     rotate={async () => {
-                      await run(
-                        "admin/event-checkin",
-                        {
-                          id: qrEvent.id,
-                          open: qrEvent.checkin_open,
-                          rotate: true,
-                        },
-                        "A new check-in link was generated. Previous links no longer work.",
+                      return Boolean(
+                        await run(
+                          "admin/event-checkin",
+                          {
+                            id: qrEvent.id,
+                            open: qrEvent.checkin_open,
+                            rotate: true,
+                          },
+                          "A new check-in link was generated. Previous links no longer work.",
+                        ),
                       );
                     }}
                     busy={busy}
@@ -2188,11 +2192,28 @@ function QRPanel({
 }: {
   event: Event;
   close: () => void;
-  rotate: () => Promise<void>;
+  rotate: () => Promise<boolean>;
   busy: boolean;
 }) {
+  const dialog = useRef<HTMLDialogElement>(null);
+  useEffect(() => {
+    const opener = document.activeElement as HTMLElement | null;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const modal = dialog.current;
+    modal?.showModal();
+    return () => {
+      modal?.close();
+      document.body.style.overflow = previousOverflow;
+      if (opener?.isConnected) opener.focus({ preventScroll: true });
+    };
+  }, []);
   const [qr, setQr] = useState<{ link: string; src: string } | null>(null),
-    [error, setError] = useState("");
+    [error, setError] = useState(""),
+    [replacement, setReplacement] = useState<{
+      ok: boolean;
+      message: string;
+    } | null>(null);
   const link = `${window.location.origin}/checkin/${event.id}?token=${event.checkin_token}`;
   const src = qr?.link === link ? qr.src : "";
   const filename = `${
@@ -2226,61 +2247,117 @@ function QRPanel({
     };
   }, [link]);
   return (
-    <Panel
-      title={`Check-in · ${event.name}`}
-      action={
-        <button
-          className="icon-button"
-          onClick={close}
-          aria-label="Close QR panel"
-        >
-          <X />
-        </button>
-      }
+    <dialog
+      ref={dialog}
+      className="qr-modal"
+      onKeyDown={(e) => {
+        if (e.key !== "Tab") return;
+        const controls = Array.from(
+          e.currentTarget.querySelectorAll<HTMLElement>(
+            'button:not(:disabled), a[href], input:not(:disabled), [tabindex="0"]',
+          ),
+        ).filter((n) => n.getClientRects().length);
+        const first = controls[0],
+          last = controls.at(-1);
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last?.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first?.focus();
+        }
+      }}
+      aria-label={`Check-in · ${event.name}`}
+      onCancel={close}
+      onClick={(e) => {
+        if (e.target !== e.currentTarget) return;
+        const rect = e.currentTarget.getBoundingClientRect();
+        if (
+          e.clientX < rect.left ||
+          e.clientX > rect.right ||
+          e.clientY < rect.top ||
+          e.clientY > rect.bottom
+        )
+          close();
+      }}
     >
-      <div className="qr-layout">
-        {src && (
-          <img
-            src={src}
-            width={260}
-            height={260}
-            alt={`Check-in QR code for ${event.name}`}
-          />
-        )}
-        <div>
-          <p>Display this QR code at the event or share the sign-in link.</p>
-          <p>
-            {when(event.starts_at)} – {when(event.ends_at)} CT
-          </p>
-          <Pill tone={event.checkin_open ? "green" : "neutral"}>
-            {event.checkin_open
-              ? "Enabled within event window"
-              : "Check-in disabled"}
-          </Pill>
-          {error && <p role="alert">{error}</p>}
-          <CopyLink value={link} />
-          <div className="actions">
-            {src && (
-              <a className="button" href={src} download={filename}>
-                <Download size={16} aria-hidden="true" />
-                Download PNG
-              </a>
+      <Panel
+        title={`Check-in · ${event.name}`}
+        action={
+          <button
+            className="icon-button"
+            onClick={close}
+            aria-label="Close QR panel"
+          >
+            <X />
+          </button>
+        }
+      >
+        <div className="qr-layout">
+          {src && (
+            <img
+              src={src}
+              width={260}
+              height={260}
+              alt={`Check-in QR code for ${event.name}`}
+            />
+          )}
+          <div>
+            <p>Display this QR code at the event or share the sign-in link.</p>
+            <p>
+              {when(event.starts_at)} – {when(event.ends_at)} CT
+            </p>
+            <Pill tone={event.checkin_open ? "green" : "neutral"}>
+              {event.checkin_open
+                ? "Enabled within event window"
+                : "Check-in disabled"}
+            </Pill>
+            {error && <p role="alert">{error}</p>}
+            {replacement && (
+              <p
+                className="qr-feedback"
+                role={replacement.ok ? "status" : "alert"}
+              >
+                {replacement.message}
+              </p>
             )}
-            <a
-              className="button secondary"
-              href={link}
-              target="_blank"
-              rel="noreferrer"
-            >
-              Open sign-in link <ExternalLink size={15} />
-            </a>
-            <Button secondary disabled={busy} onClick={() => void rotate()}>
-              Replace link & QR
-            </Button>
+            <CopyLink value={link} />
+            <div className="actions">
+              {src && (
+                <a className="button" href={src} download={filename}>
+                  <Download size={16} aria-hidden="true" />
+                  Download PNG
+                </a>
+              )}
+              <a
+                className="button secondary"
+                href={link}
+                target="_blank"
+                rel="noreferrer"
+              >
+                Open sign-in link <ExternalLink size={15} />
+              </a>
+              <Button
+                secondary
+                disabled={busy}
+                onClick={async () => {
+                  setReplacement(null);
+                  const ok = await rotate();
+                  setReplacement({
+                    ok,
+                    message: ok
+                      ? "New link created. Previous links and QR codes no longer work."
+                      : "Couldn’t confirm the replacement. Reload the workspace before sharing this QR code.",
+                  });
+                }}
+              >
+                Replace link & QR
+              </Button>
+            </div>
           </div>
         </div>
-      </div>
-    </Panel>
+      </Panel>
+    </dialog>
   );
 }
 function ManualAward({

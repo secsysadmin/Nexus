@@ -45,3 +45,37 @@ export function shiftMonth(month: string, amount: number) {
   date.setUTCMonth(date.getUTCMonth() + amount);
   return date.toISOString().slice(0, 7);
 }
+
+/** One clipped segment per event per week; reuse lanes when dates do not overlap. */
+export function calendarWeekSpans(events: Event[], days: (string | null)[]) {
+  const first = days.find((day): day is string => day !== null);
+  const last = days.findLast((day): day is string => day !== null);
+  if (!first || !last) return [];
+  const lanes: number[] = [];
+  return events
+    .map((event) => ({
+      event,
+      start: centralDay(event.starts_at),
+      end: centralDay(event.ends_at),
+    }))
+    .filter(({ start, end }) => start <= last && end >= first)
+    .sort(
+      (a, b) =>
+        a.start.localeCompare(b.start) || a.event.id.localeCompare(b.event.id),
+    )
+    .map(({ event, start, end }) => {
+      const startColumn = days.indexOf(start < first ? first : start);
+      const endColumn = days.indexOf(end > last ? last : end);
+      let lane = lanes.findIndex((lastColumn) => lastColumn < startColumn);
+      if (lane === -1) lane = lanes.length;
+      lanes[lane] = endColumn;
+      return {
+        event,
+        startColumn,
+        endColumn,
+        lane,
+        continuesBefore: start < first,
+        continuesAfter: end > last,
+      };
+    });
+}

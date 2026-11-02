@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-11-02T23:17:04.223123+00:00",
+  "generatedAt": "2026-11-02T23:29:17.973465+00:00",
   "title": "Design System: SocietyHub",
   "extensions": {
     "colorMeta": {
@@ -402,7 +402,7 @@
       },
       "point-total": {
         "displayName": "Point total",
-        "purpose": "Selected chart running total; 54px desktop and 46px mobile."
+        "purpose": "Actual earned total in the category ledger; 32px desktop and 26px mobile."
       }
     },
     "shadows": [
@@ -420,6 +420,11 @@
         "name": "semester-picker",
         "value": "0 12px 30px #29000b18",
         "purpose": "Semester listbox popup only."
+      },
+      {
+        "name": "qr-modal",
+        "value": "0 24px 80px #1d001a30",
+        "purpose": "Centered native QR dialog."
       }
     ],
     "motion": [
@@ -486,7 +491,7 @@
       }
     },
     "authStoryBackground": {
-      "description": "The user-pinned sign-in foundation is white (#ffffff), with equal desktop design/form columns. The static maroon artwork retains the SEC reference geometry, served locally as `public/society-ribbon.svg` from `https://ragnarok-flame-iota.vercel.app/brand/sign-in-ribbon.svg`. Its centered framing uses viewBox `480 -100 1060 1120` and `xMidYMid meet`, with no artwork transform. The image is contained at opacity (0.88), inset (124px 7% 132px) within the left panel. A vertical mask (`linear-gradient(180deg, transparent, #000 12%, #000 85%, transparent)`) fades both ends; no readability veil or right-edge fade is used. The decorative image is pointer-inert, hidden from assistive technology, and has no animation, client rendering loop, or runtime external request. The panel contains only its top brand, artwork, and bottom description, \u201cThe home for Texas A&M engineering societies and SEC.\u201d Mobile hides the artwork and description, retaining a compact brand header and bottom divider. The authenticated workspace keeps the same white foundation, pale rules, and muted maroon focus outline.",
+      "description": "The user-pinned sign-in foundation is white (#ffffff), with equal desktop design/form columns. The static maroon artwork retains the SEC reference geometry, served locally as `public/society-ribbon.svg` from `https://ragnarok-flame-iota.vercel.app/brand/sign-in-ribbon.svg`. Its centered framing uses viewBox `570 -80 890 1070` and `xMidYMid meet`, with no artwork transform. The image is contained at opacity (0.88), inset (112px 2% 120px) within the left panel. The SVG\u2019s own soft-ends mask uses edge-fade stops at (0.025) and (0.975), retaining more of the broad ribbon; there is no extra CSS mask, readability veil, or right-edge fade. The decorative image is pointer-inert, hidden from assistive technology, and has no animation, client rendering loop, or runtime external request. The panel contains only its top brand, artwork, and bottom description, \u201cThe home for Texas A&M engineering societies and SEC.\u201d Mobile hides the artwork and description, retaining a compact brand header and bottom divider. The authenticated workspace keeps the same white foundation, pale rules, and muted maroon focus outline.",
       "headingColor": "var(--ink)",
       "pointerEvents": "none",
       "ariaHidden": true,
@@ -497,16 +502,21 @@
       "focusColor": "#8c4658",
       "lineColor": "#e5e2df",
       "renderer": "Static local SVG image",
-      "viewBox": "480 -100 1060 1120",
+      "viewBox": "570 -80 890 1070",
       "animation": "none",
       "asset": "public/society-ribbon.svg",
       "sourceAsset": "https://ragnarok-flame-iota.vercel.app/brand/sign-in-ribbon.svg",
-      "maskImage": "linear-gradient(180deg, transparent, #000 12%, #000 85%, transparent)",
+      "maskImage": "none",
       "preserveAspectRatio": "xMidYMid meet",
       "imageObjectFit": "contain",
       "imageOpacity": 0.88,
-      "inset": "124px 7% 132px",
-      "mobileVisibility": "hidden at 760px and below"
+      "inset": "112px 2% 120px",
+      "mobileVisibility": "hidden at 760px and below",
+      "svgMask": "soft-ends",
+      "svgFadeStops": [
+        0.025,
+        0.975
+      ]
     },
     "applicationReceipts": {
       "description": "Application forms add a labeled confirmation-email field using the existing control style, with help text explaining the receipt destination and acceptance of an officer\u2019s personal email. Receipt status is a normal paragraph (13px), with (16px 0 22px) margins and wrapping for long addresses; written messages distinguish queued, sent, and failed delivery while confirming that a failed email leaves the application saved. SEC review offers the existing secondary-button style to retry eligible unsent receipts, disabled while busy. These additions retain the ordinary form and record hierarchy.",
@@ -522,7 +532,7 @@
       "retryBusyState": "disabled"
     },
     "dashboard": {
-      "layoutDescription": "The public navigation destination is Dashboard. SEC\u2019s dashboard prioritizes the oldest five applications awaiting review with direct review actions and a full-queue link, then the earliest five upcoming or ongoing selected-semester events with event-management actions and explicit check-in or manual High Impact award status. It also shows up to five enabled societies without an active PRT credit in that semester and up to five enabled accounts awaiting setup across all semesters, with direct setup-link actions. Counts beside section headings reflect the full matching lists, and truncation text points to the complete destination. The full society points table remains available in the initially collapsed native disclosure, \u201cAll society point totals.\u201d The society dashboard greets its account with \u201cHello {display_name}\u201d and a generic subtitle without repeating the society name. It retains applications and recent attendance, shows the next three upcoming or ongoing events with a View events link, and replaces the former three-column trackers with the Semester points visualization and category breakdown.",
+      "layoutDescription": "The public navigation destination is Dashboard. SEC\u2019s dashboard prioritizes the oldest five applications awaiting review with direct review actions and a full-queue link, then the earliest five upcoming or ongoing selected-semester events with event-management actions and explicit check-in or manual High Impact award status. It also shows up to five enabled societies without an active PRT credit in that semester and up to five enabled accounts awaiting setup across all semesters, with direct setup-link actions. Counts beside section headings reflect the full matching lists, and truncation text points to the complete destination. The full society points table remains available in the initially collapsed native disclosure, \u201cAll society point totals.\u201d The society dashboard greets its account with \u201cHello, {display_name}\u201d and a generic subtitle without repeating the society name. It retains applications and recent attendance, shows the next three upcoming or ongoing events with a View events link, and replaces the former three-column trackers with the Semester points ledger and separate PRT requirement.",
       "rowDescription": "Dashboard action rows reuse ruled records and existing primary, secondary, or text actions. Row content allows shrinking with `min-width: 0`, while its direct action does not shrink. At (760px) and below, action rows stack their content and action vertically, align to the start, and use an (8px) gap. The native points-register disclosure summary is maroon, (13px), weight (650), with (12px 0 20px) padding. Repeated direct actions have descriptive accessible names; changing navigation destinations scrolls to the top.",
       "publicNavigationLabel": "Dashboard",
       "admin": {
@@ -571,7 +581,7 @@
         ],
         "eventsPreviewLimit": 3,
         "eventsLink": "View events",
-        "greeting": "Hello {display_name}",
+        "greeting": "Hello, {display_name}",
         "subtitle": "Generic workspace context without repeating the society name."
       },
       "responsiveRows": {
@@ -658,25 +668,39 @@
       "markerLeft": "0"
     },
     "semesterPoints": {
-      "description": "Semester points uses a static SVG cumulative monthly step-area chart (210px high), with five grid levels from zero to a maximum rounded upward to a multiple of four, never below four. All categories is the initial filter; All and PRT use maroon, Standard uses chart-standard, and High Impact uses chart-high-impact. The selected series has a (3px) stroke and a matching area fade from opacity (0.2) to (0.02); the last plotted month has a dashed marker and maroon month label. Native category and All categories buttons expose `aria-pressed`, updating both chart and the politely announced total. Category rows use a (2px) maroon selection marker and a pale rose hover; only PRT has a minimum status, while other categories retain their point-rate explanation. Zero totals show an explicit \u201cNo points recorded yet\u201d overlay. \u201cView monthly data\u201d is a native disclosure with a keyboard-scrollable all-category cumulative table; future values are shown as em dashes, with no future chart path. Data is scoped to the selected semester and signed-in society, excludes revoked credits, and uses the Central-time date recorded; early or late records extend the visible month range. This is recorded history, with no animation or forecast.",
-      "layout": "minmax(0, 1.7fr) minmax(260px, 1fr)",
-      "gap": "42px",
-      "breakdownBorder": "1px solid var(--line)",
-      "breakdownPaddingLeft": "30px",
-      "stackMaxWidth": "1150px",
+      "description": "Semester points is a category ledger with Category, Earned, and Minimum columns, an actual earned-total heading, and an Attendance history action. Each ruled category row has a status icon, its point rate, and a (7px) bar showing that category\u2019s share of total earned points, with no implied target. PRT uses maroon, Standard uses chart-standard rose, and High Impact uses chart-high-impact slate. Only PRT has a minimum of one point; Standard and High Impact display None. A separate (180px) ring shows the PRT requirement capped at 0 / 1 or 1 / 1, with (10px) strokes and an explicit requirement status; the ledger and accessible ring label retain the true PRT total even above one. Completed status uses semantic green. A zero total leaves all share bars empty and states that no points are recorded. Totals use only the selected society/semester\u2019s nonrevoked credits. The display has no timeline, forecast, category-filter controls, or monthly-data disclosure and adds no motion.",
+      "layout": "minmax(0, 2fr) minmax(240px, 1fr)",
+      "gap": "44px",
+      "requirementBorder": "1px solid var(--line)",
+      "requirementPaddingLeft": "36px",
+      "stackMaxWidth": "1000px",
       "stackGap": "28px",
-      "plotHeight": "210px",
-      "totalMobileSize": "46px",
-      "breakdownTotal": "750 28px/1.15 var(--heading)",
-      "defaultSeries": "ALL",
-      "seriesTokens": {
-        "ALL": "maroon",
+      "stackRequirementPaddingTop": "24px",
+      "totalMobileSize": "26px",
+      "earnedValue": "750 24px var(--heading)",
+      "categoryTokens": {
         "PRT": "maroon",
         "STANDARD": "chart-standard",
         "HIGH_IMPACT": "chart-high-impact"
       },
-      "axis": "Five ticks; maximum rounded to multiple of four, minimum four.",
-      "tableDisclosure": "View monthly data",
+      "columns": [
+        "Category",
+        "Earned",
+        "Minimum"
+      ],
+      "shareTrackHeight": "7px",
+      "shareMeaning": "Category earned points / actual total earned points; zero total yields zero-width bars.",
+      "minimum": {
+        "PRT": 1,
+        "STANDARD": null,
+        "HIGH_IMPACT": null
+      },
+      "ring": {
+        "size": "180px",
+        "strokeWidth": "10px",
+        "cap": 1,
+        "label": "Includes capped requirement and actual PRT total."
+      },
       "motion": "none"
     },
     "semesterPicker": {
@@ -713,7 +737,7 @@
       "automaticRefreshInterval": "30s"
     },
     "eventCalendar": {
-      "description": "Events offer List and Calendar views through native `aria-pressed` buttons in a white, line-bordered (6px) segmented control with a rose active fill. The selected-semester month calendar uses Central-time event windows, seven equal columns, and minimum day heights of (110px) desktop and (64px) mobile. Maroon, Standard rose, and High Impact slate match the points-series colors and remain named in a legend and selected-day details. Desktop cells show short event labels; mobile cells retain dots and put readable details below. The selected day uses a pale rose fill with an inset rule; today uses a maroon circular date. Roving keyboard focus supports arrows and Home/End, while month navigation stays within scoped bounds.",
+      "description": "Events offer List and Calendar views through native `aria-pressed` buttons in a white, line-bordered (6px) segmented control with a rose active fill. The view toolbar sits outside the content panel. The selected-semester month calendar uses Central-time event windows, seven equal columns, and minimum day heights of (110px) desktop and (64px) mobile. Events render as continuous weekly spans in reusable nonoverlapping lanes, labeled once per weekly segment, with continuation arrows at clipped edges. Category fills use maroon, Standard rose, and High Impact slate, with a named legend and readable selected-day details. Date buttons retain roving keyboard focus, arrows and Home/End, a pale rose selected-day state, and a maroon circle for today; month navigation remains within scoped bounds.",
       "viewControlRadius": "6px",
       "dayMinHeight": "110px",
       "mobileDayMinHeight": "64px",
@@ -726,7 +750,9 @@
       "selectionFill": "#fcf5f5",
       "selectionShadow": "inset 0 0 0 1px #b58e98",
       "gridRole": "grid",
-      "focus": "Roving date buttons; arrow keys and Home/End."
+      "focus": "Roving date buttons; arrow keys and Home/End.",
+      "eventRendering": "Continuous weekly spans; one label per segment; clipped edges have continuation arrows.",
+      "viewToolbar": "Outside content panel."
     },
     "administrativeForms": {
       "description": "Administrative activity is an admin-only native disclosure, initially collapsed within an operational panel. Its summary uses Manrope Variable (18px, weight 650), (17px) on mobile, an activity count, and a maroon chevron that rotates on open; expanded content is separated by (20px). Application authoring explicitly offers Save draft / Publish application, or Save published changes / Unpublish and save draft for published forms. The publication actions follow a top rule, (28px) top margin, and (20px) top padding. Drafts carry an amber label and a written not-published hint; the application list offers a primary Publish application action. Publication changes preserve the existing versioned form and saved submission behavior.",
@@ -749,13 +775,28 @@
       "draftLabelTone": "amber"
     },
     "checkInQr": {
-      "description": "Event check-in QR artwork can be downloaded as a locally generated (1024px) PNG with maroon modules on white, a sanitized event-derived filename, and an existing primary button treatment. The rendered/downloadable image is bound to the current check-in link so a changed link cannot present an older QR image.",
+      "description": "Event check-in QR artwork opens in a centered native dialog with a maximum width of (900px), white surface, panel radius, shadow (`0 24px 80px #1d001a30`), and dark backdrop (#21181b66). Its width is `min(900px, calc(100% - 48px))`, with a maximum height of `calc(100dvh - 48px)`; mobile uses (24px) total viewport clearance. The dialog traps Tab focus, restores the opener and page scrolling on close, and closes by its close control, Escape, or backdrop click. It retains a locally generated (1024px) maroon-on-white PNG download, sanitized event-derived filename, and current-link-bound image. Link replacement reports success locally with role status and explicitly invalidates earlier links/QRs; failure uses role alert and asks the user to reload before sharing. The event row arranges Edit and QR & link in a (72px 104px) action grid with an (8px) gap and a compact check-in toggle below; mobile uses (72px 104px 1fr) so the toggle shares the action row. Actions retain (38px) minimum height and `aria-pressed` toggle state.",
       "format": "image/png",
-      "width": "1024px",
+      "width": "min(900px, calc(100% - 48px))",
       "dark": "#500000",
       "light": "#ffffff",
       "downloadLabel": "Download PNG",
-      "linkBinding": "Current check-in link only; invalidate outdated image."
+      "linkBinding": "Current check-in link only; invalidate outdated image.",
+      "container": "Native centered dialog",
+      "maxWidth": "900px",
+      "maxHeight": "calc(100dvh - 48px)",
+      "mobileWidth": "calc(100% - 24px)",
+      "mobileMaxHeight": "calc(100dvh - 24px)",
+      "backdrop": "#21181b66",
+      "shadow": "0 24px 80px #1d001a30",
+      "focus": "Trap Tab and restore opener on close.",
+      "dismissal": [
+        "Close control",
+        "Escape",
+        "Backdrop click"
+      ],
+      "replacementSuccessRole": "status",
+      "replacementFailureRole": "alert"
     },
     "loginLayout": {
       "description": "Login uses equal white columns separated by a thin vertical rule. The left design panel has (48px 56px) padding, its SEC/SocietyHub brand at the top, centered contained artwork, and a short centered description at the bottom (14px, maximum 34ch). The form column uses (64px clamp(40px, 7vw, 112px)) padding and a (400px) form maximum width. At (760px) and below, art and description are hidden, leaving a compact brand header with (25px 24px) padding and a bottom divider; the form uses (36px 24px) padding and a (440px) maximum width.",
@@ -785,6 +826,15 @@
         "formPadding": "36px 24px",
         "formMaxWidth": "440px"
       }
+    },
+    "eventRowActions": {
+      "desktopColumns": "72px 104px",
+      "gap": "8px",
+      "actionMinHeight": "38px",
+      "togglePlacementDesktop": "Below Edit and QR & link",
+      "mobileColumns": "72px 104px 1fr",
+      "togglePlacementMobile": "Same action row",
+      "toggleState": "aria-pressed"
     }
   },
   "components": [
@@ -837,11 +887,11 @@
       "css": ".ds-panel { padding:26px; border:1px solid var(--line,#e5e2df); border-radius:var(--radius,14px); background:var(--paper,#fff); color:var(--ink,#292623); font:400 13px/1.6 var(--sans,\"DM Sans Variable\",sans-serif); } .ds-title { margin:0 0 18px; font:720 20px/1.35 var(--heading,\"Manrope Variable\",sans-serif); letter-spacing:-.02em; } .ds-record { padding:16px 0; border-top:1px solid var(--line,#e5e2df); } .ds-meta { display:block; margin-top:4px; font-size:12px; color:var(--muted,#68645f); } @media(max-width:760px) { .ds-panel { padding:20px 18px; } .ds-title { font-size:17px; } }"
     },
     {
-      "name": "Semester points chart",
+      "name": "Semester points ledger",
       "kind": "custom",
-      "description": "Recorded monthly cumulative history with an honest zero state; application controls select category series.",
-      "html": "<section class=\"ds-points\"><h2 class=\"ds-points-title\">Semester points</h2><div class=\"ds-points-total\">0 <small class=\"ds-points-unit\">points</small></div><p class=\"ds-points-caption\">All points \u00b7 Monthly running total</p><div class=\"ds-points-plot\"><svg class=\"ds-points-svg\" viewBox=\"0 0 600 210\" role=\"img\" aria-label=\"No points recorded yet\"><path d=\"M0 18H600M0 61H600M0 104H600M0 147H600M0 190H600\" stroke=\"#e5e2df\" fill=\"none\"/></svg><p class=\"ds-points-empty\"><strong>No points recorded yet</strong><span>Your first credited event will appear here.</span></p></div></section>",
-      "css": ".ds-points { border-top:1px solid var(--line,#e5e2df); padding:26px 0; color:var(--ink,#292623); font-family:var(--sans,\"DM Sans Variable\",sans-serif); } .ds-points-title { font:650 19px/1.35 var(--heading,\"Manrope Variable\",sans-serif); margin:0 0 18px; } .ds-points-total { font:750 54px/1.15 var(--heading,\"Manrope Variable\",sans-serif); letter-spacing:-.04em; font-variant-numeric:tabular-nums; } .ds-points-unit { font:400 13px/1.5 var(--sans,\"DM Sans Variable\",sans-serif); color:var(--muted,#68645f); letter-spacing:0; } .ds-points-caption { font-size:12px; color:var(--muted,#68645f); margin:6px 0 0; } .ds-points-plot { position:relative; height:210px; margin-top:20px; } .ds-points-svg { width:100%; height:210px; } .ds-points-empty { position:absolute; top:46px; left:0; right:0; display:flex; flex-direction:column; align-items:center; gap:6px; font-size:14px; } .ds-points-empty span { font-size:12px; color:var(--muted,#68645f); } @media(max-width:760px) { .ds-points-total { font-size:46px; } }"
+      "description": "Actual earned category totals and minima, with a separate capped PRT requirement.",
+      "html": "<section class=\"ds-ledger\"><h2 class=\"ds-ledger-title\">Semester points</h2><p class=\"ds-ledger-total\">0 <small>total points</small></p><p class=\"ds-ledger-note\">Bars show each category\u2019s share of your earned points.</p><table class=\"ds-ledger-table\"><thead><tr><th>Category</th><th>Earned</th><th>Minimum</th></tr></thead><tbody><tr><th>PRT</th><td>0</td><td>1 point</td></tr><tr><th>Standard</th><td>0</td><td>None</td></tr><tr><th>High Impact</th><td>0</td><td>None</td></tr></tbody></table><p class=\"ds-ledger-note\">No points recorded yet. Your first credited event will appear here.</p><p class=\"ds-ledger-requirement\">PRT requirement: 0 / 1 \u00b7 1 PRT point still needed</p></section>",
+      "css": ".ds-ledger { border-top:1px solid var(--line,#e5e2df); padding:26px 0; color:var(--ink,#292623); font-family:var(--sans,\"DM Sans Variable\",sans-serif); } .ds-ledger-title { font:650 19px/1.35 var(--heading,\"Manrope Variable\",sans-serif); margin:0 0 18px; } .ds-ledger-total { font:750 32px/1.2 var(--heading,\"Manrope Variable\",sans-serif); color:var(--maroon,#500000); margin:0; font-variant-numeric:tabular-nums; } .ds-ledger-total small { font:400 12px var(--sans,\"DM Sans Variable\",sans-serif); color:var(--muted,#68645f); } .ds-ledger-note { font-size:11px; color:var(--muted,#68645f); margin:10px 0 18px; } .ds-ledger-table { width:100%; border-collapse:collapse; text-align:left; font-size:12px; } .ds-ledger-table th,.ds-ledger-table td { padding:18px 0; border-bottom:1px solid var(--line,#e5e2df); } .ds-ledger-table td { text-align:right; } .ds-ledger-requirement { border-top:1px solid var(--line,#e5e2df); padding-top:24px; color:var(--maroon,#500000); font-size:12px; } @media(max-width:760px) { .ds-ledger-total { font-size:26px; } }"
     }
   ],
   "narrative": {

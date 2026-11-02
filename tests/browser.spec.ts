@@ -187,6 +187,17 @@ test("society hub end-to-end: admin, concurrent check-in, drafts, review, QR and
     path: ".impeccable/review/qr-download-desktop.png",
     fullPage: true,
   });
+  await expect(
+    admin.getByRole("dialog", {
+      name: "Check-in · Presidents’ Round Table · Test data",
+    }),
+  ).toBeVisible();
+  await admin.keyboard.press("Escape");
+  await expect(admin.getByRole("dialog")).toHaveCount(0);
+  await expect(
+    admin.getByRole("button", { name: "QR & link", exact: true }),
+  ).toBeFocused();
+  await admin.getByRole("button", { name: "QR & link", exact: true }).click();
   await admin.getByRole("button", { name: "Close QR panel" }).click();
   await admin.getByRole("button", { name: "Calendar", exact: true }).click();
   await expect(
@@ -541,7 +552,7 @@ test("society hub end-to-end: admin, concurrent check-in, drafts, review, QR and
     .click();
   await expect(
     activationPage.getByRole("heading", {
-      name: "Hello Provisioned test society",
+      name: "Hello, Provisioned test society",
     }),
   ).toBeVisible();
   const reused = await post(activationContext.request, "auth/activate", {
@@ -726,4 +737,92 @@ test("semester picker keyboard controls and administrative activity disclosure",
   await expect(disclosure.locator(".record-list")).toBeVisible();
   await disclosure.locator("summary").press("Enter");
   await expect(disclosure.locator(".record-list")).toBeHidden();
+});
+
+test("QR replacement feedback stays inside the modal on failure and success", async ({
+  page,
+}) => {
+  let replaced = false;
+  const event = {
+    id: "qr-test",
+    semester_id: "fall",
+    name: "QR feedback · Test data",
+    category: "PRT",
+    description: "Test fixture",
+    location: "Test workspace",
+    starts_at: "2026-11-02T21:00:00Z",
+    ends_at: "2026-11-09T22:00:00Z",
+    checkin_open: true,
+    checkin_token: "a".repeat(64),
+  };
+  await page.route("**/api/data", (r) =>
+    r.fulfill({
+      json: {
+        actor: {
+          id: "sec",
+          username: "sec",
+          display_name: "SEC · Test data",
+          role: "admin",
+        },
+        semesters: [
+          {
+            id: "fall",
+            name: "Fall 2026",
+            starts_on: "2026-07-01",
+            ends_on: "2026-12-31",
+            is_current: true,
+          },
+        ],
+        events: [
+          { ...event, checkin_token: (replaced ? "b" : "a").repeat(64) },
+        ],
+        accounts: [],
+        credits: [],
+        forms: [],
+        submissions: [],
+        roster: [],
+        audit: [],
+        allowlist: [],
+        environment: "development",
+      },
+    }),
+  );
+  await page.route("**/api/admin/event-checkin", (r) =>
+    replaced
+      ? r.fulfill({ json: { ok: true } })
+      : r.fulfill({
+          status: 503,
+          json: { error: "Test provider unavailable" },
+        }),
+  );
+  await page.goto("/");
+  await page.getByRole("button", { name: "Events", exact: true }).click();
+  await page.getByRole("button", { name: "QR & link", exact: true }).click();
+  const modal = page.getByRole("dialog");
+  await modal.getByRole("link", { name: "Download PNG" }).waitFor();
+  await modal.getByRole("button", { name: "Replace link & QR" }).click();
+  await expect(modal.getByRole("alert")).toContainText(
+    "Couldn’t confirm the replacement",
+  );
+  await page.screenshot({
+    path: ".impeccable/review/qr-modal-failure-desktop.png",
+  });
+  const oldImage = await modal.getByRole("img").getAttribute("src");
+  replaced = true;
+  await modal.getByRole("button", { name: "Replace link & QR" }).click();
+  await expect(modal.getByRole("status")).toContainText(
+    "Previous links and QR codes no longer work",
+  );
+  await expect(modal.getByRole("img")).not.toHaveAttribute("src", oldImage!);
+  await page.screenshot({
+    path: ".impeccable/review/qr-modal-success-desktop.png",
+  });
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.screenshot({
+    path: ".impeccable/review/qr-modal-success-mobile.png",
+  });
+  await expect(modal).toBeVisible();
+  expect(await modal.evaluate((n) => n.scrollWidth <= n.clientWidth)).toBe(
+    true,
+  );
 });
