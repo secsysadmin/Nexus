@@ -549,21 +549,6 @@ td small {
   font-size: 12px;
   margin-bottom: 0;
 }
-.funding-note {
-  display: flex;
-  gap: 15px;
-  padding: 8px 4px 24px;
-  color: var(--maroon);
-  margin-top: 10px;
-}
-.funding-note h3 {
-  font-size: 13px;
-}
-.funding-note p {
-  font-size: 12px;
-  max-width: 90ch;
-  margin: 0;
-}
 .admin-summary {
   display: flex;
   gap: 30px;
@@ -792,9 +777,7 @@ input[type="checkbox"] {
 .ledger-row:first-child {
   border-top: 0;
 }
-.ledger-row > div:first-child {
-  flex: 1;
-}
+
 .ledger-row p {
   font-size: 12px;
   margin-bottom: 3px;
@@ -1287,9 +1270,7 @@ td strong {
   .ledger-row {
     flex-wrap: wrap;
   }
-  .ledger-row > div:first-child {
-    min-width: 180px;
-  }
+
   .correction {
     width: 100%;
     max-width: none;
@@ -2449,4 +2430,395 @@ td strong {
 
 .points-summary-table tbody tr:last-child th {
   border-bottom: 0;
+}
+
+.choice-options {
+  margin: 20px 0 26px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 640px;
+}
+.choice-option-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+}
+.choice-option-row .field {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+}
+.choice-option-row .icon-button {
+  min-width: 42px;
+  min-height: 44px;
+  margin-bottom: 1px;
+}
+.choice-options > .button {
+  align-self: flex-start;
+  margin-top: 4px;
+}
+.choice-options > small {
+  font-size: 11px;
+  color: var(--muted);
+}
+.application-content {
+  max-width: 800px;
+}
+.application-content > .section-intro {
+  margin-bottom: 20px;
+}
+.application-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px 14px;
+  margin-bottom: 28px;
+}
+.application-meta .pill {
+  text-transform: capitalize;
+}
+.pill.rose {
+  background: #f5e9ed;
+  color: var(--maroon);
+}
+.application-meta > small {
+  font-size: 11px;
+  color: var(--muted);
+}
+.application-content .editor-form {
+  margin-top: 0;
+}
+.application-content .editor-form > small {
+  display: block;
+  margin-top: 20px;
+}
+.application-content .choice-field {
+  border: 0;
+  border-top: 1px solid var(--line);
+  border-radius: 0;
+  padding: 20px 0 0;
+  margin-top: 28px;
+}
+.application-content .choice-field legend {
+  padding-left: 0;
+}
+.application-content .choice-field .check-field {
+  margin: 0 0 12px;
+  min-height: 30px;
+}
+.application-receipt {
+  background: #fcf5f5;
+  border: 1px solid #ead4d8;
+  border-radius: 6px;
+  padding: 18px 20px;
+  margin-bottom: 30px;
+}
+.application-receipt > div {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  color: var(--maroon);
+  font-size: 13px;
+}
+.application-receipt p {
+  margin: 8px 0 0;
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+.application-submitted > h3 {
+  font-size: 17px;
+  font-weight: 600;
+  margin: 0 0 8px;
+}
+.application-responses {
+  margin: 0;
+}
+.application-responses > div {
+  border-bottom: 1px solid var(--line);
+  padding: 20px 0;
+}
+.application-responses > div:last-child {
+  border: 0;
+  padding-bottom: 0;
+}
+.application-responses dt {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+  margin-bottom: 10px;
+  overflow-wrap: anywhere;
+}
+.application-responses dd {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.65;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.application-responses ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.application-responses li {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+}
+.application-responses li svg {
+  color: var(--maroon);
+  flex-shrink: 0;
+  align-self: flex-start;
+  margin-top: 4px;
+}
+
+.ledger-caption {
+  font-size: 12px;
+  color: var(--muted);
+  margin: 0 0 8px;
+}
+.ledger-row {
+  gap: 20px;
+  align-items: center;
+  padding: 24px 0;
+}
+.ledger-row .ledger-entry {
+  flex: 1;
+  min-width: 0;
+}
+.ledger-row .ledger-date {
+  flex: 0 0 56px;
+  min-width: 56px;
+}
+.ledger-entry h3 {
+  font-size: 15px;
+  margin: 0 0 6px;
+  overflow-wrap: anywhere;
+}
+.ledger-entry p {
+  font-size: 12px;
+  margin: 0 0 6px;
+}
+.ledger-entry small {
+  font-size: 11px;
+  color: var(--muted);
+}
+.ledger-point-value {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 64px;
+  flex-shrink: 0;
+  color: var(--maroon);
+}
+.ledger-point-value strong {
+  font: 700 30px/1.15 var(--heading);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.03em;
+}
+.ledger-point-value > span {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 4px;
+}
+.ledger-row.removed .ledger-date {
+  background: #f5f4f3;
+  color: var(--muted);
+}
+.calendar-details-heading {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 22px;
+}
+.calendar-details-heading h3 {
+  font-size: 20px;
+  letter-spacing: -0.02em;
+  margin: 0 0 5px;
+}
+.calendar-details-heading p {
+  font-size: 12px;
+  margin: 0;
+  color: var(--muted);
+}
+.calendar-event-detail {
+  display: flex;
+  align-items: flex-start;
+  gap: 24px;
+  padding: 24px 0;
+  border-top: 1px solid var(--line);
+}
+.calendar-event-copy {
+  flex: 1;
+  min-width: 0;
+}
+.calendar-event-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.calendar-category-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--event-color);
+}
+.calendar-category-label i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--event-color);
+}
+.calendar-point-value {
+  font-size: 12px;
+  font-weight: 650;
+  color: var(--maroon);
+  white-space: nowrap;
+}
+.calendar-event-title {
+  display: block;
+  font-size: 17px;
+  font-weight: 650;
+  letter-spacing: -0.015em;
+  overflow-wrap: anywhere;
+}
+.calendar-event-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 22px;
+  margin-top: 12px;
+  color: var(--muted);
+  font-size: 12px;
+}
+.calendar-event-facts > span {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+}
+.calendar-event-facts svg {
+  flex-shrink: 0;
+  margin-top: 1px;
+  color: var(--maroon);
+}
+.calendar-event-copy > p {
+  font-size: 13px;
+  line-height: 1.65;
+  max-width: 70ch;
+  margin: 14px 0;
+  color: var(--muted);
+}
+.calendar-checkin-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 11px;
+  color: var(--muted);
+}
+.calendar-checkin-status::before {
+  content: "";
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+  flex-shrink: 0;
+}
+.calendar-checkin-status.enabled {
+  color: var(--maroon);
+}
+.calendar-detail-actions {
+  flex-shrink: 0;
+  margin-top: 27px;
+}
+@media (max-width: 760px) {
+  .ledger-row {
+    gap: 12px;
+    flex-wrap: nowrap;
+  }
+  .ledger-row .ledger-date {
+    flex-basis: 44px;
+    min-width: 44px;
+    padding-inline: 6px;
+  }
+  .ledger-row .ledger-entry {
+    min-width: 0;
+  }
+  .ledger-point-value {
+    min-width: 38px;
+  }
+  .ledger-point-value strong {
+    font-size: 26px;
+  }
+  .ledger-row:has(.correction) {
+    flex-wrap: wrap;
+  }
+  .ledger-entry h3 {
+    font-size: 13px;
+  }
+  .calendar-details-heading {
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .calendar-details-heading h3 {
+    font-size: 17px;
+  }
+  .calendar-event-detail {
+    flex-direction: column;
+    gap: 16px;
+  }
+  .calendar-event-heading {
+    align-items: flex-start;
+  }
+  .calendar-event-title {
+    font-size: 15px;
+  }
+  .calendar-event-facts {
+    flex-direction: column;
+  }
+  .calendar-event-facts > span {
+    font-size: 11px;
+  }
+  .calendar-detail-actions {
+    margin-top: 0;
+  }
+}
+
+.greeting-word {
+  display: inline-block;
+  white-space: pre-wrap;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+.greeting-enter {
+  animation: greeting-arrive 520ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+@keyframes greeting-arrive {
+  from {
+    opacity: 0;
+    transform: translateX(-16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .greeting-enter {
+    animation: none;
+  }
+}
+
+@media (max-width: 760px) {
+  .panel:has(.application-content) > .section-head {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+  }
 }

@@ -250,6 +250,7 @@ export default function Hub() {
     token: string;
     eventId: string;
   }>({ mode: "home", token: "", eventId: "" });
+  const greetingSeen = useRef(false);
   const [eventsView, setEventsView] = useState<"list" | "calendar">("list");
   const [editingEvent, setEditingEvent] = useState<Event | null | undefined>(),
     [editingForm, setEditingForm] = useState<Form | null | undefined>(),
@@ -282,6 +283,7 @@ export default function Hub() {
     } catch (e) {
       if ((e as Error & { status?: number }).status === 401) {
         setData(null);
+        greetingSeen.current = false;
         setAuthNeeded(true);
       } else setError((e as Error).message);
     } finally {
@@ -601,14 +603,35 @@ export default function Hub() {
         >
           <div className="page-heading">
             <div>
-              <h1>{title[tab]}</h1>
-              <p>
-                {admin
-                  ? "Manage your societies, events, and funding cycle."
-                  : tab === "overview"
-                    ? "Your home for SEC events and society funding."
+              <h1 aria-label={title[tab]}>
+                {!admin && tab === "overview"
+                  ? title[tab].split(/\s+/).map((word, index) => (
+                      <span
+                        key={index}
+                        className={
+                          "greeting-word" +
+                          (!greetingSeen.current ? " greeting-enter" : "")
+                        }
+                        style={{
+                          animationDelay: `${Math.min(index, 10) * 60}ms`,
+                        }}
+                        onAnimationEnd={() => {
+                          greetingSeen.current = true;
+                        }}
+                        aria-hidden="true"
+                      >
+                        {word}{" "}
+                      </span>
+                    ))
+                  : title[tab]}
+              </h1>
+              {(admin || tab !== "overview") && (
+                <p>
+                  {admin
+                    ? "Manage your societies, events, and funding cycle."
                     : `${data.actor.display_name} · Your home for SEC events and society funding.`}
-              </p>
+                </p>
+              )}
             </div>
             {tab === "overview" && admin && (
               <Button
@@ -1170,17 +1193,6 @@ export default function Hub() {
                   </details>
                 </>
               )}
-              <section className="funding-note">
-                <FileText size={22} />
-                <div>
-                  <h3>One society. One record.</h3>
-                  <p>
-                    PRT and Standard attendance earn one point per event. SEC
-                    awards two points for each qualifying High Impact event. The
-                    PRT minimum is one point per semester.
-                  </p>
-                </div>
-              </section>
             </>
           )}
           {tab === "events" &&
@@ -1369,9 +1381,47 @@ export default function Hub() {
               >
                 {credits.length ? (
                   <div className="ledger">
+                    <p className="ledger-caption">
+                      {credits.filter((c) => !c.revoked_at).length} active{" "}
+                      {credits.filter((c) => !c.revoked_at).length === 1
+                        ? "record"
+                        : "records"}{" "}
+                      ·{" "}
+                      {credits
+                        .filter((c) => !c.revoked_at)
+                        .reduce((sum, c) => sum + c.points, 0)}{" "}
+                      {credits
+                        .filter((c) => !c.revoked_at)
+                        .reduce((sum, c) => sum + c.points, 0) === 1
+                        ? "point"
+                        : "points"}{" "}
+                      recorded in this semester
+                    </p>
                     {credits.map((c) => (
-                      <article className="ledger-row" key={c.id}>
-                        <div>
+                      <article
+                        className={
+                          "ledger-row" + (c.revoked_at ? " removed" : "")
+                        }
+                        key={c.id}
+                      >
+                        <div
+                          className="date-block ledger-date"
+                          aria-hidden="true"
+                        >
+                          <span>
+                            {new Intl.DateTimeFormat("en-US", {
+                              month: "short",
+                              timeZone: "America/Chicago",
+                            }).format(new Date(c.created_at))}
+                          </span>
+                          <strong>
+                            {new Intl.DateTimeFormat("en-US", {
+                              day: "numeric",
+                              timeZone: "America/Chicago",
+                            }).format(new Date(c.created_at))}
+                          </strong>
+                        </div>
+                        <div className="ledger-entry">
                           <h3>{c.event_name}</h3>
                           <p>
                             {admin ? `${c.society_name} · ` : ""}
@@ -1385,9 +1435,16 @@ export default function Hub() {
                             {c.note && ` · ${c.note}`}
                           </small>
                         </div>
-                        <Pill tone={c.revoked_at ? "neutral" : "green"}>
-                          {c.revoked_at ? "Removed" : `+${c.points}`}
-                        </Pill>
+                        <div className="ledger-point-value">
+                          {c.revoked_at ? (
+                            <Pill>Removed</Pill>
+                          ) : (
+                            <>
+                              <strong>+{c.points}</strong>
+                              <span>{c.points === 1 ? "point" : "points"}</span>
+                            </>
+                          )}
+                        </div>
                         {admin && (
                           <CreditCorrection
                             id={c.id}
@@ -2551,7 +2608,10 @@ function FormEditor({
             kind,
             published: publish,
             deadline: deadline ? new Date(deadline).toISOString() : null,
-            questions,
+            questions: questions.map((q) => ({
+              ...q,
+              options: ["select", "checkbox"].includes(q.type) ? q.options : [],
+            })),
           });
         }}
       >
@@ -2652,16 +2712,73 @@ function FormEditor({
                 </label>
               </div>
               {["select", "checkbox"].includes(q.type) && (
-                <Field label="Choices (one per line)">
-                  <textarea
-                    required
-                    rows={4}
-                    value={q.options.join("\n")}
-                    onChange={(e) =>
-                      update(i, { options: e.target.value.split("\n") })
-                    }
-                  />
-                </Field>
+                <div
+                  className="choice-options"
+                  role="group"
+                  aria-label={`Choices for question ${i + 1}`}
+                >
+                  {(q.options.length ? q.options : [""]).map(
+                    (option, optionIndex, options) => (
+                      <div className="choice-option-row" key={optionIndex}>
+                        <Field label={`Choice ${optionIndex + 1}`}>
+                          <input
+                            id={`choice-${q.id}-${optionIndex}`}
+                            required
+                            maxLength={200}
+                            value={option}
+                            onChange={(e) =>
+                              update(i, {
+                                options: options.map((value, index) =>
+                                  index === optionIndex
+                                    ? e.target.value
+                                    : value,
+                                ),
+                              })
+                            }
+                          />
+                        </Field>
+                        <button
+                          type="button"
+                          className="icon-button"
+                          disabled={options.length === 1}
+                          aria-label={`Remove choice ${optionIndex + 1} from question ${i + 1}`}
+                          onClick={() => {
+                            update(i, {
+                              options: options.filter(
+                                (_, index) => index !== optionIndex,
+                              ),
+                            });
+                            requestAnimationFrame(() =>
+                              document
+                                .getElementById(
+                                  `choice-${q.id}-${Math.max(0, optionIndex - 1)}`,
+                                )
+                                ?.focus(),
+                            );
+                          }}
+                        >
+                          <Trash2 size={17} />
+                        </button>
+                      </div>
+                    ),
+                  )}
+                  <Button
+                    secondary
+                    disabled={q.options.length >= 30}
+                    onClick={() => {
+                      const options = q.options.length ? q.options : [""];
+                      update(i, { options: [...options, ""] });
+                      requestAnimationFrame(() =>
+                        document
+                          .getElementById(`choice-${q.id}-${options.length}`)
+                          ?.focus(),
+                      );
+                    }}
+                  >
+                    <Plus size={15} /> Add choice
+                  </Button>
+                  <small>Up to 30 choices, 200 characters each.</small>
+                </div>
               )}
               <div className="actions">
                 <button
@@ -2885,78 +3002,144 @@ function ApplicationView({
         </Button>
       }
     >
-      <p className="section-intro">{form.description}</p>
-      <div className="inline">
-        <Pill>
-          {admin
-            ? "Admin preview"
-            : existing
-              ? status(existing.status)
-              : closed
-                ? "Closed"
-                : "Not started"}
-        </Pill>
-        <small>
-          Question version {existing?.form_version ?? form.current_version}
-          {form.deadline && ` · Due ${when(form.deadline)} CT`}
-        </small>
-      </div>
-      {existing?.review_note && (
-        <div className="review-note">
-          <h3>SEC feedback</h3>
-          <p>{existing.review_note}</p>
+      <div className="application-content">
+        <p className="section-intro">{form.description}</p>
+        <div className="application-meta">
+          <Pill
+            tone={
+              existing?.status === "APPROVED"
+                ? "green"
+                : existing?.status === "SUBMITTED" ||
+                    existing?.status === "UNDER_REVIEW"
+                  ? "rose"
+                  : "neutral"
+            }
+          >
+            {admin
+              ? "Admin preview"
+              : existing
+                ? status(existing.status)
+                : closed
+                  ? "Closed"
+                  : "Not started"}
+          </Pill>
+          <small>
+            Question version {existing?.form_version ?? form.current_version}
+            {form.deadline && ` · Due ${when(form.deadline)} CT`}
+          </small>
         </div>
-      )}
-      {form.kind === "HIGH_IMPACT" && (
-        <p>
-          Event approval and point awards are separate. SEC records High Impact
-          points manually.
-        </p>
-      )}
-      <form
-        className="editor-form"
-        onSubmit={(e) => {
-          e.preventDefault();
-          void persist(true);
-        }}
-      >
-        <Field
-          label="Confirmation email"
-          hint="We’ll send a receipt here when you submit. An officer’s personal email is fine."
-        >
-          <input
-            type="email"
-            autoComplete="email"
-            maxLength={254}
-            value={confirmationEmail}
-            onChange={(e) => setConfirmationEmail(e.target.value)}
-            disabled={readOnly || busy}
-          />
-        </Field>
-        <ReceiptStatus submission={existing} />
-        <AnswerFields
-          questions={questions}
-          answers={answers}
-          setAnswers={setAnswers}
-          disabled={readOnly || busy}
-        />
-        {!readOnly && (
-          <div className="actions">
-            <Button
-              secondary
-              disabled={busy}
-              onClick={() => void persist(false)}
-            >
-              Save draft
-            </Button>
-            <Button type="submit" disabled={busy}>
-              {busy ? "Saving…" : "Submit application"}
-              <ArrowRight size={16} />
-            </Button>
+        {existing?.review_note && (
+          <div className="review-note">
+            <h3>SEC feedback</h3>
+            <p>{existing.review_note}</p>
           </div>
         )}
-        {savedAt && <small>Last saved {when(savedAt)} CT</small>}
-      </form>
+        {form.kind === "HIGH_IMPACT" && (
+          <p>
+            Event approval and point awards are separate. SEC records High
+            Impact points manually.
+          </p>
+        )}
+        {existing &&
+        !admin &&
+        !["DRAFT", "CHANGES_REQUESTED"].includes(existing.status) ? (
+          <div className="application-submitted">
+            <section
+              className="application-receipt"
+              aria-label="Submission details"
+            >
+              <div>
+                <Check size={18} aria-hidden="true" />
+                <strong>Application submitted</strong>
+              </div>
+              {existing.submitted_at && (
+                <p>Submitted {when(existing.submitted_at)} CT</p>
+              )}
+              <ReceiptStatus submission={existing} />
+              {!existing.confirmation_status && (
+                <p>
+                  Confirmation email:{" "}
+                  {existing.confirmation_email || "Not provided"}
+                </p>
+              )}
+            </section>
+            <h3>Your responses</h3>
+            <dl className="application-responses">
+              {questions.map((q) => {
+                const value = answers[q.id];
+                return (
+                  <div key={q.id}>
+                    <dt>{q.label}</dt>
+                    <dd>
+                      {Array.isArray(value) ? (
+                        value.length ? (
+                          <ul>
+                            {value.map((option, index) => (
+                              <li key={index}>
+                                <Check size={15} aria-hidden="true" />
+                                {option}
+                              </li>
+                            ))}
+                          </ul>
+                        ) : (
+                          "No answer provided"
+                        )
+                      ) : (
+                        value || "No answer provided"
+                      )}
+                    </dd>
+                  </div>
+                );
+              })}
+            </dl>
+          </div>
+        ) : (
+          <form
+            className="editor-form"
+            onSubmit={(e) => {
+              e.preventDefault();
+              void persist(true);
+            }}
+          >
+            <Field
+              label="Confirmation email"
+              hint="We’ll send a receipt here when you submit. An officer’s personal email is fine."
+            >
+              <input
+                type="email"
+                autoComplete="email"
+                maxLength={254}
+                value={confirmationEmail}
+                onChange={(e) => setConfirmationEmail(e.target.value)}
+                disabled={readOnly || busy}
+              />
+            </Field>
+            <ReceiptStatus submission={existing} />
+            <AnswerFields
+              questions={questions}
+              answers={answers}
+              setAnswers={setAnswers}
+              disabled={readOnly || busy}
+            />
+            {!readOnly && (
+              <div className="actions">
+                <Button
+                  secondary
+                  disabled={busy}
+                  onClick={() => void persist(false)}
+                >
+                  Save draft
+                </Button>
+                <Button type="submit" disabled={busy}>
+                  {busy ? "Saving…" : "Submit application"}
+                  <ArrowRight size={16} />
+                </Button>
+              </div>
+            )}
+            {savedAt && <small>Last saved {when(savedAt)} CT</small>}
+          </form>
+        )}
+      </div>
     </Panel>
   );
 }

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-11-02T23:29:17.973465+00:00",
+  "generatedAt": "2026-11-02T23:44:16.576986+00:00",
   "title": "Design System: SocietyHub",
   "extensions": {
     "colorMeta": {
@@ -447,6 +447,11 @@
         "name": "auth-maroon-ribbons",
         "value": "none; static SEC reference ribbon SVG image",
         "purpose": "Local reference-derived auth-story artwork remains still for all motion preferences; no animation loop or timed rendering."
+      },
+      {
+        "name": "society-greeting",
+        "value": "520ms cubic-bezier(0.16, 1, 0.3, 1); 60ms word stagger capped at 600ms",
+        "purpose": "The society greeting\u2019s words are individual inline blocks that fade from opacity (0) to (1) and slide from horizontal offset (-16px) to (0) over (520ms), with `cubic-bezier(0.16, 1, 0.3, 1)` easing. Words stagger by (60ms), capped at (600ms). It plays once per authenticated session and resets on an authentication-required (401) response. Reduced-motion preference disables the greeting animation. This explicitly requested greeting motion leaves the ribbon and points ledger static."
       }
     ],
     "breakpoints": [
@@ -532,7 +537,7 @@
       "retryBusyState": "disabled"
     },
     "dashboard": {
-      "layoutDescription": "The public navigation destination is Dashboard. SEC\u2019s dashboard prioritizes the oldest five applications awaiting review with direct review actions and a full-queue link, then the earliest five upcoming or ongoing selected-semester events with event-management actions and explicit check-in or manual High Impact award status. It also shows up to five enabled societies without an active PRT credit in that semester and up to five enabled accounts awaiting setup across all semesters, with direct setup-link actions. Counts beside section headings reflect the full matching lists, and truncation text points to the complete destination. The full society points table remains available in the initially collapsed native disclosure, \u201cAll society point totals.\u201d The society dashboard greets its account with \u201cHello, {display_name}\u201d and a generic subtitle without repeating the society name. It retains applications and recent attendance, shows the next three upcoming or ongoing events with a View events link, and replaces the former three-column trackers with the Semester points ledger and separate PRT requirement.",
+      "layoutDescription": "The public navigation destination is Dashboard. SEC\u2019s dashboard prioritizes the oldest five applications awaiting review with direct review actions and a full-queue link, then the earliest five upcoming or ongoing selected-semester events with event-management actions and explicit check-in or manual High Impact award status. It also shows up to five enabled societies without an active PRT credit in that semester and up to five enabled accounts awaiting setup across all semesters, with direct setup-link actions. Counts beside section headings reflect the full matching lists, and truncation text points to the complete destination. The full society points table remains available in the initially collapsed native disclosure, \u201cAll society point totals.\u201d The society dashboard greets its account with \u201cHello, {display_name}\u201d without an overview subtitle. It retains applications and recent attendance, shows the next three upcoming or ongoing events with a View events link, and replaces the former three-column trackers with the Semester points ledger and separate PRT requirement.",
       "rowDescription": "Dashboard action rows reuse ruled records and existing primary, secondary, or text actions. Row content allows shrinking with `min-width: 0`, while its direct action does not shrink. At (760px) and below, action rows stack their content and action vertically, align to the start, and use an (8px) gap. The native points-register disclosure summary is maroon, (13px), weight (650), with (12px 0 20px) padding. Repeated direct actions have descriptive accessible names; changing navigation destinations scrolls to the top.",
       "publicNavigationLabel": "Dashboard",
       "admin": {
@@ -582,7 +587,8 @@
         "eventsPreviewLimit": 3,
         "eventsLink": "View events",
         "greeting": "Hello, {display_name}",
-        "subtitle": "Generic workspace context without repeating the society name."
+        "subtitle": null,
+        "fundingNote": "Removed."
       },
       "responsiveRows": {
         "contentMinWidth": "0",
@@ -593,7 +599,7 @@
         "mobileGap": "8px"
       },
       "composition": {
-        "description": "Dashboard composition uses open sections separated by hairlines, with (26px 0) section padding and (24px 0) on mobile. The page headline is `clamp(34px, 3.5vw, 52px)` with (1.12) line height and (-0.04em) tracking, fixed at (34px) on mobile. Section headings are (19px), weight (650), reducing to (18px) on mobile; counts sit outside the heading in muted body type (14px, weight 500). Empty sections become one compact status line with a check icon and an optional destination action, using (18px 0) padding, without an extra heading or description. Each section keeps its accessible name and `data-count`. SEC has one primary header action: review the oldest pending application, otherwise manage the earliest upcoming event, otherwise create an event. The collapsed points-register content is also flat. This dashboard treatment adds no motion; the static login reference artwork remains unchanged.",
+        "description": "Dashboard composition uses open sections separated by hairlines, with (26px 0) section padding and (24px 0) on mobile. The page headline is `clamp(34px, 3.5vw, 52px)` with (1.12) line height and (-0.04em) tracking, fixed at (34px) on mobile. Section headings are (19px), weight (650), reducing to (18px) on mobile; counts sit outside the heading in muted body type (14px, weight 500). Empty sections become one compact status line with a check icon and an optional destination action, using (18px 0) padding, without an extra heading or description. Each section keeps its accessible name and `data-count`. SEC has one primary header action: review the oldest pending application, otherwise manage the earliest upcoming event, otherwise create an event. The collapsed points-register content is also flat. The society greeting has the scoped entrance motion described below; the static login reference artwork remains unchanged.",
         "sectionPadding": "26px 0",
         "mobileSectionPadding": "24px 0",
         "emptyPadding": "18px 0",
@@ -607,7 +613,7 @@
         "countFontSize": "14px",
         "countFontWeight": 500,
         "contextRow": "Unboxed; no ribbon artwork.",
-        "motion": "none added",
+        "motion": "Greeting words animate once per authenticated session; other dashboard visualizations and login ribbon stay static.",
         "primaryHeaderActionPriority": [
           "Review next application: oldest pending submission",
           "Manage next event: earliest upcoming event",
@@ -752,7 +758,24 @@
       "gridRole": "grid",
       "focus": "Roving date buttons; arrow keys and Home/End.",
       "eventRendering": "Continuous weekly spans; one label per segment; clipped edges have continuation arrows.",
-      "viewToolbar": "Outside content panel."
+      "viewToolbar": "Outside content panel.",
+      "selectedDayDetails": {
+        "description": "Calendar selected-day details begin with a date block, date heading, and event count. Each event has a clear title (17px, weight 650; 15px mobile) beside its point amount, a category label underneath, clock/location facts, description text bounded to (70ch) at (13px / 1.65), and a distinct written check-in status with a dot. The day heading is (20px), reducing to (17px) on mobile. Event rows use (24px) vertical padding and a (24px) gap; mobile stacks details and actions with a (16px) gap and puts facts on separate lines.",
+        "titleSize": "17px",
+        "mobileTitleSize": "15px",
+        "titleWeight": 650,
+        "descriptionMaxWidth": "70ch",
+        "descriptionSize": "13px",
+        "descriptionLineHeight": 1.65,
+        "rowPadding": "24px 0",
+        "gap": "24px",
+        "mobileGap": "16px",
+        "facts": [
+          "Clock / event window",
+          "Location"
+        ],
+        "checkinStatus": "Distinct written label with dot"
+      }
     },
     "administrativeForms": {
       "description": "Administrative activity is an admin-only native disclosure, initially collapsed within an operational panel. Its summary uses Manrope Variable (18px, weight 650), (17px) on mobile, an activity count, and a maroon chevron that rotates on open; expanded content is separated by (20px). Application authoring explicitly offers Save draft / Publish application, or Save published changes / Unpublish and save draft for published forms. The publication actions follow a top rule, (28px) top margin, and (20px) top padding. Drafts carry an amber label and a written not-published hint; the application list offers a primary Publish application action. Publication changes preserve the existing versioned form and saved submission behavior.",
@@ -835,6 +858,51 @@
       "mobileColumns": "72px 104px 1fr",
       "togglePlacementMobile": "Same action row",
       "toggleState": "aria-pressed"
+    },
+    "applicationChoices": {
+      "description": "Choice-based application questions use separate required Choice N input rows rather than a multiline options editor. Rows use a (10px) gap with a flexible field and an icon remove control (42px minimum width, 44px minimum height). The choice group is capped at (640px) with (12px) row gaps and (20px 0 26px) margins. Add choice focuses the new field; removal focuses the preceding available choice. Each choice accepts up to (200) characters, with at least one and at most (30) choices; removal is disabled at one. Select and checkbox questions save their options array, while other question types normalize options to an empty array.",
+      "groupMaxWidth": "640px",
+      "groupGap": "12px",
+      "rowGap": "10px",
+      "choiceMin": 1,
+      "choiceMax": 30,
+      "choiceMaxLength": 200,
+      "removeMinWidth": "42px",
+      "removeMinHeight": "44px",
+      "labels": "Choice N",
+      "addAction": "Add choice",
+      "focusOnAdd": "New choice field",
+      "focusOnRemove": "Preceding available field",
+      "nonchoiceOptions": []
+    },
+    "applicationReadOnly": {
+      "description": "Application content is aligned to a maximum width of (800px). On mobile, the containing panel header and back action stack with a (14px) gap. A submitted society application displays its saved question version and answers in a read-only definition list, with maroon checkmarks for selected multiple-choice values. Question labels are muted (12px, weight 600), answers are (14px) with (1.65) line height, and responses are separated by rules with (20px) vertical padding. A pale rose submission receipt (#fcf5f5), bordered (#ead4d8) and rounded (6px), uses (18px 20px) padding and a (30px) bottom margin; it shows submitted time, confirmation delivery status, and written metadata. Status remains visible above the responses. Drafts and changes-requested submissions retain editable fields when open; other existing read-only conditions still apply.",
+      "maxWidth": "800px",
+      "responsesElement": "dl / dt / dd",
+      "questionTypography": "600 12px body font",
+      "answerTypography": "14px / 1.65 body font",
+      "responsePadding": "20px 0",
+      "receiptBackground": "#fcf5f5",
+      "receiptBorder": "1px solid #ead4d8",
+      "receiptRadius": "6px",
+      "receiptPadding": "18px 20px",
+      "receiptMarginBottom": "30px",
+      "editableStatuses": [
+        "DRAFT",
+        "CHANGES_REQUESTED"
+      ],
+      "version": "Saved submission question version",
+      "mobileHeader": "Column, start-aligned, 14px gap"
+    },
+    "attendanceLedger": {
+      "description": "Attendance history is a ruled ledger with a compact date block, readable event details, and a prominent point amount rather than a tiny badge. A muted (12px) caption reports the active-record count. Rows use (24px) vertical padding and a (20px) gap; the date block is (56px) wide, and the point amount is Manrope Variable (30px, weight 700, line height 1.15). Mobile uses (12px) gaps, a (44px) date block, (13px) event titles, and (26px) amounts, keeping the core row together unless correction controls need wrapping. Removed records retain their written state with muted date styling. The former \u201cOne society. One record\u201d funding note is absent from the dashboard.",
+      "rowPadding": "24px 0",
+      "gap": "20px",
+      "dateWidth": "56px",
+      "mobileDateWidth": "44px",
+      "pointTypography": "700 30px/1.15 var(--heading)",
+      "mobilePointSize": "26px",
+      "caption": "Active-record count; 12px muted text."
     }
   },
   "components": [

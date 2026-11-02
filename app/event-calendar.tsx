@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useId, useMemo, useRef, useState } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Clock, MapPin } from "lucide-react";
 import type { Event, Semester } from "../lib/types";
 import { labels } from "../lib/domain";
 import {
@@ -236,49 +236,101 @@ export default function EventCalendar({
         className="calendar-day-details"
         aria-label={`Events on ${fullDate(selected)}`}
       >
-        <h3>{fullDate(selected)}</h3>
-        {dayEvents.length ? (
-          dayEvents.map((event) => (
-            <article className="record dashboard-record" key={event.id}>
-              <div>
-                <strong>{event.name}</strong>
-                <small>
-                  {labels[event.category]} · {when(event.starts_at)} –{" "}
-                  {when(event.ends_at)} CT
-                </small>
-                <small>{event.location}</small>
-                <p>{event.description}</p>
-                <small>
-                  {event.category === "HIGH_IMPACT"
-                    ? "2 points · SEC awards manually"
-                    : `1 point · Check-in ${event.checkin_open ? "enabled within its window" : "disabled"}`}
-                </small>
-              </div>
-              {onEdit && (
-                <div className="actions">
-                  <button
-                    className="button secondary"
-                    onClick={() => onEdit(event)}
-                    aria-label={`Edit ${event.name}`}
+        <div className="calendar-details-heading">
+          <div className="date-block">
+            <span>
+              {new Intl.DateTimeFormat("en-US", {
+                month: "short",
+                timeZone: "UTC",
+              }).format(new Date(selected + "T12:00:00Z"))}
+            </span>
+            <strong>{Number(selected.slice(-2))}</strong>
+          </div>
+          <div>
+            <h3>{fullDate(selected)}</h3>
+            <p>
+              {dayEvents.length
+                ? `${dayEvents.length} ${dayEvents.length === 1 ? "event" : "events"} with a window on this day`
+                : "No events scheduled for this day"}
+            </p>
+          </div>
+        </div>
+        {dayEvents.length
+          ? dayEvents.map((event) => (
+              <article
+                className={
+                  "calendar-event-detail category-" +
+                  event.category.toLowerCase()
+                }
+                key={event.id}
+              >
+                <div className="calendar-event-copy">
+                  <div className="calendar-event-heading">
+                    <strong className="calendar-event-title">
+                      {event.name}
+                    </strong>
+                    <span className="calendar-point-value">
+                      {event.category === "HIGH_IMPACT"
+                        ? "2 points"
+                        : "1 point"}
+                    </span>
+                  </div>
+                  <span className="calendar-category-label">
+                    <i />
+                    {labels[event.category]}
+                  </span>
+
+                  <div className="calendar-event-facts">
+                    <span>
+                      <Clock size={15} aria-hidden="true" />
+                      {when(event.starts_at)} – {when(event.ends_at)} CT
+                    </span>
+                    {event.location && (
+                      <span>
+                        <MapPin size={15} aria-hidden="true" />
+                        {event.location}
+                      </span>
+                    )}
+                  </div>
+                  {event.description && <p>{event.description}</p>}
+                  <span
+                    className={
+                      "calendar-checkin-status" +
+                      (event.checkin_open && event.category !== "HIGH_IMPACT"
+                        ? " enabled"
+                        : "")
+                    }
                   >
-                    Edit event
-                  </button>
-                  {event.category !== "HIGH_IMPACT" && onQr && (
+                    {event.category === "HIGH_IMPACT"
+                      ? "Points awarded manually by SEC"
+                      : event.checkin_open
+                        ? "Check-in enabled during this window"
+                        : "Check-in disabled"}
+                  </span>
+                </div>
+                {onEdit && (
+                  <div className="actions calendar-detail-actions">
                     <button
                       className="button secondary"
-                      onClick={() => onQr(event)}
-                      aria-label={`QR for ${event.name}`}
+                      onClick={() => onEdit(event)}
+                      aria-label={`Edit ${event.name}`}
                     >
-                      QR & link
+                      Edit event
                     </button>
-                  )}
-                </div>
-              )}
-            </article>
-          ))
-        ) : (
-          <p>No events on this date.</p>
-        )}
+                    {event.category !== "HIGH_IMPACT" && onQr && (
+                      <button
+                        className="button secondary"
+                        onClick={() => onQr(event)}
+                        aria-label={`QR for ${event.name}`}
+                      >
+                        QR & link
+                      </button>
+                    )}
+                  </div>
+                )}
+              </article>
+            ))
+          : null}
       </section>
     </div>
   );
