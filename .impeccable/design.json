@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-11-02T22:39:16.458308+00:00",
+  "generatedAt": "2026-11-02T23:06:10.686052+00:00",
   "title": "Design System: SocietyHub",
   "extensions": {
     "colorMeta": {
@@ -415,6 +415,11 @@
         "name": "drawer",
         "value": "10px 0 40px #28000033",
         "purpose": "Open mobile navigation edge."
+      },
+      {
+        "name": "semester-picker",
+        "value": "0 12px 30px #29000b18",
+        "purpose": "Semester listbox popup only."
       }
     ],
     "motion": [
@@ -686,6 +691,84 @@
       "axis": "Five ticks; maximum rounded to multiple of four, minimum four.",
       "tableDisclosure": "View monthly data",
       "motion": "none"
+    },
+    "semesterPicker": {
+      "description": "The semester control is a custom combobox rather than a native select. Its white trigger uses the control radius, a line border, (40px) minimum height, maroon CalendarDays/ChevronDown icons, and a pale rose Current badge. The white listbox opens (8px) below and aligns right, with (270px) minimum width, (250px) on mobile, (300px) maximum height, (6px) padding and radius, a (1px #ead4d8) border, and shadow (`0 12px 30px #29000b18`). Highlighted options use (#fcf5f5); each option shows dates, a current label when applicable, and a selected check. Arrow keys, Home/End, Enter/Space, Escape, Tab, outside pointer dismissal, and typeahead are supported. Selection restores trigger focus. The adjacent refresh action exposes the tooltip \u201cReload the latest workspace data\u201d; automatic refresh remains every (30s).",
+      "trigger": {
+        "background": "#ffffff",
+        "border": "1px solid var(--line)",
+        "radius": "6px",
+        "minHeight": "40px",
+        "fontSize": "12px"
+      },
+      "popup": {
+        "minWidth": "270px",
+        "mobileMinWidth": "250px",
+        "maxHeight": "300px",
+        "padding": "6px",
+        "radius": "6px",
+        "border": "1px solid #ead4d8",
+        "shadow": "0 12px 30px #29000b18",
+        "highlight": "#fcf5f5"
+      },
+      "keyboard": [
+        "ArrowUp",
+        "ArrowDown",
+        "Home",
+        "End",
+        "Enter",
+        "Space",
+        "Escape",
+        "Tab",
+        "typeahead"
+      ],
+      "refreshTooltip": "Reload the latest workspace data",
+      "automaticRefreshInterval": "30s"
+    },
+    "eventCalendar": {
+      "description": "Events offer List and Calendar views through native `aria-pressed` buttons in a white, line-bordered (6px) segmented control with a rose active fill. The selected-semester month calendar uses Central-time event windows, seven equal columns, and minimum day heights of (110px) desktop and (64px) mobile. Maroon, Standard rose, and High Impact slate match the points-series colors and remain named in a legend and selected-day details. Desktop cells show short event labels; mobile cells retain dots and put readable details below. The selected day uses a pale rose fill with an inset rule; today uses a maroon circular date. Roving keyboard focus supports arrows and Home/End, while month navigation stays within scoped bounds.",
+      "viewControlRadius": "6px",
+      "dayMinHeight": "110px",
+      "mobileDayMinHeight": "64px",
+      "timeZone": "America/Chicago",
+      "categoryTokens": {
+        "PRT": "maroon",
+        "STANDARD": "chart-standard",
+        "HIGH_IMPACT": "chart-high-impact"
+      },
+      "selectionFill": "#fcf5f5",
+      "selectionShadow": "inset 0 0 0 1px #b58e98",
+      "gridRole": "grid",
+      "focus": "Roving date buttons; arrow keys and Home/End."
+    },
+    "administrativeForms": {
+      "description": "Administrative activity is an admin-only native disclosure, initially collapsed within an operational panel. Its summary uses Manrope Variable (18px, weight 650), (17px) on mobile, an activity count, and a maroon chevron that rotates on open; expanded content is separated by (20px). Application authoring explicitly offers Save draft / Publish application, or Save published changes / Unpublish and save draft for published forms. The publication actions follow a top rule, (28px) top margin, and (20px) top padding. Drafts carry an amber label and a written not-published hint; the application list offers a primary Publish application action. Publication changes preserve the existing versioned form and saved submission behavior.",
+      "auditDefault": "collapsed",
+      "auditSummary": "650 18px/1.4 var(--heading)",
+      "auditSummaryMobileSize": "17px",
+      "publicationActions": {
+        "marginTop": "28px",
+        "paddingTop": "20px",
+        "borderTop": "1px solid var(--line)"
+      },
+      "draftActions": [
+        "Save draft",
+        "Publish application"
+      ],
+      "publishedActions": [
+        "Save published changes",
+        "Unpublish and save draft"
+      ],
+      "draftLabelTone": "amber"
+    },
+    "checkInQr": {
+      "description": "Event check-in QR artwork can be downloaded as a locally generated (1024px) PNG with maroon modules on white, a sanitized event-derived filename, and an existing primary button treatment. The rendered/downloadable image is bound to the current check-in link so a changed link cannot present an older QR image.",
+      "format": "image/png",
+      "width": "1024px",
+      "dark": "#500000",
+      "light": "#ffffff",
+      "downloadLabel": "Download PNG",
+      "linkBinding": "Current check-in link only; invalidate outdated image."
     }
   },
   "components": [

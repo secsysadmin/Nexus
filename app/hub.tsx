@@ -29,10 +29,13 @@ import {
   X,
   ShieldCheck,
   KeyRound,
+  Download,
 } from "lucide-react";
 import QRCode from "qrcode";
 import MaroonRibbons from "./maroon-ribbons";
 import SemesterPoints from "./semester-points";
+import SemesterPicker from "./semester-picker";
+import EventCalendar from "./event-calendar";
 import { dashboardItems } from "../lib/dashboard";
 import { defaultConfirmationEmail } from "../lib/application-email";
 import type {
@@ -183,6 +186,7 @@ function Button({
   secondary = false,
   disabled = false,
   type = "button",
+  value,
   "aria-label": ariaLabel,
 }: {
   children: ReactNode;
@@ -190,11 +194,13 @@ function Button({
   secondary?: boolean;
   disabled?: boolean;
   type?: "button" | "submit";
+  value?: string;
   "aria-label"?: string;
 }) {
   return (
     <button
       type={type}
+      value={value}
       className={secondary ? "button secondary" : "button"}
       onClick={onClick}
       disabled={disabled}
@@ -244,6 +250,7 @@ export default function Hub() {
     token: string;
     eventId: string;
   }>({ mode: "home", token: "", eventId: "" });
+  const [eventsView, setEventsView] = useState<"list" | "calendar">("list");
   const [editingEvent, setEditingEvent] = useState<Event | null | undefined>(),
     [editingForm, setEditingForm] = useState<Form | null | undefined>(),
     [application, setApplication] = useState<Form | null>(null),
@@ -573,26 +580,16 @@ export default function Hub() {
             </span>
           </span>
           <div className="topbar-actions">
-            <label className="semester-select">
-              <CalendarDays size={16} />
-              <span className="sr-only">Viewing semester</span>
-              <select
-                value={semester}
-                onChange={(e) => setSemester(e.target.value)}
-              >
-                {data.semesters.map((s) => (
-                  <option key={s.id} value={s.id}>
-                    {s.name}
-                    {s.is_current ? " · Current" : ""}
-                  </option>
-                ))}
-              </select>
-              <ChevronDown size={14} />
-            </label>
+            <SemesterPicker
+              semesters={data.semesters}
+              value={semester}
+              onChange={setSemester}
+            />
             <button
               className="icon-button"
               onClick={() => void refresh()}
               aria-label="Refresh workspace"
+              title="Reload the latest workspace data"
             >
               <RefreshCw size={17} />
             </button>
@@ -1203,8 +1200,36 @@ export default function Hub() {
               <>
                 <Panel
                   title={admin ? "Semester events" : "Events this semester"}
+                  action={
+                    <div
+                      className="view-switch"
+                      role="group"
+                      aria-label="Event view"
+                    >
+                      <button
+                        aria-pressed={eventsView === "list"}
+                        onClick={() => setEventsView("list")}
+                      >
+                        List
+                      </button>
+                      <button
+                        aria-pressed={eventsView === "calendar"}
+                        onClick={() => setEventsView("calendar")}
+                      >
+                        Calendar
+                      </button>
+                    </div>
+                  }
                 >
-                  {events.length ? (
+                  {eventsView === "calendar" && current ? (
+                    <EventCalendar
+                      key={current.id}
+                      events={events}
+                      semester={current}
+                      onEdit={admin ? setEditingEvent : undefined}
+                      onQr={admin ? setQrEvent : undefined}
+                    />
+                  ) : events.length ? (
                     <div className="event-list">
                       {events.map((e) => (
                         <article className="event-row" key={e.id}>
@@ -1394,7 +1419,15 @@ export default function Hub() {
                 busy={busy}
                 cancel={() => setEditingForm(undefined)}
                 save={async (b) => {
-                  if (await run("admin/forms", b, "Application saved."))
+                  if (
+                    await run(
+                      "admin/forms",
+                      b,
+                      (b as { published: boolean }).published
+                        ? "Application published. Societies can now view and submit."
+                        : "Draft saved. Publish it from this list when ready.",
+                    )
+                  )
                     setEditingForm(undefined);
                 }}
               />
@@ -1437,11 +1470,21 @@ export default function Hub() {
                       return (
                         <article className="form-row" key={f.id}>
                           <div>
-                            <Pill tone={closed ? "neutral" : "green"}>
+                            <Pill
+                              tone={
+                                admin && !f.published
+                                  ? "amber"
+                                  : closed
+                                    ? "neutral"
+                                    : "green"
+                              }
+                            >
                               {admin
-                                ? closed
-                                  ? "Closed"
-                                  : "Published"
+                                ? !f.published
+                                  ? "Draft"
+                                  : closed
+                                    ? "Closed"
+                                    : "Published"
                                 : s
                                   ? status(s.status)
                                   : closed
@@ -1450,6 +1493,15 @@ export default function Hub() {
                             </Pill>
                             <h3>{f.title}</h3>
                             <p>{f.description}</p>
+                            {admin && !f.published && (
+                              <p className="draft-hint">
+                                Not published · Not accepting new submissions
+                                {f.deadline &&
+                                Date.parse(f.deadline) <= Date.now()
+                                  ? " · Update the deadline before publishing."
+                                  : ""}
+                              </p>
+                            )}
                             <small>
                               {f.kind === "FUNDING"
                                 ? "Society funding"
@@ -1458,6 +1510,31 @@ export default function Hub() {
                             </small>
                           </div>
                           <div className="actions">
+                            {admin && !f.published && (
+                              <Button
+                                disabled={
+                                  busy ||
+                                  !!(
+                                    f.deadline &&
+                                    Date.parse(f.deadline) <= Date.now()
+                                  )
+                                }
+                                aria-label={`Publish ${f.title}`}
+                                onClick={() =>
+                                  void run(
+                                    "admin/form-publication",
+                                    {
+                                      id: f.id,
+                                      version: f.current_version,
+                                      published: true,
+                                    },
+                                    "Application published. Societies can now view and submit.",
+                                  )
+                                }
+                              >
+                                Publish application
+                              </Button>
+                            )}
                             {admin && (
                               <Button
                                 secondary
@@ -1749,7 +1826,18 @@ export default function Hub() {
                 <>
                   <SemesterManager data={data} busy={busy} run={run} />
                   <Allowlist data={data} busy={busy} run={run} />
-                  <Panel title="Recent administrative activity">
+                  <details className="panel audit-disclosure">
+                    <summary>
+                      <span>Recent administrative activity</span>
+                      <small>
+                        {data.audit.length}{" "}
+                        {data.audit.length === 1 ? "entry" : "entries"}
+                      </small>
+                      <ChevronDown size={18} aria-hidden="true" />
+                    </summary>
+                    {!data.audit.length && (
+                      <p>No administrative activity recorded.</p>
+                    )}
                     <div className="record-list">
                       {data.audit.map((a) => (
                         <div className="record" key={a.id}>
@@ -1768,7 +1856,7 @@ export default function Hub() {
                         </div>
                       ))}
                     </div>
-                  </Panel>
+                  </details>
                 </>
               )}
             </>
@@ -2128,20 +2216,39 @@ function QRPanel({
   rotate: () => Promise<void>;
   busy: boolean;
 }) {
-  const [src, setSrc] = useState(""),
+  const [qr, setQr] = useState<{ link: string; src: string } | null>(null),
     [error, setError] = useState("");
   const link = `${window.location.origin}/checkin/${event.id}?token=${event.checkin_token}`;
+  const src = qr?.link === link ? qr.src : "";
+  const filename = `${
+    event.name
+      .toLowerCase()
+      .normalize("NFKD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-|-$/g, "")
+      .slice(0, 70) || "event"
+  }-check-in.png`;
   useEffect(() => {
+    let active = true;
+    setError("");
     void QRCode.toDataURL(link, {
-      width: 400,
+      type: "image/png",
+      width: 1024,
       margin: 3,
       errorCorrectionLevel: "M",
       color: { dark: "#500000", light: "#ffffff" },
     })
-      .then(setSrc)
-      .catch(() =>
-        setError("Unable to generate QR code. Use the sign-in link below."),
-      );
+      .then((src) => {
+        if (active) setQr({ link, src });
+      })
+      .catch(() => {
+        if (active)
+          setError("Unable to generate QR code. Use the sign-in link below.");
+      });
+    return () => {
+      active = false;
+    };
   }, [link]);
   return (
     <Panel
@@ -2178,6 +2285,12 @@ function QRPanel({
           {error && <p role="alert">{error}</p>}
           <CopyLink value={link} />
           <div className="actions">
+            {src && (
+              <a className="button" href={src} download={filename}>
+                <Download size={16} aria-hidden="true" />
+                Download PNG
+              </a>
+            )}
             <a
               className="button secondary"
               href={link}
@@ -2342,7 +2455,6 @@ function FormEditor({
     [semester, setSemester] = useState(
       initial?.semester_id ?? selectedSemester,
     ),
-    [published, setPublished] = useState(initial?.published ?? false),
     [deadline, setDeadline] = useState(
       initial?.deadline ? localDate(initial.deadline) : "",
     ),
@@ -2374,13 +2486,18 @@ function FormEditor({
         className="editor-form"
         onSubmit={(e) => {
           e.preventDefault();
+          const submitter = (e.nativeEvent as SubmitEvent)
+            .submitter as HTMLButtonElement | null;
+          const publish = submitter
+            ? submitter.value === "publish"
+            : !!initial?.published;
           void save({
             id: initial?.id,
             semesterId: semester,
             title,
             description,
             kind,
-            published,
+            published: publish,
             deadline: deadline ? new Date(deadline).toISOString() : null,
             questions,
           });
@@ -2547,15 +2664,37 @@ function FormEditor({
           <Plus size={16} />
           Add question
         </Button>
-        <label className="check-field">
-          <input
-            type="checkbox"
-            checked={published}
-            onChange={(e) => setPublished(e.target.checked)}
-          />
-          Publish for societies to view and submit
-        </label>
-        <FormActions busy={busy} onCancel={cancel} label="Save application" />
+        <div className="publication-actions">
+          <p>
+            {initial?.published
+              ? "Save changes to the published form, or unpublish it to return to a draft."
+              : "Save a draft to keep a new application private, then publish it here or from the application list."}
+          </p>
+          <div className="actions">
+            {initial?.published ? (
+              <>
+                <Button type="submit" value="publish" disabled={busy}>
+                  Save published changes
+                </Button>
+                <Button secondary type="submit" value="draft" disabled={busy}>
+                  Unpublish and save draft
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button secondary type="submit" value="draft" disabled={busy}>
+                  Save draft
+                </Button>
+                <Button type="submit" value="publish" disabled={busy}>
+                  Publish application
+                </Button>
+              </>
+            )}
+            <Button secondary onClick={cancel} disabled={busy}>
+              Cancel
+            </Button>
+          </div>
+        </div>
       </form>
     </Panel>
   );

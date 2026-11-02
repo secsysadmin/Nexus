@@ -2,7 +2,7 @@ import { test, expect, type APIRequestContext } from "@playwright/test";
 import dotenv from "dotenv";
 import pg from "pg";
 import { randomUUID } from "node:crypto";
-import { mkdir } from "node:fs/promises";
+import { mkdir, readFile } from "node:fs/promises";
 import { hashPassword, token, digest } from "../lib/security";
 dotenv.config({ path: ".env.local", quiet: true });
 const suffix = randomUUID().slice(0, 8),
@@ -172,7 +172,58 @@ test("society hub end-to-end: admin, concurrent check-in, drafts, review, QR and
       "Check-in QR code for Presidents’ Round Table · Test data",
     ),
   ).toBeVisible();
+  const downloaded = admin.waitForEvent("download");
+  await admin.getByRole("link", { name: "Download PNG", exact: true }).click();
+  const png = await downloaded;
+  const pngPath = await png.path();
+  expect(pngPath).toBeTruthy();
+  const pngBytes = await readFile(pngPath!);
+  expect(pngBytes.subarray(0, 8).toString("hex")).toBe("89504e470d0a1a0a");
+  expect(pngBytes.readUInt32BE(16)).toBe(1024);
+  expect(png.suggestedFilename()).toMatch(/check-in\.png$/);
+  await admin.setViewportSize({ width: 1440, height: 1000 });
+  await admin.evaluate(() => window.scrollTo(0, 0));
+  await admin.screenshot({
+    path: ".impeccable/review/qr-download-desktop.png",
+    fullPage: true,
+  });
   await admin.getByRole("button", { name: "Close QR panel" }).click();
+  await admin.getByRole("button", { name: "Calendar", exact: true }).click();
+  await expect(
+    admin.getByRole("grid", { name: /event calendar/ }),
+  ).toBeVisible();
+  const today = admin.locator('.calendar-day[aria-current="date"]');
+  await today.focus();
+  await today.press("ArrowRight");
+  await admin
+    .locator('.calendar-cell[aria-selected="true"] button')
+    .press("ArrowLeft");
+  await expect(
+    admin
+      .locator(".calendar-day-details")
+      .getByText("Presidents’ Round Table · Test data", { exact: true }),
+  ).toBeVisible();
+  await admin.evaluate(() => {
+    (document.activeElement as HTMLElement)?.blur();
+    window.scrollTo(0, 0);
+  });
+  await admin.screenshot({
+    path: ".impeccable/review/events-calendar-desktop.png",
+    fullPage: true,
+  });
+  await admin.setViewportSize({ width: 390, height: 844 });
+  expect(
+    await admin.evaluate(
+      () => document.documentElement.scrollWidth <= innerWidth,
+    ),
+  ).toBe(true);
+  await admin.screenshot({
+    path: ".impeccable/review/events-calendar-mobile.png",
+    fullPage: true,
+  });
+  await admin.setViewportSize({ width: 1440, height: 1000 });
+  await admin.getByRole("button", { name: "List", exact: true }).click();
+
   const high = await post(adminContext.request, "admin/events", {
     semesterId,
     name: "Cross-society Engineering Expo · Test data",
@@ -201,11 +252,32 @@ test("society hub end-to-end: admin, concurrent check-in, drafts, review, QR and
     .getByLabel("Question text")
     .fill("What will the funding support?");
   await admin.getByLabel("Answer type").selectOption("long");
-  await admin.getByLabel("Publish for societies to view and submit").check();
+  await admin.evaluate(() => {
+    (document.activeElement as HTMLElement)?.blur();
+    window.scrollTo(0, 0);
+  });
+  await admin.screenshot({
+    path: ".impeccable/review/application-publication-editor.png",
+    fullPage: true,
+  });
+  await admin.getByRole("button", { name: "Save draft", exact: true }).click();
+  await expect(admin.getByRole("status")).toContainText("Draft saved.");
+  await expect(admin.getByText("Draft", { exact: true })).toBeVisible();
+  await admin.evaluate(() => window.scrollTo(0, 0));
+  await admin.screenshot({
+    path: ".impeccable/review/application-draft-list.png",
+    fullPage: true,
+  });
   await admin
-    .getByRole("button", { name: "Save application", exact: true })
+    .getByRole("button", {
+      name: "Publish Society Funding Application · Test data",
+      exact: true,
+    })
     .click();
-  await expect(admin.getByRole("status")).toContainText("Application saved.");
+  await expect(admin.getByRole("status")).toContainText(
+    "Application published.",
+  );
+  await expect(admin.getByText("Published", { exact: true })).toBeVisible();
   await expect(
     admin.getByRole("heading", {
       name: "Society Funding Application · Test data",
@@ -580,4 +652,78 @@ test("society hub end-to-end: admin, concurrent check-in, drafts, review, QR and
   expect(errors).toEqual([]);
   await adminContext.close();
   await societyContext.close();
+});
+
+test("semester picker keyboard controls and administrative activity disclosure", async ({
+  page,
+}) => {
+  await page.route("**/api/data", (route) =>
+    route.fulfill({
+      json: {
+        actor: {
+          id: "visual",
+          username: "sec",
+          display_name: "Test SEC",
+          role: "admin",
+        },
+        semesters: [
+          {
+            id: "fall",
+            name: "Fall 2026",
+            starts_on: "2026-07-01",
+            ends_on: "2026-12-31",
+            is_current: true,
+          },
+          {
+            id: "spring",
+            name: "Spring 2026",
+            starts_on: "2026-01-01",
+            ends_on: "2026-06-30",
+            is_current: false,
+          },
+        ],
+        events: [],
+        forms: [],
+        accounts: [],
+        credits: [],
+        submissions: [],
+        roster: [],
+        audit: [
+          {
+            id: 1,
+            actor_name: "sec",
+            action: "EVENT_CREATED",
+            created_at: "2026-11-02T20:00:00Z",
+            details: {},
+          },
+        ],
+        allowlist: [],
+        environment: "development",
+      },
+    }),
+  );
+  await page.goto("/");
+  const picker = page.getByRole("combobox", { name: "Viewing semester" });
+  await picker.focus();
+  await picker.press("ArrowDown");
+  await expect(picker).toHaveAttribute("aria-expanded", "true");
+  await picker.press("ArrowDown");
+  await picker.press("Enter");
+  await expect(picker).toContainText("Spring 2026");
+  await picker.press("Home");
+  await picker.press("Enter");
+  await expect(picker).toContainText("Fall 2026");
+  await picker.click();
+  await picker.press("Escape");
+  await expect(picker).toHaveAttribute("aria-expanded", "false");
+  await page
+    .getByRole("button", { name: "Settings & audit", exact: true })
+    .click();
+  const disclosure = page.locator(".audit-disclosure");
+  await expect(disclosure).not.toHaveAttribute("open");
+  await disclosure.locator("summary").click();
+  await expect(disclosure).toHaveAttribute("open", "");
+  await expect(disclosure.locator(".record-list")).toBeVisible();
+  await disclosure.locator("summary").press("Enter");
+  await expect(disclosure.locator(".record-list")).toBeHidden();
 });

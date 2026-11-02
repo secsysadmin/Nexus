@@ -516,6 +516,41 @@ export async function adminMutation(
       );
       return { ok: true };
     }
+    case "admin/form-publication": {
+      const b = z
+        .object({
+          id: uuid,
+          version: z.number().int().min(1),
+          published: z.boolean(),
+        })
+        .parse(input);
+      const {
+        rows: [form],
+      } = await db.query("SELECT * FROM forms WHERE id=$1 FOR UPDATE", [b.id]);
+      if (!form) throw new AppError("Application not found.", 404);
+      if (form.current_version !== b.version)
+        throw new AppError(
+          "This application changed. Refresh before publishing.",
+          409,
+        );
+      if (
+        b.published &&
+        form.deadline &&
+        new Date(form.deadline).getTime() <= Date.now()
+      )
+        throw new AppError("Choose a future deadline before publishing.");
+      await db.query("UPDATE forms SET published=$1 WHERE id=$2", [
+        b.published,
+        b.id,
+      ]);
+      await audit(
+        db,
+        actor.id,
+        b.published ? "APPLICATION_PUBLISHED" : "APPLICATION_UNPUBLISHED",
+        b.id,
+      );
+      return { ok: true };
+    }
     case "admin/forms": {
       const b = z
         .object({
@@ -529,6 +564,13 @@ export async function adminMutation(
           questions: questionsSchema,
         })
         .parse(input);
+      if (
+        !b.id &&
+        b.published &&
+        b.deadline &&
+        Date.parse(b.deadline) <= Date.now()
+      )
+        throw new AppError("Choose a future deadline before publishing.");
       let id = b.id,
         version = 1;
       if (id) {
@@ -536,6 +578,13 @@ export async function adminMutation(
           rows: [f],
         } = await db.query("SELECT * FROM forms WHERE id=$1 FOR UPDATE", [id]);
         if (!f) throw new AppError("Application not found.", 404);
+        if (
+          !f.published &&
+          b.published &&
+          b.deadline &&
+          Date.parse(b.deadline) <= Date.now()
+        )
+          throw new AppError("Choose a future deadline before publishing.");
         if (f.semester_id !== b.semesterId || f.kind !== b.kind)
           throw new AppError("Application semester and type cannot change.");
         version = f.current_version + 1;

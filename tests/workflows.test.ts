@@ -299,3 +299,80 @@ test("semester changes preserve historical credits and immutable event categorie
     await f.db.close();
   }
 });
+
+test("SEC can publish a saved draft without changing its version; roles, stale versions and past deadlines are guarded", async () => {
+  const f = await fixture();
+  try {
+    const form = (await adminMutation(f.client, f.admin, "admin/forms", {
+      semesterId: f.sem,
+      title: "Draft application",
+      description: "Test",
+      kind: "FUNDING",
+      published: false,
+      deadline: null,
+      questions: [
+        {
+          id: "answer",
+          label: "Your plan",
+          type: "short",
+          required: true,
+          options: [],
+        },
+      ],
+    })) as { id: string; version: number };
+    assert.equal((await getData(f.client, f.society)).forms.length, 0);
+    await assert.rejects(
+      () =>
+        adminMutation(f.client, f.society, "admin/form-publication", {
+          id: form.id,
+          version: 1,
+          published: true,
+        }),
+      (e: unknown) => (e as { status: number }).status === 403,
+    );
+    await assert.rejects(
+      () =>
+        adminMutation(f.client, f.admin, "admin/form-publication", {
+          id: form.id,
+          version: 2,
+          published: true,
+        }),
+      (e: unknown) => (e as { status: number }).status === 409,
+    );
+    await adminMutation(f.client, f.admin, "admin/form-publication", {
+      id: form.id,
+      version: 1,
+      published: true,
+    });
+    assert.equal((await getData(f.client, f.society)).forms.length, 1);
+    const saved = (
+      await f.db.query<{ published: boolean; current_version: number }>(
+        "SELECT published,current_version FROM forms WHERE id=$1",
+        [form.id],
+      )
+    ).rows[0];
+    assert.equal(saved.published, true);
+    assert.equal(saved.current_version, 1);
+    await adminMutation(f.client, f.admin, "admin/form-publication", {
+      id: form.id,
+      version: 1,
+      published: false,
+    });
+    assert.equal((await getData(f.client, f.society)).forms.length, 0);
+    await f.db.query(
+      "UPDATE forms SET deadline=now()-interval '1 day' WHERE id=$1",
+      [form.id],
+    );
+    await assert.rejects(
+      () =>
+        adminMutation(f.client, f.admin, "admin/form-publication", {
+          id: form.id,
+          version: 1,
+          published: true,
+        }),
+      /future deadline/,
+    );
+  } finally {
+    await f.db.close();
+  }
+});
