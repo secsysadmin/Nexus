@@ -1,5 +1,5 @@
 ---
-name: Nexus Society Hub
+name: SocietyHub
 description: An editorial society register for semester records and SEC administration.
 colors:
   maroon: "#500000"
@@ -98,13 +98,13 @@ components:
     padding: "5px 9px"
 ---
 
-# Design System: Nexus Society Hub
+# Design System: SocietyHub
 
 ## Overview
 
 **Creative North Star: "Editorial society register"**
 
-Warm paper surfaces, deep maroon navigation, calm headings, and ruled records give societies and SEC a shared operating workspace. Readable records, explicit status, and efficient forms set the visual density. The identity is an implementation assumption; no official university logo is claimed.
+Warm paper surfaces, deep maroon navigation, calm headings, and ruled records give societies and SEC a shared operating workspace. Readable records, explicit status, and efficient forms set the visual density. The public name is SocietyHub. Use the existing SEC circular logo copied unchanged from Delphi/public/sec_favicon.png; Nexus is an internal name only.
 
 **Key Characteristics:**
 - Warm neutral surfaces anchored by maroon navigation.
@@ -159,6 +159,8 @@ Paper panels, semester strips, and the point-tracker group use the panel radius.
 
 ## Components
 
+`public/sec-logo.png` is copied unchanged from Delphi’s `public/sec_favicon.png`. It replaces the prior network icon on sign-in, loading, navigation, and browser icons. The public name is SocietyHub, including page titles and footers. The sidebar wordmark uses Manrope Variable at (21px), weight (750), with a (42px × 42px) logo, (10px) gap, and (6px) horizontal padding. Sign-in uses a (48px × 48px) logo and (14px) brand gap; its wordmark is (25px) on desktop and (21px) on mobile. The standalone loading logo is also (48px × 48px). Logos retain their proportions with `object-fit: contain`, do not shrink, and have circular rounding.
+
 Primary and secondary buttons share compact typography (12px, weight 650), a minimum height of (42px), and an explicit disabled state (opacity 0.5 and not-allowed cursor). Secondary buttons use a paper surface and line border; their hover uses tint. Text actions use maroon and underline on hover.
 
 Fields place a persistent label above a white control with the input-line stroke, control radius, and minimum height (43px). Help text sits below the label. Errors and saved/loading messages remain explicit. Keyboard focus uses the focus color as a (3px) outline offset by (4px).
@@ -178,4 +180,4 @@ Pills carry short written states with positive, pending, maroon, or neutral tone
 ### Don't:
 - Don't replace written states with color alone.
 - Don't apply resting shadows to the flat record panels.
-- Don't present the identity as an official university logo.
+- Don't substitute an invented mark for the supplied SEC logo.

@@ -23,7 +23,6 @@ import {
   ChevronDown,
   ChevronUp,
   Trash2,
-  Network,
   ClipboardCheck,
   RefreshCw,
   Menu,
@@ -327,8 +326,14 @@ export default function Hub() {
   if (loading)
     return (
       <main className="standalone" aria-busy="true">
-        <Network size={32} />
-        <h1>Society Hub</h1>
+        <img
+          src="/sec-logo.png"
+          alt="Student Engineers’ Council"
+          width={48}
+          height={48}
+          className="brand-logo"
+        />
+        <h1>SocietyHub</h1>
         <p>Opening your workspace…</p>
       </main>
     );
@@ -425,10 +430,14 @@ export default function Hub() {
         className={"sidebar " + (mobile ? "open" : "")}
       >
         <a href="/" className="brand">
-          <Network size={30} />
-          <span>
-            Nexus<small>Society Hub</small>
-          </span>
+          <img
+            src="/sec-logo.png"
+            alt="Student Engineers’ Council"
+            width={42}
+            height={42}
+            className="brand-logo"
+          />
+          <span>SocietyHub</span>
         </a>
         <button
           className="icon-button sidebar-close"
@@ -1468,7 +1477,7 @@ export default function Hub() {
             </>
           )}
           <footer className="footer">
-            <span>Nexus / Society Hub</span>
+            <span>SocietyHub</span>
             <span>Student Engineers’ Council · Texas A&M</span>
           </footer>
         </main>
@@ -1499,10 +1508,14 @@ function AuthScreen({
     <main className="auth-page">
       <section className="auth-story">
         <a className="brand" href="/">
-          <Network size={34} />
-          <span>
-            Nexus<small>Society Hub</small>
-          </span>
+          <img
+            src="/sec-logo.png"
+            alt="Student Engineers’ Council"
+            width={48}
+            height={48}
+            className="brand-logo"
+          />
+          <span>SocietyHub</span>
         </a>
         <div>
           <h1>
@@ -1526,13 +1539,19 @@ function AuthScreen({
       </section>
       <section className="auth-main">
         <div className="auth-form">
-          <Network className="auth-mark" size={32} />
+          <img
+            src="/sec-logo.png"
+            alt="Student Engineers’ Council"
+            width={48}
+            height={48}
+            className="auth-mark brand-logo"
+          />
           <h2>
             {activate
               ? "Set your account password"
               : checkin
                 ? "Sign in to check in"
-                : "Welcome to Society Hub"}
+                : "Welcome to SocietyHub"}
           </h2>
           <p>
             {activate

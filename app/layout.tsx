@@ -3,9 +3,14 @@ import "@fontsource-variable/dm-sans";
 import "@fontsource-variable/manrope";
 import "./globals.css";
 export const metadata: Metadata = {
-  title: "Society Hub · Nexus",
+  title: "SocietyHub",
   description:
     "The engineering society workspace for Texas A&M ESOs and the Student Engineers’ Council.",
+  icons: {
+    icon: "/sec-logo.png",
+    shortcut: "/sec-logo.png",
+    apple: "/sec-logo.png",
+  },
   robots: { index: false, follow: false },
 };
 export default function RootLayout({

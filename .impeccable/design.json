@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-11-02T19:17:12.417083+00:00",
-  "title": "Design System: Nexus Society Hub",
+  "generatedAt": "2026-11-02T20:07:01.029680+00:00",
+  "title": "Design System: SocietyHub",
   "extensions": {
     "colorMeta": {
       "maroon": {
@@ -354,7 +354,33 @@
         "name": "wide-min",
         "value": "1600px"
       }
-    ]
+    ],
+    "brand": {
+      "publicName": "SocietyHub",
+      "asset": "public/sec-logo.png",
+      "sourceAsset": "Delphi/public/sec_favicon.png",
+      "preservation": "Copied unchanged; retain proportions, contain fit, circular rounding, and no shrinking.",
+      "sidebar": {
+        "fontFamily": "Manrope Variable",
+        "fontSize": "21px",
+        "fontWeight": 750,
+        "logoWidth": "42px",
+        "logoHeight": "42px",
+        "gap": "10px",
+        "paddingInline": "6px"
+      },
+      "signIn": {
+        "logoWidth": "48px",
+        "logoHeight": "48px",
+        "fontSizeDesktop": "25px",
+        "fontSizeMobile": "21px",
+        "gap": "14px"
+      },
+      "loading": {
+        "logoWidth": "48px",
+        "logoHeight": "48px"
+      }
+    }
   },
   "components": [
     {
@@ -415,7 +441,7 @@
   ],
   "narrative": {
     "northStar": "Editorial society register",
-    "overview": "Warm paper surfaces, deep maroon navigation, calm headings, and ruled records give societies and SEC a shared operating workspace. Readable records, explicit status, and efficient forms set the visual density. The identity is an implementation assumption; no official university logo is claimed.",
+    "overview": "Warm paper surfaces, deep maroon navigation, calm headings, and ruled records give societies and SEC a shared operating workspace. Readable records, explicit status, and efficient forms set the visual density. The public name is SocietyHub. Use the existing SEC circular logo copied unchanged from Delphi/public/sec_favicon.png; Nexus is an internal name only.",
     "keyCharacteristics": [
       "Warm neutral surfaces anchored by maroon navigation.",
       "Compact, readable records with clear hierarchy and tabular totals.",
@@ -437,7 +463,7 @@
     "donts": [
       "Don't replace written states with color alone.",
       "Don't apply resting shadows to the flat record panels.",
-      "Don't present the identity as an official university logo."
+      "Don't substitute an invented mark for the supplied SEC logo."
     ]
   }
 }

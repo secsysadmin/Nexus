@@ -1,4 +1,4 @@
-# Nexus · Society Hub
+# SocietyHub
 
 A shared workspace for Texas A&M engineering student organizations and the Student Engineers’ Council. Built with Next.js, TypeScript, and Neon Postgres for Vercel.
 
@@ -85,6 +85,6 @@ NEXUS_TEST_BASE_URL=http://localhost:3001 npm run test:e2e
 
 ## Reference and scope
 
-Kraken informed the check-in, application-builder, draft, and access-control workflows. Society Hub’s requirements are authoritative: credit belongs to an ESO, uses the three fixed funding categories, resets by semester without deleting history, and High Impact awards are manual. Google OAuth, file uploads, notification delivery, funding disbursement, and institution-managed single sign-on are not implemented.
+Kraken informed the check-in, application-builder, draft, and access-control workflows. SocietyHub’s requirements are authoritative: credit belongs to an ESO, uses the three fixed funding categories, resets by semester without deleting history, and High Impact awards are manual. Google OAuth, file uploads, notification delivery, funding disbursement, and institution-managed single sign-on are not implemented.
 
 See `docs/architecture.md` for data and authorization details.

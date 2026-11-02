@@ -1447,3 +1447,21 @@ td strong {
     visibility: visible;
   }
 }
+
+.brand-logo {
+  display: block;
+  object-fit: contain;
+  flex-shrink: 0;
+  border-radius: 50%;
+}
+.sidebar .brand {
+  gap: 10px;
+  font-size: 21px;
+  padding-inline: 6px;
+}
+.auth-story .brand {
+  gap: 14px;
+}
+.auth-form .auth-mark {
+  margin-bottom: 28px;
+}

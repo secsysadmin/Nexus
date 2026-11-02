@@ -1,4 +1,4 @@
-# Society Hub
+# SocietyHub
 
 <!-- impeccable:product-schema 1 -->
 
@@ -35,4 +35,4 @@ Kraken provides reference workflows for check-in, history, form building, drafts
 
 ## Open decisions
 
-Brand details are implementation assumptions: maroon, warm neutral surfaces, restrained typography. No official university logo supplied. Use SEC-issued activation links for account enrollment and recovery.
+Brand details are implementation assumptions: maroon, warm neutral surfaces, restrained typography. Public product name: SocietyHub; Nexus is internal only. SEC logo supplied from Delphi/public/sec_favicon.png. Use SEC-issued activation links for account enrollment and recovery.
