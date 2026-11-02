@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-11-02T20:34:53.708190+00:00",
+  "generatedAt": "2026-11-02T20:43:45.791203+00:00",
   "title": "Design System: SocietyHub",
   "extensions": {
     "colorMeta": {
@@ -342,8 +342,8 @@
       },
       {
         "name": "auth-maroon-ribbons",
-        "value": "WebGL flowing ribbons; approximately 30fps; maximum DPR 1.5",
-        "purpose": "Decorative auth-story background only. Static frame for reduced motion; pause while hidden; CSS fallback when WebGL is unavailable or context is lost."
+        "value": "none; static decorative SVG maroon spiral",
+        "purpose": "Auth-story decoration remains still for all motion preferences; no animation loop or timed rendering."
       }
     ],
     "breakpoints": [
@@ -387,8 +387,7 @@
       }
     },
     "authStoryBackground": {
-      "description": "The user-pinned sign-in foundation is white (#ffffff) across the page, story, form region, and ribbon background. Slow, flowing maroon ribbons render locally with WebGL over a white shader base, using color mixing for soft fabric shading. A white readability veil preserves dark-ink headings and muted body copy; the brand remains maroon. The fallback is solid white when WebGL is unavailable or its context is lost. Reduced-motion preference renders a static frame. Animation pauses while the document is hidden, runs at approximately (30fps), and caps device pixel ratio at (1.5). This decoration is pointer-inert and hidden from assistive technology; it uses no external assets. The compact mobile white brand header remains the mobile composition. Login locally uses white ground, pale rules (#e5e2df), and a muted maroon focus outline (#8c4658); authenticated workspace tokens retain their warm surfaces.",
-      "fallback": "#ffffff",
+      "description": "The user-pinned sign-in foundation is white (#ffffff) across the page, story, form region, and decorative background, retaining the desktop left/right split. A static maroon spiral is rendered as inline SVG: (64) ruled strips follow a sampled twist and share a fabric gradient, with fine translucent white seams. The SVG fills its region with a (720 \u00d7 1100) viewBox and `xMidYMid slice` cropping. A white readability veil preserves dark-ink headings and muted body copy; the brand remains maroon. The decoration has no motion or animation loop, is pointer-inert and hidden from assistive technology, and uses no external assets. The compact mobile white brand header remains the mobile composition. Login locally uses white ground, pale rules (#e5e2df), and a muted maroon focus outline (#8c4658); authenticated workspace tokens retain their warm surfaces.",
       "veil": "linear-gradient(90deg, #fff 8%, rgba(255, 255, 255, 0.94) 38%, rgba(255, 255, 255, 0.58) 72%, rgba(255, 255, 255, 0.18) 100%)",
       "headingColor": "var(--ink)",
       "pointerEvents": "none",
@@ -399,8 +398,22 @@
       "brandColor": "var(--maroon)",
       "focusColor": "#8c4658",
       "lineColor": "#e5e2df",
-      "shaderBase": "vec3(1.)",
-      "shaderComposition": "Mix soft maroon fabric ribbons over white; no additive glow or dark vignette."
+      "renderer": "Static inline SVG",
+      "stripCount": 64,
+      "viewBox": "0 0 720 1100",
+      "preserveAspectRatio": "xMidYMid slice",
+      "animation": "none",
+      "fabricGradient": [
+        "#ead1cd",
+        "#b7656d",
+        "#680d27",
+        "#500000",
+        "#d4a5a4",
+        "#9a344b"
+      ],
+      "seamStroke": "#ffffff",
+      "seamOpacity": 0.18,
+      "seamWidth": 0.55
     },
     "applicationReceipts": {
       "description": "Application forms add a labeled confirmation-email field using the existing control style, with help text explaining the receipt destination and acceptance of an officer\u2019s personal email. Receipt status is a normal paragraph (13px), with (16px 0 22px) margins and wrapping for long addresses; written messages distinguish queued, sent, and failed delivery while confirming that a failed email leaves the application saved. SEC review offers the existing secondary-button style to retry eligible unsent receipts, disabled while busy. These additions retain the ordinary form and record hierarchy.",
