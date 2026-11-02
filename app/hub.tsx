@@ -31,6 +31,7 @@ import {
 } from "lucide-react";
 import QRCode from "qrcode";
 import MaroonRibbons from "./maroon-ribbons";
+import { dashboardItems } from "../lib/dashboard";
 import { defaultConfirmationEmail } from "../lib/application-email";
 import type {
   HubData,
@@ -136,12 +137,14 @@ function Button({
   secondary = false,
   disabled = false,
   type = "button",
+  "aria-label": ariaLabel,
 }: {
   children: ReactNode;
   onClick?: () => void;
   secondary?: boolean;
   disabled?: boolean;
   type?: "button" | "submit";
+  "aria-label"?: string;
 }) {
   return (
     <button
@@ -149,6 +152,7 @@ function Button({
       className={secondary ? "button secondary" : "button"}
       onClick={onClick}
       disabled={disabled}
+      aria-label={ariaLabel}
     >
       {children}
     </button>
@@ -324,6 +328,7 @@ export default function Hub() {
     setProvision(false);
     setError("");
     setNotice("");
+    window.scrollTo({ top: 0, behavior: "instant" });
   };
   if (loading)
     return (
@@ -395,8 +400,9 @@ export default function Hub() {
         .filter((c) => c.category === category && (!id || c.account_id === id))
         .reduce((s, c) => s + c.points, 0),
     );
+  const dashboard = dashboardItems(data, semester, Date.now());
   const title: Record<string, string> = {
-    overview: admin ? "SEC overview" : "Your society, connected.",
+    overview: admin ? "SEC dashboard" : "Your society, connected.",
     events: "Events & check-in",
     applications: "Applications",
     activity: "Attendance & points",
@@ -405,7 +411,7 @@ export default function Hub() {
     settings: "Workspace settings",
   };
   const nav = [
-    { id: "overview", label: "Overview", icon: LayoutDashboard },
+    { id: "overview", label: "Dashboard", icon: LayoutDashboard },
     { id: "events", label: "Events", icon: CalendarDays },
     { id: "applications", label: "Applications", icon: FileText },
     { id: "activity", label: "Attendance & points", icon: History },
@@ -669,7 +675,7 @@ export default function Hub() {
                 <div>
                   <h2>
                     {admin
-                      ? "A clear view of the semester."
+                      ? "What needs your attention."
                       : "Your semester at a glance."}
                   </h2>
                   <p>
@@ -725,6 +731,41 @@ export default function Hub() {
                       </section>
                     ))}
                   </div>
+                  <Panel
+                    title="Upcoming & ongoing events"
+                    action={
+                      <button
+                        className="text-button"
+                        onClick={() => navigate("events")}
+                      >
+                        View events <ArrowUpRight size={16} />
+                      </button>
+                    }
+                  >
+                    {dashboard.upcomingEvents.length ? (
+                      dashboard.upcomingEvents.slice(0, 3).map((event) => (
+                        <div className="record" key={event.id}>
+                          <div>
+                            <strong>{event.name}</strong>
+                            <small>
+                              {when(event.starts_at)} CT
+                              {event.location && ` · ${event.location}`}
+                            </small>
+                          </div>
+                          <Pill tone="neutral">
+                            {event.category === "PRT"
+                              ? "PRT"
+                              : labels[event.category]}
+                          </Pill>
+                        </div>
+                      ))
+                    ) : (
+                      <Empty title="No upcoming events">
+                        SEC events will appear here when they are scheduled for
+                        this semester.
+                      </Empty>
+                    )}
+                  </Panel>
                   <div className="dashboard-grid">
                     <Panel
                       title="Recent attendance"
@@ -808,29 +849,158 @@ export default function Hub() {
                 </>
               ) : (
                 <>
-                  <div className="admin-summary">
-                    <span>
-                      <strong>{events.length}</strong> events this semester
-                    </span>
-                    <span>
-                      <strong>{activeCredits.length}</strong> verified event
-                      credits
-                    </span>
-                    <span>
-                      <strong>
-                        {
-                          data.submissions.filter(
-                            (s) =>
-                              s.status === "SUBMITTED" &&
-                              forms.some((f) => f.id === s.form_id),
-                          ).length
-                        }
-                      </strong>{" "}
-                      applications awaiting review
-                    </span>
+                  <Panel
+                    title={`Applications awaiting review (${dashboard.pendingReviews.length})`}
+                    action={
+                      <button
+                        className="text-button"
+                        onClick={() => navigate("reviews")}
+                      >
+                        Open review queue <ArrowUpRight size={16} />
+                      </button>
+                    }
+                  >
+                    <p className="section-intro">
+                      For {current?.name}. Oldest submissions appear first.
+                    </p>
+                    {dashboard.pendingReviews.length ? (
+                      dashboard.pendingReviews.slice(0, 5).map((item) => (
+                        <div className="record dashboard-record" key={item.id}>
+                          <div>
+                            <strong>{item.society_name}</strong>
+                            <small>
+                              {item.form_title} · Submitted{" "}
+                              {when(item.submitted_at)} CT
+                            </small>
+                          </div>
+                          <Button
+                            secondary
+                            onClick={() => {
+                              navigate("reviews");
+                              setReview(item);
+                            }}
+                            aria-label={`Review ${item.form_title} from ${item.society_name}`}
+                          >
+                            Review application
+                          </Button>
+                        </div>
+                      ))
+                    ) : (
+                      <Empty title="The review queue is clear">
+                        No submitted applications are waiting for review in this
+                        semester.
+                      </Empty>
+                    )}
+                    {dashboard.pendingReviews.length > 5 && (
+                      <small>
+                        Showing 5 of {dashboard.pendingReviews.length}. Open the
+                        review queue for all submissions.
+                      </small>
+                    )}
+                  </Panel>
+                  <div className="dashboard-grid">
+                    <Panel
+                      title={`Upcoming & ongoing events (${dashboard.upcomingEvents.length})`}
+                      action={
+                        <button
+                          className="text-button"
+                          onClick={() => navigate("events")}
+                        >
+                          All events <ArrowUpRight size={16} />
+                        </button>
+                      }
+                    >
+                      {dashboard.upcomingEvents.length ? (
+                        dashboard.upcomingEvents.slice(0, 5).map((event) => (
+                          <div
+                            className="record dashboard-record"
+                            key={event.id}
+                          >
+                            <div>
+                              <strong>{event.name}</strong>
+                              <small>
+                                {when(event.starts_at)} – {when(event.ends_at)}{" "}
+                                CT
+                              </small>
+                              <small>
+                                {event.category === "HIGH_IMPACT"
+                                  ? "High Impact · SEC awards points manually"
+                                  : !current?.is_current
+                                    ? "Self check-in unavailable in an inactive semester"
+                                    : event.checkin_open
+                                      ? Date.parse(event.starts_at) > Date.now()
+                                        ? "Check-in scheduled for the event window"
+                                        : "Check-in is live"
+                                      : "Check-in disabled"}
+                              </small>
+                            </div>
+                            <button
+                              className="text-button"
+                              onClick={() => {
+                                navigate("events");
+                                setEditingEvent(event);
+                              }}
+                              aria-label={`Manage ${event.name}`}
+                            >
+                              Manage event <ArrowRight size={16} />
+                            </button>
+                          </div>
+                        ))
+                      ) : (
+                        <Empty title="No upcoming events">
+                          There are no ongoing or upcoming events in this
+                          semester. Add or manage events from the Events tab.
+                        </Empty>
+                      )}
+                      {dashboard.upcomingEvents.length > 5 && (
+                        <small>
+                          Showing the next 5 events. Open All events for the
+                          full schedule.
+                        </small>
+                      )}
+                    </Panel>
+                    <Panel
+                      title={`PRT minimum not yet met (${dashboard.missingPrt.length})`}
+                      action={
+                        <button
+                          className="text-button"
+                          onClick={() => navigate("activity")}
+                        >
+                          Attendance & points <ArrowUpRight size={16} />
+                        </button>
+                      }
+                    >
+                      <p className="section-intro">
+                        Enabled societies with less than 1 PRT point in{" "}
+                        {current?.name}. This is a semester requirement, not an
+                        overdue notice.
+                      </p>
+                      {dashboard.missingPrt.length ? (
+                        dashboard.missingPrt.slice(0, 5).map((account) => (
+                          <div className="record" key={account.id}>
+                            <div>
+                              <strong>{account.display_name}</strong>
+                              <small>@{account.username}</small>
+                            </div>
+                            <Pill tone="amber">0 / 1 PRT</Pill>
+                          </div>
+                        ))
+                      ) : (
+                        <Empty title="No PRT follow-up needed">
+                          All enabled societies have met the minimum, or no
+                          enabled societies have been added.
+                        </Empty>
+                      )}
+                      {dashboard.missingPrt.length > 5 && (
+                        <small>
+                          Showing 5 of {dashboard.missingPrt.length}. Expand All
+                          society point totals below for every society.
+                        </small>
+                      )}
+                    </Panel>
                   </div>
                   <Panel
-                    title="Society funding progress"
+                    title={`Accounts awaiting setup (${dashboard.awaitingSetup.length})`}
                     action={
                       <button
                         className="text-button"
@@ -840,53 +1010,118 @@ export default function Hub() {
                       </button>
                     }
                   >
-                    {societies.length ? (
-                      <div
-                        className="table-wrap"
-                        tabIndex={0}
-                        role="region"
-                        aria-label="Scrollable data table"
-                      >
-                        <table>
-                          <thead>
-                            <tr>
-                              <th>Society</th>
-                              <th>PRT</th>
-                              <th>Standard</th>
-                              <th>High Impact</th>
-                              <th>PRT minimum</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {societies.map((a) => {
-                              const t = totals(a.id);
-                              return (
-                                <tr key={a.id}>
-                                  <td>
-                                    <strong>{a.display_name}</strong>
-                                    <small>@{a.username}</small>
-                                  </td>
-                                  {t.map((n, i) => (
-                                    <td key={i}>{n}</td>
-                                  ))}
-                                  <td>
-                                    <Pill tone={t[0] >= 1 ? "green" : "amber"}>
-                                      {t[0] >= 1 ? "Met" : "Not yet met"}
-                                    </Pill>
-                                  </td>
-                                </tr>
-                              );
-                            })}
-                          </tbody>
-                        </table>
-                      </div>
+                    <p className="section-intro">
+                      Across all semesters. These enabled society accounts have
+                      not set their password.
+                    </p>
+                    {dashboard.awaitingSetup.length ? (
+                      dashboard.awaitingSetup.slice(0, 5).map((account) => (
+                        <div
+                          className="record dashboard-record"
+                          key={account.id}
+                        >
+                          <div>
+                            <strong>{account.display_name}</strong>
+                            <small>@{account.username}</small>
+                          </div>
+                          <Button
+                            secondary
+                            disabled={busy}
+                            onClick={async () => {
+                              const result = await run<{
+                                username: string;
+                                activation: string;
+                              }>("admin/activation", { accountId: account.id });
+                              if (result) {
+                                setActivation(result);
+                                window.scrollTo({
+                                  top: 0,
+                                  behavior: "instant",
+                                });
+                              }
+                            }}
+                            aria-label={`Issue setup link for ${account.display_name}`}
+                          >
+                            Issue setup link
+                          </Button>
+                        </div>
+                      ))
                     ) : (
-                      <Empty title="Bring your societies together">
-                        Open Societies to review the contact roster and issue
-                        account setup links.
+                      <Empty title="Account setup is complete">
+                        No enabled society accounts are waiting to set their
+                        password.
                       </Empty>
                     )}
+                    {dashboard.awaitingSetup.length > 5 && (
+                      <small>
+                        Showing 5 of {dashboard.awaitingSetup.length}. Manage
+                        societies to view all accounts.
+                      </small>
+                    )}
                   </Panel>
+                  <details className="dashboard-register">
+                    <summary>All society point totals</summary>
+                    <Panel
+                      title="Society funding progress"
+                      action={
+                        <button
+                          className="text-button"
+                          onClick={() => navigate("societies")}
+                        >
+                          Manage societies <ArrowUpRight size={16} />
+                        </button>
+                      }
+                    >
+                      {societies.length ? (
+                        <div
+                          className="table-wrap"
+                          tabIndex={0}
+                          role="region"
+                          aria-label="Scrollable data table"
+                        >
+                          <table>
+                            <thead>
+                              <tr>
+                                <th>Society</th>
+                                <th>PRT</th>
+                                <th>Standard</th>
+                                <th>High Impact</th>
+                                <th>PRT minimum</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {societies.map((a) => {
+                                const t = totals(a.id);
+                                return (
+                                  <tr key={a.id}>
+                                    <td>
+                                      <strong>{a.display_name}</strong>
+                                      <small>@{a.username}</small>
+                                    </td>
+                                    {t.map((n, i) => (
+                                      <td key={i}>{n}</td>
+                                    ))}
+                                    <td>
+                                      <Pill
+                                        tone={t[0] >= 1 ? "green" : "amber"}
+                                      >
+                                        {t[0] >= 1 ? "Met" : "Not yet met"}
+                                      </Pill>
+                                    </td>
+                                  </tr>
+                                );
+                              })}
+                            </tbody>
+                          </table>
+                        </div>
+                      ) : (
+                        <Empty title="Bring your societies together">
+                          Open Societies to review the contact roster and issue
+                          account setup links.
+                        </Empty>
+                      )}
+                    </Panel>
+                  </details>
                 </>
               )}
               <section className="funding-note">

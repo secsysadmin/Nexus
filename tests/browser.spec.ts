@@ -126,7 +126,7 @@ test("society hub end-to-end: admin, concurrent check-in, drafts, review, QR and
   await admin.getByLabel("Password", { exact: true }).fill(password);
   await admin.getByRole("button", { name: "Sign in", exact: true }).click();
   await expect(
-    admin.getByRole("heading", { name: "SEC overview" }),
+    admin.getByRole("heading", { name: "SEC dashboard" }),
   ).toBeVisible();
   await admin.getByRole("button", { name: "Events", exact: true }).click();
   await admin
@@ -353,11 +353,84 @@ test("society hub end-to-end: admin, concurrent check-in, drafts, review, QR and
     animations: "disabled",
   });
   await society.setViewportSize({ width: 1440, height: 1000 });
-  await admin
-    .getByRole("button", { name: "Review queue", exact: true })
-    .click();
+  // First-time society setup consumes its token exactly once and the new account is never an admin.
+  const provision = await post(adminContext.request, "admin/societies", {
+    username: `qa-provision-${suffix}`,
+    displayName: "Provisioned test society",
+    candidateIds: [],
+  });
+  const p = await provision.json();
+  expect(provision.ok()).toBeTruthy();
+  provisionId = (
+    await db.query("SELECT id FROM accounts WHERE username=$1", [p.username])
+  ).rows[0].id;
+  await admin.getByRole("button", { name: "Dashboard", exact: true }).click();
   await admin.getByRole("button", { name: "Refresh workspace" }).click();
-  await admin.getByRole("button", { name: "Review", exact: true }).click();
+  await expect(
+    admin.getByRole("heading", {
+      name: "Applications awaiting review (1)",
+      exact: true,
+    }),
+  ).toBeVisible();
+  await expect(
+    admin.getByRole("heading", {
+      name: "Accounts awaiting setup (1)",
+      exact: true,
+    }),
+  ).toBeVisible();
+  await admin.setViewportSize({ width: 1440, height: 1000 });
+  await admin.screenshot({
+    path: ".impeccable/review/dashboard-actions-desktop.png",
+    fullPage: true,
+  });
+  await admin.setViewportSize({ width: 1976, height: 1143 });
+  await admin.screenshot({
+    path: ".impeccable/review/dashboard-actions-user.png",
+    fullPage: true,
+  });
+  await admin.setViewportSize({ width: 390, height: 844 });
+  expect(
+    await admin.evaluate(
+      () => document.documentElement.scrollWidth <= innerWidth,
+    ),
+  ).toBe(true);
+  await admin.screenshot({
+    path: ".impeccable/review/dashboard-actions-mobile.png",
+    fullPage: true,
+  });
+  await admin.setViewportSize({ width: 1440, height: 1000 });
+  await admin
+    .getByRole("button", {
+      name: "Issue setup link for Provisioned test society",
+      exact: true,
+    })
+    .click();
+  await expect(
+    admin.getByRole("heading", {
+      name: `Account setup link for @${p.username}`,
+    }),
+  ).toBeVisible();
+  const setupUrl = await admin.locator(".activation-result input").inputValue();
+  p.activation = new URL(setupUrl).searchParams.get("token");
+  await admin
+    .getByRole("button", { name: "Dismiss link", exact: true })
+    .click();
+  await admin
+    .getByRole("button", {
+      name: "Manage Presidents’ Round Table · Test data",
+      exact: true,
+    })
+    .click();
+  await expect(admin.getByLabel("Event name")).toHaveValue(
+    "Presidents’ Round Table · Test data",
+  );
+  await admin.getByRole("button", { name: "Dashboard", exact: true }).click();
+  await admin
+    .getByRole("button", {
+      name: "Review Society Funding Application · Test data from Demo Engineering Society · Test data",
+      exact: true,
+    })
+    .click();
   await expect(
     admin.getByText("An engineering outreach workshop for our members.", {
       exact: true,
@@ -387,17 +460,6 @@ test("society hub end-to-end: admin, concurrent check-in, drafts, review, QR and
       )
     ).rows[0].points,
   ).toBe(4);
-  // First-time society setup consumes its token exactly once and the new account is never an admin.
-  const provision = await post(adminContext.request, "admin/societies", {
-    username: `qa-provision-${suffix}`,
-    displayName: "Provisioned test society",
-    candidateIds: [],
-  });
-  const p = await provision.json();
-  expect(provision.ok()).toBeTruthy();
-  provisionId = (
-    await db.query("SELECT id FROM accounts WHERE username=$1", [p.username])
-  ).rows[0].id;
   const activationContext = await browser.newContext();
   const activationPage = await activationContext.newPage();
   await activationPage.goto(`/activate?token=${p.activation}`);
@@ -421,7 +483,7 @@ test("society hub end-to-end: admin, concurrent check-in, drafts, review, QR and
   await activationContext.close();
   // Capture both workspaces at desktop and mobile in the same QA round.
   await mkdir(".impeccable/review", { recursive: true });
-  await society.getByRole("button", { name: "Overview", exact: true }).click();
+  await society.getByRole("button", { name: "Dashboard", exact: true }).click();
   await society.getByRole("button", { name: "Refresh workspace" }).click();
   await expect(society.getByText("approved", { exact: true })).toBeVisible();
   await society.setViewportSize({ width: 1440, height: 1000 });
@@ -441,9 +503,33 @@ test("society hub end-to-end: admin, concurrent check-in, drafts, review, QR and
     fullPage: true,
     animations: "disabled",
   });
-  await admin.getByRole("button", { name: "Overview", exact: true }).click();
+  await admin.getByRole("button", { name: "Dashboard", exact: true }).click();
   await admin.getByRole("button", { name: "Refresh workspace" }).click();
+  await expect(
+    admin.getByRole("heading", {
+      name: "Accounts awaiting setup (0)",
+      exact: true,
+    }),
+  ).toBeVisible();
+  await expect(
+    admin.getByRole("heading", {
+      name: "Applications awaiting review (0)",
+      exact: true,
+    }),
+  ).toBeVisible();
+  await admin.getByText("All society point totals", { exact: true }).click();
+  await expect(
+    admin.getByRole("heading", {
+      name: "Society funding progress",
+      exact: true,
+    }),
+  ).toBeVisible();
+  await admin.getByText("All society point totals", { exact: true }).click();
   await admin.setViewportSize({ width: 1440, height: 1000 });
+  await admin.evaluate(() => {
+    (document.activeElement as HTMLElement)?.blur();
+    window.scrollTo(0, 0);
+  });
   await admin.screenshot({
     path: ".impeccable/review/admin-desktop.png",
     fullPage: true,

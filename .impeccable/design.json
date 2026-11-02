@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-11-02T21:02:39.121966+00:00",
+  "generatedAt": "2026-11-02T21:12:16.843648+00:00",
   "title": "Design System: SocietyHub",
   "extensions": {
     "colorMeta": {
@@ -494,6 +494,66 @@
       "backgroundPosition": "center, right center",
       "backgroundRepeat": "no-repeat",
       "purpose": "Subtle continuation of the static reference ribbon beneath clear semester context."
+    },
+    "dashboard": {
+      "layoutDescription": "The public navigation destination is Dashboard. SEC\u2019s dashboard prioritizes the oldest five applications awaiting review with direct review actions and a full-queue link, then the earliest five upcoming or ongoing selected-semester events with event-management actions and explicit check-in or manual High Impact award status. It also shows up to five enabled societies without an active PRT credit in that semester and up to five enabled accounts awaiting setup across all semesters, with direct setup-link actions. Headings count the full matching lists and truncation text points to the complete destination. The full society points table remains available in the initially collapsed native disclosure, \u201cAll society point totals.\u201d The society dashboard retains category totals, applications, and recent attendance, adding the next three upcoming or ongoing events and a View events link.",
+      "rowDescription": "Dashboard action rows reuse ruled records and existing primary, secondary, or text actions. Row content allows shrinking with `min-width: 0`, while its direct action does not shrink. At (760px) and below, action rows stack their content and action vertically, align to the start, and use an (8px) gap. The native points-register disclosure summary is maroon, (13px), weight (650), with (12px 0 20px) padding. Repeated direct actions have descriptive accessible names; changing navigation destinations scrolls to the top.",
+      "publicNavigationLabel": "Dashboard",
+      "admin": {
+        "pendingReviews": {
+          "scope": "Selected semester, submitted applications",
+          "sort": "Oldest submission first",
+          "previewLimit": 5,
+          "actions": [
+            "Review application",
+            "Open review queue"
+          ]
+        },
+        "events": {
+          "scope": "Selected semester, not yet ended",
+          "sort": "Earliest start first",
+          "previewLimit": 5,
+          "action": "Manage event",
+          "status": "Check-in availability or manual SEC award for High Impact."
+        },
+        "prtFollowUp": {
+          "scope": "Enabled societies without an active, nonrevoked PRT credit of at least one point in the selected semester",
+          "previewLimit": 5,
+          "fullRegister": "All society point totals"
+        },
+        "awaitingSetup": {
+          "scope": "Enabled, unactivated society accounts across all semesters",
+          "previewLimit": 5,
+          "action": "Issue setup link"
+        },
+        "counts": "Full matching lists, independent of preview limits.",
+        "pointTotalsDisclosure": {
+          "label": "All society point totals",
+          "element": "details / summary",
+          "initialState": "collapsed",
+          "summaryColor": "var(--maroon)",
+          "summaryFontSize": "13px",
+          "summaryFontWeight": 650,
+          "summaryPadding": "12px 0 20px"
+        }
+      },
+      "society": {
+        "preserves": [
+          "Category totals",
+          "Applications",
+          "Recent attendance"
+        ],
+        "eventsPreviewLimit": 3,
+        "eventsLink": "View events"
+      },
+      "responsiveRows": {
+        "contentMinWidth": "0",
+        "actionFlexShrink": 0,
+        "mobileMax": "760px",
+        "mobileDirection": "column",
+        "mobileAlignItems": "flex-start",
+        "mobileGap": "8px"
+      }
     }
   },
   "components": [
@@ -526,7 +586,7 @@
       "kind": "nav",
       "refersTo": "navigation-active",
       "description": "White workspace navigation with muted resting text, pale rose active state, and maroon identity; the application supplies drawer state and focus behavior.",
-      "html": "<nav class=\"ds-nav\" aria-label=\"Main navigation\"><button class=\"ds-nav-item ds-active\" aria-current=\"page\">Overview</button><button class=\"ds-nav-item\">Attendance</button></nav>",
+      "html": "<nav class=\"ds-nav\" aria-label=\"Main navigation\"><button class=\"ds-nav-item ds-active\" aria-current=\"page\">Dashboard</button><button class=\"ds-nav-item\">Attendance</button></nav>",
       "css": ".ds-nav { padding:18px; background:var(--paper,#fff); border-right:1px solid var(--line,#e5e2df); display:flex; flex-direction:column; gap:5px; } .ds-nav-item { padding:12px 14px; min-height:46px; border:0; border-radius:8px; background:transparent; color:#68645f; font:400 13px/1.6 var(--sans,\"DM Sans Variable\",sans-serif); text-align:left; cursor:pointer; transition:background .15s ease; } .ds-nav-item:not(.ds-active):hover { background:var(--tint,#f7f2f3); color:var(--maroon,#500000); } .ds-active { background:#f5e9ed; color:var(--maroon,#500000); font-weight:650; } .ds-nav-item:focus-visible { outline:3px solid var(--ds-focus,#8c4658); outline-offset:4px; } @media(prefers-reduced-motion:reduce) {  .ds-nav-item { transition:none; } }"
     },
     {

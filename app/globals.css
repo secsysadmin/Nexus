@@ -1555,3 +1555,24 @@ td strong {
   background: var(--tint);
   color: var(--maroon);
 }
+
+.dashboard-register > summary {
+  color: var(--maroon);
+  font-size: 13px;
+  font-weight: 650;
+  padding: 12px 0 20px;
+}
+.dashboard-record > div {
+  min-width: 0;
+}
+.dashboard-record > .button,
+.dashboard-record > .text-button {
+  flex-shrink: 0;
+}
+@media (max-width: 760px) {
+  .dashboard-record {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 8px;
+  }
+}
