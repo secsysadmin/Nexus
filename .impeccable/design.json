@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-11-02T20:43:45.791203+00:00",
+  "generatedAt": "2026-11-02T20:49:40.589129+00:00",
   "title": "Design System: SocietyHub",
   "extensions": {
     "colorMeta": {
@@ -342,8 +342,8 @@
       },
       {
         "name": "auth-maroon-ribbons",
-        "value": "none; static decorative SVG maroon spiral",
-        "purpose": "Auth-story decoration remains still for all motion preferences; no animation loop or timed rendering."
+        "value": "none; static SEC reference ribbon SVG image",
+        "purpose": "Local reference-derived auth-story artwork remains still for all motion preferences; no animation loop or timed rendering."
       }
     ],
     "breakpoints": [
@@ -387,8 +387,8 @@
       }
     },
     "authStoryBackground": {
-      "description": "The user-pinned sign-in foundation is white (#ffffff) across the page, story, form region, and decorative background, retaining the desktop left/right split. A static maroon spiral is rendered as inline SVG: (64) ruled strips follow a sampled twist and share a fabric gradient, with fine translucent white seams. The SVG fills its region with a (720 \u00d7 1100) viewBox and `xMidYMid slice` cropping. A white readability veil preserves dark-ink headings and muted body copy; the brand remains maroon. The decoration has no motion or animation loop, is pointer-inert and hidden from assistive technology, and uses no external assets. The compact mobile white brand header remains the mobile composition. Login locally uses white ground, pale rules (#e5e2df), and a muted maroon focus outline (#8c4658); authenticated workspace tokens retain their warm surfaces.",
-      "veil": "linear-gradient(90deg, #fff 8%, rgba(255, 255, 255, 0.94) 38%, rgba(255, 255, 255, 0.58) 72%, rgba(255, 255, 255, 0.18) 100%)",
+      "description": "The user-pinned sign-in foundation is white (#ffffff) across the page, story, form region, and decorative background, retaining the desktop left/right split. Static maroon ribbon artwork uses broad, overlapping fabric curves from the SEC reference, served locally as `public/society-ribbon.svg`. Its source is `https://ragnarok-flame-iota.vercel.app/brand/sign-in-ribbon.svg`; the local adaptation uses a (720 \u00d7 900) viewBox with `translate(-250 0) scale(.9 1)` to fit the story region. A white readability veil preserves dark-ink headings and muted body copy; the brand remains maroon. The decoration is a static image, pointer-inert and hidden from assistive technology, with no animation or client rendering loop and no runtime external asset request. The compact mobile white brand header remains the mobile composition. Login locally uses white ground, pale rules (#e5e2df), and a muted maroon focus outline (#8c4658); authenticated workspace tokens retain their warm surfaces.",
+      "veil": "linear-gradient(90deg, #fff 38%, rgba(255, 255, 255, 0.94) 60%, rgba(255, 255, 255, 0.65) 72%, rgba(255, 255, 255, 0) 94%)",
       "headingColor": "var(--ink)",
       "pointerEvents": "none",
       "ariaHidden": true,
@@ -398,22 +398,14 @@
       "brandColor": "var(--maroon)",
       "focusColor": "#8c4658",
       "lineColor": "#e5e2df",
-      "renderer": "Static inline SVG",
-      "stripCount": 64,
-      "viewBox": "0 0 720 1100",
-      "preserveAspectRatio": "xMidYMid slice",
+      "renderer": "Static local SVG image",
+      "viewBox": "0 0 720 900",
       "animation": "none",
-      "fabricGradient": [
-        "#ead1cd",
-        "#b7656d",
-        "#680d27",
-        "#500000",
-        "#d4a5a4",
-        "#9a344b"
-      ],
-      "seamStroke": "#ffffff",
-      "seamOpacity": 0.18,
-      "seamWidth": 0.55
+      "asset": "public/society-ribbon.svg",
+      "sourceAsset": "https://ragnarok-flame-iota.vercel.app/brand/sign-in-ribbon.svg",
+      "artworkTransform": "translate(-250 0) scale(.9 1)",
+      "headingFontSize": "clamp(36px, 3.6vw, 56px)",
+      "headingMaxWidth": "480px"
     },
     "applicationReceipts": {
       "description": "Application forms add a labeled confirmation-email field using the existing control style, with help text explaining the receipt destination and acceptance of an officer\u2019s personal email. Receipt status is a normal paragraph (13px), with (16px 0 22px) margins and wrapping for long addresses; written messages distinguish queued, sent, and failed delivery while confirming that a failed email leaves the application saved. SEC review offers the existing secondary-button style to retry eligible unsent receipts, disabled while busy. These additions retain the ordinary form and record hierarchy.",
