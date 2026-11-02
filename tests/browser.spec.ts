@@ -367,17 +367,14 @@ test("society hub end-to-end: admin, concurrent check-in, drafts, review, QR and
   await admin.getByRole("button", { name: "Dashboard", exact: true }).click();
   await admin.getByRole("button", { name: "Refresh workspace" }).click();
   await expect(
-    admin.getByRole("heading", {
-      name: "Applications awaiting review (1)",
+    admin.getByRole("region", {
+      name: "Applications awaiting review",
       exact: true,
     }),
-  ).toBeVisible();
+  ).toHaveAttribute("data-count", "1");
   await expect(
-    admin.getByRole("heading", {
-      name: "Accounts awaiting setup (1)",
-      exact: true,
-    }),
-  ).toBeVisible();
+    admin.getByRole("region", { name: "Accounts awaiting setup", exact: true }),
+  ).toHaveAttribute("data-count", "1");
   await admin.setViewportSize({ width: 1440, height: 1000 });
   await admin.screenshot({
     path: ".impeccable/review/dashboard-actions-desktop.png",
@@ -427,7 +424,7 @@ test("society hub end-to-end: admin, concurrent check-in, drafts, review, QR and
   await admin.getByRole("button", { name: "Dashboard", exact: true }).click();
   await admin
     .getByRole("button", {
-      name: "Review Society Funding Application · Test data from Demo Engineering Society · Test data",
+      name: "Review next application",
       exact: true,
     })
     .click();
@@ -506,17 +503,14 @@ test("society hub end-to-end: admin, concurrent check-in, drafts, review, QR and
   await admin.getByRole("button", { name: "Dashboard", exact: true }).click();
   await admin.getByRole("button", { name: "Refresh workspace" }).click();
   await expect(
-    admin.getByRole("heading", {
-      name: "Accounts awaiting setup (0)",
-      exact: true,
-    }),
-  ).toBeVisible();
+    admin.getByRole("region", { name: "Accounts awaiting setup", exact: true }),
+  ).toHaveAttribute("data-count", "0");
   await expect(
-    admin.getByRole("heading", {
-      name: "Applications awaiting review (0)",
+    admin.getByRole("region", {
+      name: "Applications awaiting review",
       exact: true,
     }),
-  ).toBeVisible();
+  ).toHaveAttribute("data-count", "0");
   await admin.getByText("All society point totals", { exact: true }).click();
   await expect(
     admin.getByRole("heading", {

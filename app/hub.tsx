@@ -132,6 +132,50 @@ function Panel({
     </section>
   );
 }
+function DashboardSection({
+  title,
+  count,
+  emptyText,
+  action,
+  children,
+}: {
+  title: string;
+  count: number;
+  emptyText: string;
+  action?: ReactNode;
+  children: ReactNode;
+}) {
+  return (
+    <section
+      className={count ? "dashboard-section" : "dashboard-clear"}
+      aria-label={title}
+      data-count={count}
+    >
+      {count ? (
+        <>
+          <div className="section-head">
+            <div className="dashboard-section-title">
+              <h2>{title}</h2>
+              <span className="dashboard-count" aria-label={`${count} items`}>
+                {count}
+              </span>
+            </div>
+            {action}
+          </div>
+          {children}
+        </>
+      ) : (
+        <>
+          <p>
+            <Check size={16} aria-hidden="true" />
+            {emptyText}
+          </p>
+          {action}
+        </>
+      )}
+    </section>
+  );
+}
 function Button({
   children,
   onClick,
@@ -553,7 +597,10 @@ export default function Hub() {
             </button>
           </div>
         </header>
-        <main id="main-content" className="content">
+        <main
+          id="main-content"
+          className={tab === "overview" ? "content is-dashboard" : "content"}
+        >
           <div className="page-heading">
             <div>
               <h1>{title[tab]}</h1>
@@ -563,6 +610,26 @@ export default function Hub() {
                   : `${data.actor.display_name} · Your home for SEC events and society funding.`}
               </p>
             </div>
+            {tab === "overview" && admin && (
+              <Button
+                onClick={() => {
+                  if (dashboard.pendingReviews.length) {
+                    navigate("reviews");
+                    setReview(dashboard.pendingReviews[0]);
+                  } else {
+                    navigate("events");
+                    setEditingEvent(dashboard.upcomingEvents[0] ?? null);
+                  }
+                }}
+              >
+                {dashboard.pendingReviews.length
+                  ? "Review next application"
+                  : dashboard.upcomingEvents.length
+                    ? "Manage next event"
+                    : "Create event"}
+                <ArrowRight size={17} />
+              </Button>
+            )}
             {tab === "events" && admin && editingEvent === undefined && (
               <Button onClick={() => setEditingEvent(null)}>
                 <Plus size={17} />
@@ -672,26 +739,19 @@ export default function Hub() {
           )}
           {tab === "overview" && (
             <>
-              <section className="semester-summary">
-                <div>
-                  <h2>
-                    {admin
-                      ? "What needs your attention."
-                      : "Your semester at a glance."}
-                  </h2>
-                  <p>
-                    {current?.name ?? "Choose a semester"} ·{" "}
-                    {admin
-                      ? `${societies.filter((s) => s.enabled).length} active societies`
-                      : "Points update automatically after check-in."}
-                  </p>
-                </div>
-                <Pill tone="maroon">
+              <div className="dashboard-context">
+                <p>
+                  {current?.name ?? "Choose a semester"} ·{" "}
+                  {admin
+                    ? `${societies.filter((s) => s.enabled).length} active societies`
+                    : "Points update automatically after check-in."}
+                </p>
+                <span>
                   {current?.is_current
                     ? "Current semester"
                     : "Semester history"}
-                </Pill>
-              </section>
+                </span>
+              </div>
               {!admin ? (
                 <>
                   <div className="point-trackers">
@@ -732,8 +792,10 @@ export default function Hub() {
                       </section>
                     ))}
                   </div>
-                  <Panel
+                  <DashboardSection
                     title="Upcoming & ongoing events"
+                    count={dashboard.upcomingEvents.length}
+                    emptyText="No upcoming events in this semester"
                     action={
                       <button
                         className="text-button"
@@ -766,10 +828,12 @@ export default function Hub() {
                         this semester.
                       </Empty>
                     )}
-                  </Panel>
+                  </DashboardSection>
                   <div className="dashboard-grid">
-                    <Panel
+                    <DashboardSection
                       title="Recent attendance"
+                      count={credits.length}
+                      emptyText="No attendance recorded yet"
                       action={
                         <button
                           className="text-button"
@@ -803,9 +867,11 @@ export default function Hub() {
                           earn your first point.
                         </Empty>
                       )}
-                    </Panel>
-                    <Panel
+                    </DashboardSection>
+                    <DashboardSection
                       title="Applications"
+                      count={forms.length}
+                      emptyText="No applications published for this semester"
                       action={
                         <button
                           className="text-button"
@@ -845,13 +911,15 @@ export default function Hub() {
                           applications here.
                         </Empty>
                       )}
-                    </Panel>
+                    </DashboardSection>
                   </div>
                 </>
               ) : (
                 <>
-                  <Panel
-                    title={`Applications awaiting review (${dashboard.pendingReviews.length})`}
+                  <DashboardSection
+                    title="Applications awaiting review"
+                    count={dashboard.pendingReviews.length}
+                    emptyText="Review queue clear"
                     action={
                       <button
                         className="text-button"
@@ -898,10 +966,12 @@ export default function Hub() {
                         review queue for all submissions.
                       </small>
                     )}
-                  </Panel>
+                  </DashboardSection>
                   <div className="dashboard-grid">
-                    <Panel
-                      title={`Upcoming & ongoing events (${dashboard.upcomingEvents.length})`}
+                    <DashboardSection
+                      title="Upcoming & ongoing events"
+                      count={dashboard.upcomingEvents.length}
+                      emptyText="No upcoming events in this semester"
                       action={
                         <button
                           className="text-button"
@@ -959,9 +1029,11 @@ export default function Hub() {
                           full schedule.
                         </small>
                       )}
-                    </Panel>
-                    <Panel
-                      title={`PRT minimum not yet met (${dashboard.missingPrt.length})`}
+                    </DashboardSection>
+                    <DashboardSection
+                      title="PRT minimum not yet met"
+                      count={dashboard.missingPrt.length}
+                      emptyText="No societies need PRT follow-up"
                       action={
                         <button
                           className="text-button"
@@ -973,8 +1045,8 @@ export default function Hub() {
                     >
                       <p className="section-intro">
                         Enabled societies with less than 1 PRT point in{" "}
-                        {current?.name}. This is a semester requirement, not an
-                        overdue notice.
+                        {current?.name}. Each society needs 1 PRT point per
+                        semester.
                       </p>
                       {dashboard.missingPrt.length ? (
                         dashboard.missingPrt.slice(0, 5).map((account) => (
@@ -998,10 +1070,12 @@ export default function Hub() {
                           society point totals below for every society.
                         </small>
                       )}
-                    </Panel>
+                    </DashboardSection>
                   </div>
-                  <Panel
-                    title={`Accounts awaiting setup (${dashboard.awaitingSetup.length})`}
+                  <DashboardSection
+                    title="Accounts awaiting setup"
+                    count={dashboard.awaitingSetup.length}
+                    emptyText="No accounts awaiting setup"
                     action={
                       <button
                         className="text-button"
@@ -1059,7 +1133,7 @@ export default function Hub() {
                         societies to view all accounts.
                       </small>
                     )}
-                  </Panel>
+                  </DashboardSection>
                   <details className="dashboard-register">
                     <summary>All society point totals</summary>
                     <Panel

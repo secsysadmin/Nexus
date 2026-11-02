@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-11-02T21:56:33.159204+00:00",
+  "generatedAt": "2026-11-02T22:17:54.318190+00:00",
   "title": "Design System: SocietyHub",
   "extensions": {
     "colorMeta": {
@@ -214,20 +214,6 @@
           "oklch(95% 0.00930 73.67)"
         ]
       },
-      "nav-active": {
-        "role": "primary",
-        "displayName": "Nav Active",
-        "tonalRamp": [
-          "oklch(15% 0.01399 355.01)",
-          "oklch(26% 0.01399 355.01)",
-          "oklch(38% 0.01399 355.01)",
-          "oklch(49% 0.01399 355.01)",
-          "oklch(61% 0.01399 355.01)",
-          "oklch(72% 0.01399 355.01)",
-          "oklch(84% 0.01399 355.01)",
-          "oklch(95% 0.01399 355.01)"
-        ]
-      },
       "nav-hover": {
         "role": "primary",
         "displayName": "Nav Hover",
@@ -352,6 +338,20 @@
           "oklch(72% 0.00345 354.69)",
           "oklch(84% 0.00345 354.69)",
           "oklch(95% 0.00345 354.69)"
+        ]
+      },
+      "rose": {
+        "role": "primary",
+        "displayName": "Rose",
+        "tonalRamp": [
+          "oklch(15% 0.01399 355.01)",
+          "oklch(26% 0.01399 355.01)",
+          "oklch(38% 0.01399 355.01)",
+          "oklch(49% 0.01399 355.01)",
+          "oklch(61% 0.01399 355.01)",
+          "oklch(72% 0.01399 355.01)",
+          "oklch(84% 0.01399 355.01)",
+          "oklch(95% 0.01399 355.01)"
         ]
       }
     },
@@ -487,18 +487,8 @@
       "retryVisibility": "Receipt exists, status is not SENT, and confirmation attempts are below 5.",
       "retryBusyState": "disabled"
     },
-    "semesterSummary": {
-      "surface": "#ffffff",
-      "border": "1px solid var(--line)",
-      "artwork": "public/society-ribbon.svg",
-      "backgroundImage": "linear-gradient(90deg, #fff 65%, rgba(255, 255, 255, 0.8)), url(\"/society-ribbon.svg\")",
-      "backgroundSize": "100% 100%, 220px 275px",
-      "backgroundPosition": "center, right center",
-      "backgroundRepeat": "no-repeat",
-      "purpose": "Subtle continuation of the static reference ribbon beneath clear semester context."
-    },
     "dashboard": {
-      "layoutDescription": "The public navigation destination is Dashboard. SEC\u2019s dashboard prioritizes the oldest five applications awaiting review with direct review actions and a full-queue link, then the earliest five upcoming or ongoing selected-semester events with event-management actions and explicit check-in or manual High Impact award status. It also shows up to five enabled societies without an active PRT credit in that semester and up to five enabled accounts awaiting setup across all semesters, with direct setup-link actions. Headings count the full matching lists and truncation text points to the complete destination. The full society points table remains available in the initially collapsed native disclosure, \u201cAll society point totals.\u201d The society dashboard retains category totals, applications, and recent attendance, adding the next three upcoming or ongoing events and a View events link.",
+      "layoutDescription": "The public navigation destination is Dashboard. SEC\u2019s dashboard prioritizes the oldest five applications awaiting review with direct review actions and a full-queue link, then the earliest five upcoming or ongoing selected-semester events with event-management actions and explicit check-in or manual High Impact award status. It also shows up to five enabled societies without an active PRT credit in that semester and up to five enabled accounts awaiting setup across all semesters, with direct setup-link actions. Counts beside section headings reflect the full matching lists, and truncation text points to the complete destination. The full society points table remains available in the initially collapsed native disclosure, \u201cAll society point totals.\u201d The society dashboard retains category totals, applications, and recent attendance, adding the next three upcoming or ongoing events and a View events link.",
       "rowDescription": "Dashboard action rows reuse ruled records and existing primary, secondary, or text actions. Row content allows shrinking with `min-width: 0`, while its direct action does not shrink. At (760px) and below, action rows stack their content and action vertically, align to the start, and use an (8px) gap. The native points-register disclosure summary is maroon, (13px), weight (650), with (12px 0 20px) padding. Repeated direct actions have descriptive accessible names; changing navigation destinations scrolls to the top.",
       "publicNavigationLabel": "Dashboard",
       "admin": {
@@ -555,6 +545,29 @@
         "mobileDirection": "column",
         "mobileAlignItems": "flex-start",
         "mobileGap": "8px"
+      },
+      "composition": {
+        "description": "Dashboard composition uses open sections separated by hairlines, with (26px 0) section padding and (24px 0) on mobile. The page headline is `clamp(34px, 3.5vw, 52px)` with (1.12) line height and (-0.04em) tracking, fixed at (34px) on mobile. Section headings are (19px), weight (650), reducing to (18px) on mobile; counts sit outside the heading in muted body type (14px, weight 500). Empty sections become one compact status line with a check icon and an optional destination action, using (18px 0) padding, without an extra heading or description. Each section keeps its accessible name and `data-count`. SEC has one primary header action: review the oldest pending application, otherwise manage the earliest upcoming event, otherwise create an event. The collapsed points-register content is also flat. This dashboard treatment adds no motion; the static login reference artwork remains unchanged.",
+        "sectionPadding": "26px 0",
+        "mobileSectionPadding": "24px 0",
+        "emptyPadding": "18px 0",
+        "columnGap": "42px",
+        "rowGap": "0",
+        "headlineFontSize": "clamp(34px, 3.5vw, 52px)",
+        "mobileHeadlineFontSize": "34px",
+        "sectionHeadingSize": "19px",
+        "mobileSectionHeadingSize": "18px",
+        "sectionHeadingWeight": 650,
+        "countFontSize": "14px",
+        "countFontWeight": 500,
+        "contextRow": "Unboxed; no ribbon artwork.",
+        "motion": "none added",
+        "pointTrackers": "Flat top and bottom rules, internal dividers, no corner radius.",
+        "primaryHeaderActionPriority": [
+          "Review next application: oldest pending submission",
+          "Manage next event: earliest upcoming event",
+          "Create event"
+        ]
       }
     },
     "loginHelp": {
@@ -612,6 +625,16 @@
       "webkitTextFillColor": "var(--ink)",
       "caretColor": "var(--maroon)",
       "boxShadow": "0 0 0 1000px #fff inset"
+    },
+    "navigationActive": {
+      "background": "transparent",
+      "color": "var(--maroon)",
+      "radius": "6px",
+      "markerWidth": "2px",
+      "markerColor": "var(--maroon)",
+      "markerTop": "12px",
+      "markerBottom": "12px",
+      "markerLeft": "0"
     }
   },
   "components": [
@@ -621,7 +644,7 @@
       "refersTo": "button-primary",
       "description": "Main action with maroon hover and explicit disabled treatment.",
       "html": "<button class=\"ds-button\">Save application</button>",
-      "css": ".ds-button { display:inline-flex; align-items:center; justify-content:center; padding:11px 17px; border:1px solid transparent; border-radius:7px; background:var(--maroon,#500000); color:#ffffff; font:650 12px/1.4 var(--sans,\"DM Sans Variable\",sans-serif); min-height:42px; cursor:pointer; transition:background .15s ease,box-shadow .15s ease; } .ds-button:hover:not(:disabled) { background:#712727; box-shadow:0 3px 8px #50000016; } .ds-button:disabled { opacity:.5; cursor:not-allowed; } .ds-button:focus-visible { outline:3px solid var(--ds-focus,#8c4658); outline-offset:4px; } @media(prefers-reduced-motion:reduce) { .ds-button { transition:none; } }"
+      "css": ".ds-button { display:inline-flex; align-items:center; justify-content:center; padding:11px 17px; border:1px solid transparent; border-radius:6px; background:var(--maroon,#500000); color:#ffffff; font:650 12px/1.4 var(--sans,\"DM Sans Variable\",sans-serif); min-height:42px; cursor:pointer; transition:background .15s ease,box-shadow .15s ease; } .ds-button:hover:not(:disabled) { background:#712727; box-shadow:0 3px 8px #50000016; } .ds-button:disabled { opacity:.5; cursor:not-allowed; } .ds-button:focus-visible { outline:3px solid var(--ds-focus,#8c4658); outline-offset:4px; } @media(prefers-reduced-motion:reduce) { .ds-button { transition:none; } }"
     },
     {
       "name": "Secondary button",
@@ -629,7 +652,7 @@
       "refersTo": "button-secondary",
       "description": "Supporting action with a ruled paper surface.",
       "html": "<button class=\"ds-button ds-secondary\">Save draft</button>",
-      "css": ".ds-button { display:inline-flex; align-items:center; justify-content:center; padding:11px 17px; border:1px solid transparent; border-radius:7px; background:var(--maroon,#500000); color:#ffffff; font:650 12px/1.4 var(--sans,\"DM Sans Variable\",sans-serif); min-height:42px; cursor:pointer; transition:background .15s ease,box-shadow .15s ease; } .ds-button:hover:not(:disabled) { background:#712727; box-shadow:0 3px 8px #50000016; } .ds-button:disabled { opacity:.5; cursor:not-allowed; } .ds-button:focus-visible { outline:3px solid var(--ds-focus,#8c4658); outline-offset:4px; } .ds-secondary { background:var(--paper,#fff); color:var(--ink,#292623); border-color:var(--line,#e5e2df); } .ds-secondary:hover:not(:disabled) { background:var(--tint,#f7f2f3); box-shadow:none; } @media(prefers-reduced-motion:reduce) { .ds-button { transition:none; } }"
+      "css": ".ds-button { display:inline-flex; align-items:center; justify-content:center; padding:11px 17px; border:1px solid transparent; border-radius:6px; background:var(--maroon,#500000); color:#ffffff; font:650 12px/1.4 var(--sans,\"DM Sans Variable\",sans-serif); min-height:42px; cursor:pointer; transition:background .15s ease,box-shadow .15s ease; } .ds-button:hover:not(:disabled) { background:#712727; box-shadow:0 3px 8px #50000016; } .ds-button:disabled { opacity:.5; cursor:not-allowed; } .ds-button:focus-visible { outline:3px solid var(--ds-focus,#8c4658); outline-offset:4px; } .ds-secondary { background:var(--paper,#fff); color:var(--ink,#292623); border-color:var(--line,#e5e2df); } .ds-secondary:hover:not(:disabled) { background:var(--tint,#f7f2f3); box-shadow:none; } @media(prefers-reduced-motion:reduce) { .ds-button { transition:none; } }"
     },
     {
       "name": "Labeled field",
@@ -643,9 +666,9 @@
       "name": "Workspace navigation",
       "kind": "nav",
       "refersTo": "navigation-active",
-      "description": "White workspace navigation with muted resting text, pale rose active state, and maroon identity; the application supplies drawer state and focus behavior.",
+      "description": "White workspace navigation with muted resting text and a transparent maroon active state marked by a thin left rule.",
       "html": "<nav class=\"ds-nav\" aria-label=\"Main navigation\"><button class=\"ds-nav-item ds-active\" aria-current=\"page\">Dashboard</button><button class=\"ds-nav-item\">Attendance</button></nav>",
-      "css": ".ds-nav { padding:18px; background:var(--paper,#fff); border-right:1px solid var(--line,#e5e2df); display:flex; flex-direction:column; gap:5px; } .ds-nav-item { padding:12px 14px; min-height:46px; border:0; border-radius:8px; background:transparent; color:#68645f; font:400 13px/1.6 var(--sans,\"DM Sans Variable\",sans-serif); text-align:left; cursor:pointer; transition:background .15s ease; } .ds-nav-item:not(.ds-active):hover { background:var(--tint,#f7f2f3); color:var(--maroon,#500000); } .ds-active { background:#f5e9ed; color:var(--maroon,#500000); font-weight:650; } .ds-nav-item:focus-visible { outline:3px solid var(--ds-focus,#8c4658); outline-offset:4px; } @media(prefers-reduced-motion:reduce) {  .ds-nav-item { transition:none; } }"
+      "css": ".ds-nav { padding:18px; background:var(--paper,#fff); border-right:1px solid var(--line,#e5e2df); display:flex; flex-direction:column; gap:5px; } .ds-nav-item { padding:12px 14px; min-height:46px; border:0; border-radius:8px; background:transparent; color:#68645f; font:400 13px/1.6 var(--sans,\"DM Sans Variable\",sans-serif); text-align:left; cursor:pointer; transition:background .15s ease; } .ds-nav-item:not(.ds-active):hover { background:var(--tint,#f7f2f3); color:var(--maroon,#500000); } .ds-active { position:relative; background:transparent; color:var(--maroon,#500000); font-weight:650; border-radius:6px; } .ds-active::before { content:\"\"; position:absolute; left:0; top:12px; bottom:12px; width:2px; background:var(--maroon,#500000); } .ds-nav-item:focus-visible { outline:3px solid var(--ds-focus,#8c4658); outline-offset:4px; } @media(prefers-reduced-motion:reduce) {  .ds-nav-item { transition:none; } }"
     },
     {
       "name": "Positive status pill",
@@ -659,7 +682,7 @@
       "name": "Ruled paper panel",
       "kind": "card",
       "refersTo": "panel",
-      "description": "Flat working container for records and forms.",
+      "description": "Operational form or record container; dashboard sections use open hairline divisions instead.",
       "html": "<section class=\"ds-panel\"><h2 class=\"ds-title\">Recent attendance</h2><div class=\"ds-record\">Event name <span class=\"ds-meta\">PRT \u00b7 1 point</span></div><div class=\"ds-record\">Event name <span class=\"ds-meta\">Standard \u00b7 1 point</span></div></section>",
       "css": ".ds-panel { padding:26px; border:1px solid var(--line,#e5e2df); border-radius:var(--radius,14px); background:var(--paper,#fff); color:var(--ink,#292623); font:400 13px/1.6 var(--sans,\"DM Sans Variable\",sans-serif); } .ds-title { margin:0 0 18px; font:720 20px/1.35 var(--heading,\"Manrope Variable\",sans-serif); letter-spacing:-.02em; } .ds-record { padding:16px 0; border-top:1px solid var(--line,#e5e2df); } .ds-meta { display:block; margin-top:4px; font-size:12px; color:var(--muted,#68645f); } @media(max-width:760px) { .ds-panel { padding:20px 18px; } .ds-title { font-size:17px; } }"
     },
