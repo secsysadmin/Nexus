@@ -6,22 +6,27 @@ colors:
   button-hover: "#712727"
   ink: "#292623"
   muted: "#68645f"
-  ground: "#f6f5f1"
+  ground: "#ffffff"
   paper: "#ffffff"
-  line: "#e1ded7"
-  tint: "#eee8df"
-  semester: "#ebe5da"
+  line: "#e5e2df"
+  tint: "#f7f2f3"
+  semester: "#ffffff"
   green: "#265c43"
   green-bg: "#eaf3ed"
   amber: "#795310"
   amber-bg: "#fbf0d5"
   red: "#962b29"
-  nav-text: "#e5cdc4"
-  nav-active: "#f3e9dc"
-  nav-hover: "#6b2828"
-  button-text: "#fff8f3"
-  input-line: "#c9c4ba"
-  focus: "#a75a39"
+  nav-text: "#68645f"
+  nav-active: "#f5e9ed"
+  nav-hover: "#f7f2f3"
+  button-text: "#ffffff"
+  input-line: "#cec8ca"
+  focus: "#8c4658"
+  table-header: "#faf9fa"
+  pill-neutral: "#f5f4f4"
+  event-date: "#f7eef1"
+  input-disabled: "#f6f4f5"
+  note: "#faf7f8"
 typography:
   headline:
     fontFamily: '"Manrope Variable", sans-serif'
@@ -104,24 +109,24 @@ components:
 
 **Creative North Star: "Editorial society register"**
 
-Warm paper surfaces, deep maroon navigation, calm headings, and ruled records give societies and SEC a shared operating workspace. Readable records, explicit status, and efficient forms set the visual density. The public name is SocietyHub. Use the existing SEC circular logo copied unchanged from Delphi/public/sec_favicon.png; Nexus is an internal name only.
+White surfaces, maroon identity and actions, calm headings, and ruled records give societies and SEC a shared operating workspace. Readable records, explicit status, and efficient forms set the visual density. The public name is SocietyHub. Use the existing SEC circular logo copied unchanged from Delphi/public/sec_favicon.png; Nexus is an internal name only.
 
 **Key Characteristics:**
-- Warm neutral surfaces anchored by maroon navigation.
+- Unified white surfaces with maroon identity and pale rose states.
 - Compact, readable records with clear hierarchy and tabular totals.
 - Restrained motion and explicit interaction states.
 
 ## Colors
 
-Maroon anchors navigation and primary actions; warm neutrals separate the canvas, paper, rules, and semester strip. The frontmatter records observed reusable colors from `app/globals.css`.
+Maroon anchors identity, active navigation, and primary actions; white unifies the canvas, sidebar, top bar, panels, and semester strip, with pale neutral rules and rose interaction states. The frontmatter records observed reusable colors from `app/globals.css`.
 
 ### Primary
 
-Maroon identifies the persistent navigation and action hierarchy. Active navigation reverses to a warm pale fill. Primary action hover uses its own deeper red-brown fill, while inactive navigation hover uses a separate maroon tint.
+Maroon identifies the brand, active destinations, and action hierarchy. Active navigation and identity avatars use a pale rose fill. Primary action hover uses its own deeper red-brown fill, while inactive navigation hover uses the shared pale rose tint and maroon text.
 
 ### Neutral
 
-Ink is the primary reading color; muted text carries descriptions and metadata. Paper panels sit on the ground canvas with line-colored boundaries. Tint supports secondary hover and progress tracks; the semester surface groups period context.
+Ink is the primary reading color; muted text carries descriptions and metadata. White panels, sidebar, and top bar sit on the white ground canvas with line-colored boundaries. Tint supports secondary hover and progress tracks. Table headers use a near-white tone, neutral pills use a light gray fill, date blocks use pale rose, and notes use a subtle rose-white surface. Disabled fields use their pale neutral fill and muted text; placeholders also use muted text.
 
 ### Semantic
 
@@ -151,9 +156,9 @@ Tables scroll within their own container, retain a (650px) minimum width, and sh
 
 Tonal layers and thin rules carry most depth. Panels remain flat, without resting shadows. A primary button hover adds a small shadow (`0 3px 8px #50000016`); the open mobile drawer uses an edge shadow (`10px 0 40px #28000033`).
 
-Panel entry uses a (0.24s) clip-and-brightness reveal with `cubic-bezier(0.16, 1, 0.3, 1)`. Navigation and button hover transitions take (0.15s); the drawer takes (0.2s). Reduced-motion preference disables CSS animations and transitions.
+Panels appear without an entrance animation. Navigation and button hover transitions take (0.15s); the drawer takes (0.2s). Reduced-motion preference disables CSS animations and transitions.
 
-The user-pinned sign-in foundation is white (#ffffff) across the page, story, form region, and decorative background, retaining the desktop left/right split. Static maroon ribbon artwork uses broad, overlapping fabric curves from the SEC reference, served locally as `public/society-ribbon.svg`. Its source is `https://ragnarok-flame-iota.vercel.app/brand/sign-in-ribbon.svg`; the local adaptation uses a (720 × 900) viewBox with `translate(-250 0) scale(.9 1)` to fit the story region. A white readability veil preserves dark-ink headings and muted body copy; the brand remains maroon. The decoration is a static image, pointer-inert and hidden from assistive technology, with no animation or client rendering loop and no runtime external asset request. The compact mobile white brand header remains the mobile composition. Login locally uses white ground, pale rules (#e5e2df), and a muted maroon focus outline (#8c4658); authenticated workspace tokens retain their warm surfaces.
+The user-pinned sign-in foundation is white (#ffffff) across the page, story, form region, and decorative background, retaining the desktop left/right split. Static maroon ribbon artwork uses broad, overlapping fabric curves from the SEC reference, served locally as `public/society-ribbon.svg`. Its source is `https://ragnarok-flame-iota.vercel.app/brand/sign-in-ribbon.svg`; the local adaptation uses a (720 × 900) viewBox with `translate(-250 0) scale(.9 1)` to fit the story region. A white readability veil preserves dark-ink headings and muted body copy; the brand remains maroon. The decoration is a static image, pointer-inert and hidden from assistive technology, with no animation or client rendering loop and no runtime external asset request. The compact mobile white brand header remains the mobile composition. The authenticated workspace continues the same white foundation, pale rules, and muted maroon focus outline.
 
 ## Shapes
 
@@ -167,16 +172,16 @@ Primary and secondary buttons share compact typography (12px, weight 650), a min
 
 Fields place a persistent label above a white control with the input-line stroke, control radius, and minimum height (43px). Help text sits below the label. Errors and saved/loading messages remain explicit. Keyboard focus uses the focus color as a (3px) outline offset by (4px).
 
-Navigation uses full-width rows on the maroon surface, muted pale text at rest, and a warm pale active row with maroon text. The active destination exposes `aria-current="page"`. The mobile toggle exposes `aria-expanded` and `aria-controls`; closed navigation is both translated off-screen and hidden with `visibility: hidden`, removing its controls from keyboard navigation. Opening focuses its close button. Escape, close, and destination selection close the drawer and return focus to the toggle. A skip link becomes visible on focus.
+Navigation uses full-width rows on the white sidebar, muted text at rest, and a pale rose active row with maroon text. The sidebar has a thin right border; the brand is maroon. Inactive hover uses tint with maroon text. The active destination exposes `aria-current="page"`. The mobile toggle exposes `aria-expanded` and `aria-controls`; closed navigation is both translated off-screen and hidden with `visibility: hidden`, removing its controls from keyboard navigation. Opening focuses its close button. Escape, close, and destination selection close the drawer and return focus to the toggle. A skip link becomes visible on focus.
 
-Pills carry short written states with positive, pending, maroon, or neutral tones. The semester strip presents period context above the point register. Point trackers keep PRT, Standard, and High Impact separate; only PRT shows minimum progress. Lists, applications, and attendance tables use ruled rows and compact metadata.
+Pills carry short written states with positive, pending, maroon, or neutral tones. The white, bordered semester strip presents period context above the point register and repeats the static reference ribbon subtly at the right, sized (220px × 275px), beneath a white-to-translucent-white veil. Its foreground remains clear and readable. Point trackers keep PRT, Standard, and High Impact separate; only PRT shows minimum progress. Lists, applications, and attendance tables use ruled rows and compact metadata.
 
 Application forms add a labeled confirmation-email field using the existing control style, with help text explaining the receipt destination and acceptance of an officer’s personal email. Receipt status is a normal paragraph (13px), with (16px 0 22px) margins and wrapping for long addresses; written messages distinguish queued, sent, and failed delivery while confirming that a failed email leaves the application saved. SEC review offers the existing secondary-button style to retry eligible unsent receipts, disabled while busy. These additions retain the ordinary form and record hierarchy.
 
 ## Do's and Don'ts
 
 ### Do:
-- Do use warm paper surfaces and thin rules for operational records.
+- Do use white surfaces, pale rose interaction states, and thin rules for operational records.
 - Do retain labels, category names, and tabular totals when showing status or points.
 - Do preserve visible keyboard focus and reduced-motion behavior.
 - Do keep closed mobile navigation out of keyboard navigation.

@@ -3,10 +3,10 @@
   --maroon-light: #6c2424;
   --ink: #292623;
   --muted: #68645f;
-  --ground: #f6f5f1;
+  --ground: #fff;
   --paper: #fff;
-  --line: #e1ded7;
-  --tint: #eee8df;
+  --line: #e5e2df;
+  --tint: #f7f2f3;
   --green: #265c43;
   --green-bg: #eaf3ed;
   --amber: #795310;
@@ -33,7 +33,7 @@ body {
 }
 * {
   scrollbar-width: thin;
-  scrollbar-color: #bfb5aa var(--ground);
+  scrollbar-color: #c9b8bc var(--ground);
 }
 a {
   color: inherit;
@@ -64,7 +64,7 @@ textarea {
   caret-color: var(--maroon);
 }
 :focus-visible {
-  outline: 3px solid #a75a39;
+  outline: 3px solid #8c4658;
   outline-offset: 4px;
 }
 h1,
@@ -124,8 +124,9 @@ strong {
 }
 .sidebar {
   width: 244px;
-  background: var(--maroon);
-  color: #fff4ee;
+  background: var(--paper);
+  color: var(--ink);
+  border-right: 1px solid var(--line);
   position: fixed;
   inset: 0 auto 0 0;
   padding: 32px 18px 20px;
@@ -150,11 +151,11 @@ strong {
   font-family: var(--sans);
   font-weight: 400;
   letter-spacing: 0.025em;
-  color: #dfc7be;
+  color: var(--muted);
   margin-top: 6px;
 }
 .workspace-label {
-  color: #d5bbb0;
+  color: var(--muted);
   font-size: 11px;
   margin: 48px 14px 12px;
   letter-spacing: 0.055em;
@@ -174,19 +175,19 @@ strong {
   border: 0;
   border-radius: 8px;
   background: transparent;
-  color: #e5cdc4;
+  color: var(--muted);
   font-size: 13px;
   width: 100%;
   transition: background 0.15s ease;
 }
 .nav.active {
   color: var(--maroon);
-  background: #f3e9dc;
+  background: #f5e9ed;
   font-weight: 650;
 }
 .nav:not(.active):hover {
-  background: #6b2828;
-  color: white;
+  background: var(--tint);
+  color: var(--maroon);
 }
 .nav-count {
   margin-left: auto;
@@ -202,7 +203,7 @@ strong {
   align-items: center;
   gap: 10px;
   padding: 16px 10px;
-  border-top: 1px solid #794242;
+  border-top: 1px solid var(--line);
   margin-bottom: 6px;
 }
 .identity strong {
@@ -212,11 +213,12 @@ strong {
   max-width: 150px;
 }
 .identity small {
-  color: #d5bbb0;
+  color: var(--muted);
   font-size: 11px;
 }
 .avatar {
-  background: #794040;
+  background: #f5e9ed;
+  color: var(--maroon);
   width: 34px;
   height: 34px;
   flex-shrink: 0;
@@ -228,7 +230,7 @@ strong {
 }
 .sidebar-bottom p {
   font-size: 10px;
-  color: #d1afa4;
+  color: var(--muted);
   line-height: 1.8;
   padding: 20px 14px 0;
   margin: 0;
@@ -240,7 +242,7 @@ strong {
 }
 .topbar {
   height: 78px;
-  background: #fbfaf7;
+  background: #fff;
   border-bottom: 1px solid var(--line);
   display: flex;
   align-items: center;
@@ -251,7 +253,7 @@ strong {
   color: var(--muted);
 }
 .breadcrumb {
-  color: #817b73;
+  color: var(--muted);
   margin-left: 7px;
 }
 .topbar-actions {
@@ -317,7 +319,7 @@ strong {
   padding: 11px 17px;
   border: 1px solid transparent;
   border-radius: 7px;
-  color: #fff8f3;
+  color: #fff;
   background: var(--maroon);
   text-decoration: none;
   font-size: 12px;
@@ -384,7 +386,7 @@ strong {
   margin-bottom: 20px;
 }
 .semester-summary {
-  background: #ebe5da;
+  background: #fff;
   padding: 25px 28px;
   display: flex;
   align-items: center;
@@ -408,8 +410,8 @@ strong {
   border-radius: 5px;
   display: inline-flex;
   align-items: center;
-  background: #f0efeb;
-  color: #615b53;
+  background: #f5f4f4;
+  color: var(--muted);
   white-space: nowrap;
   font-weight: 650;
   text-transform: none;
@@ -423,7 +425,7 @@ strong {
   color: var(--amber);
 }
 .pill.maroon {
-  background: #dfd3c6;
+  background: #f5e9ed;
   color: var(--maroon);
 }
 .point-trackers {
@@ -589,7 +591,7 @@ th {
   font-weight: 500;
   color: var(--muted);
   font-size: 11px;
-  background: #f8f7f3;
+  background: #faf9fa;
   padding: 12px 14px;
   white-space: nowrap;
 }
@@ -621,7 +623,7 @@ td strong {
   flex-direction: column;
   align-items: center;
   color: var(--maroon);
-  background: #f4eee6;
+  background: #f7eef1;
   border-radius: 8px;
   padding: 8px 12px;
 }
@@ -685,7 +687,7 @@ td strong {
 input:not([type="checkbox"]),
 select,
 textarea {
-  border: 1px solid #c9c4ba;
+  border: 1px solid #cec8ca;
   border-radius: 6px;
   background: #fff;
   color: var(--ink);
@@ -696,14 +698,14 @@ textarea {
 }
 input::placeholder,
 textarea::placeholder {
-  color: #716b62;
+  color: var(--muted);
   opacity: 1;
 }
 input:disabled,
 textarea:disabled,
 select:disabled {
-  background: #f6f4ef;
-  color: #686056;
+  background: #f6f4f5;
+  color: var(--muted);
 }
 textarea {
   resize: vertical;
@@ -808,7 +810,7 @@ input[type="checkbox"] {
   overflow-wrap: anywhere;
   font: 11px/1.7 var(--sans);
   max-width: 600px;
-  background: #f8f7f3;
+  background: #faf9fa;
   padding: 12px;
   border-radius: 6px;
 }
@@ -890,7 +892,7 @@ summary {
   height: auto;
 }
 .review-note {
-  background: #f3eee6;
+  background: #faf7f8;
   border-radius: 8px;
   padding: 18px;
   margin-top: 20px;
@@ -1078,19 +1080,6 @@ summary {
 .event-details h3,
 td strong {
   overflow-wrap: anywhere;
-}
-.panel {
-  animation: panel-enter 0.24s cubic-bezier(0.16, 1, 0.3, 1);
-}
-@keyframes panel-enter {
-  from {
-    clip-path: inset(0 0 5% 0);
-    filter: brightness(0.98);
-  }
-  to {
-    clip-path: inset(0);
-    filter: brightness(1);
-  }
 }
 @media (min-width: 1600px) {
   .content {
@@ -1418,7 +1407,7 @@ td strong {
     position: absolute;
     right: 10px;
     top: 10px;
-    color: #fff4ee;
+    color: var(--maroon);
   }
 }
 
@@ -1540,4 +1529,29 @@ td strong {
 .auth-story h1 {
   max-width: 480px;
   font-size: clamp(36px, 3.6vw, 56px);
+}
+
+/* Shared white and maroon workspace, continuing the sign-in surface. */
+.sidebar .brand {
+  color: var(--maroon);
+}
+.semester-summary {
+  border: 1px solid var(--line);
+  background-image:
+    linear-gradient(90deg, #fff 65%, rgba(255, 255, 255, 0.8)),
+    url("/society-ribbon.svg");
+  background-size:
+    100% 100%,
+    220px 275px;
+  background-position:
+    center,
+    right center;
+  background-repeat: no-repeat;
+}
+.semester-summary > * {
+  position: relative;
+}
+.environment-note {
+  background: var(--tint);
+  color: var(--maroon);
 }
