@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-11-02T22:17:54.318190+00:00",
+  "generatedAt": "2026-11-02T22:39:16.458308+00:00",
   "title": "Design System: SocietyHub",
   "extensions": {
     "colorMeta": {
@@ -353,6 +353,34 @@
           "oklch(84% 0.01399 355.01)",
           "oklch(95% 0.01399 355.01)"
         ]
+      },
+      "chart-standard": {
+        "role": "chart-series",
+        "displayName": "Chart Standard",
+        "tonalRamp": [
+          "oklch(15% 0.12232 4.85)",
+          "oklch(26% 0.12232 4.85)",
+          "oklch(38% 0.12232 4.85)",
+          "oklch(49% 0.12232 4.85)",
+          "oklch(61% 0.12232 4.85)",
+          "oklch(72% 0.12232 4.85)",
+          "oklch(84% 0.12232 4.85)",
+          "oklch(95% 0.12232 4.85)"
+        ]
+      },
+      "chart-high-impact": {
+        "role": "chart-series",
+        "displayName": "Chart High Impact",
+        "tonalRamp": [
+          "oklch(15% 0.04522 273.78)",
+          "oklch(26% 0.04522 273.78)",
+          "oklch(38% 0.04522 273.78)",
+          "oklch(49% 0.04522 273.78)",
+          "oklch(61% 0.04522 273.78)",
+          "oklch(72% 0.04522 273.78)",
+          "oklch(84% 0.04522 273.78)",
+          "oklch(95% 0.04522 273.78)"
+        ]
       }
     },
     "typographyMeta": {
@@ -374,7 +402,7 @@
       },
       "point-total": {
         "displayName": "Point total",
-        "purpose": "Category totals with tabular numerals."
+        "purpose": "Selected chart running total; 54px desktop and 46px mobile."
       }
     },
     "shadows": [
@@ -488,7 +516,7 @@
       "retryBusyState": "disabled"
     },
     "dashboard": {
-      "layoutDescription": "The public navigation destination is Dashboard. SEC\u2019s dashboard prioritizes the oldest five applications awaiting review with direct review actions and a full-queue link, then the earliest five upcoming or ongoing selected-semester events with event-management actions and explicit check-in or manual High Impact award status. It also shows up to five enabled societies without an active PRT credit in that semester and up to five enabled accounts awaiting setup across all semesters, with direct setup-link actions. Counts beside section headings reflect the full matching lists, and truncation text points to the complete destination. The full society points table remains available in the initially collapsed native disclosure, \u201cAll society point totals.\u201d The society dashboard retains category totals, applications, and recent attendance, adding the next three upcoming or ongoing events and a View events link.",
+      "layoutDescription": "The public navigation destination is Dashboard. SEC\u2019s dashboard prioritizes the oldest five applications awaiting review with direct review actions and a full-queue link, then the earliest five upcoming or ongoing selected-semester events with event-management actions and explicit check-in or manual High Impact award status. It also shows up to five enabled societies without an active PRT credit in that semester and up to five enabled accounts awaiting setup across all semesters, with direct setup-link actions. Counts beside section headings reflect the full matching lists, and truncation text points to the complete destination. The full society points table remains available in the initially collapsed native disclosure, \u201cAll society point totals.\u201d The society dashboard greets its account with \u201cHello {display_name}\u201d and a generic subtitle without repeating the society name. It retains applications and recent attendance, shows the next three upcoming or ongoing events with a View events link, and replaces the former three-column trackers with the Semester points visualization and category breakdown.",
       "rowDescription": "Dashboard action rows reuse ruled records and existing primary, secondary, or text actions. Row content allows shrinking with `min-width: 0`, while its direct action does not shrink. At (760px) and below, action rows stack their content and action vertically, align to the start, and use an (8px) gap. The native points-register disclosure summary is maroon, (13px), weight (650), with (12px 0 20px) padding. Repeated direct actions have descriptive accessible names; changing navigation destinations scrolls to the top.",
       "publicNavigationLabel": "Dashboard",
       "admin": {
@@ -536,7 +564,9 @@
           "Recent attendance"
         ],
         "eventsPreviewLimit": 3,
-        "eventsLink": "View events"
+        "eventsLink": "View events",
+        "greeting": "Hello {display_name}",
+        "subtitle": "Generic workspace context without repeating the society name."
       },
       "responsiveRows": {
         "contentMinWidth": "0",
@@ -562,7 +592,6 @@
         "countFontWeight": 500,
         "contextRow": "Unboxed; no ribbon artwork.",
         "motion": "none added",
-        "pointTrackers": "Flat top and bottom rules, internal dividers, no corner radius.",
         "primaryHeaderActionPriority": [
           "Review next application: oldest pending submission",
           "Manage next event: earliest upcoming event",
@@ -635,6 +664,28 @@
       "markerTop": "12px",
       "markerBottom": "12px",
       "markerLeft": "0"
+    },
+    "semesterPoints": {
+      "description": "Semester points uses a static SVG cumulative monthly step-area chart (210px high), with five grid levels from zero to a maximum rounded upward to a multiple of four, never below four. All categories is the initial filter; All and PRT use maroon, Standard uses chart-standard, and High Impact uses chart-high-impact. The selected series has a (3px) stroke and a matching area fade from opacity (0.2) to (0.02); the last plotted month has a dashed marker and maroon month label. Native category and All categories buttons expose `aria-pressed`, updating both chart and the politely announced total. Category rows use a (2px) maroon selection marker and a pale rose hover; only PRT has a minimum status, while other categories retain their point-rate explanation. Zero totals show an explicit \u201cNo points recorded yet\u201d overlay. \u201cView monthly data\u201d is a native disclosure with a keyboard-scrollable all-category cumulative table; future values are shown as em dashes, with no future chart path. Data is scoped to the selected semester and signed-in society, excludes revoked credits, and uses the Central-time date recorded; early or late records extend the visible month range. This is recorded history, with no animation or forecast.",
+      "layout": "minmax(0, 1.7fr) minmax(260px, 1fr)",
+      "gap": "42px",
+      "breakdownBorder": "1px solid var(--line)",
+      "breakdownPaddingLeft": "30px",
+      "stackMaxWidth": "1150px",
+      "stackGap": "28px",
+      "plotHeight": "210px",
+      "totalMobileSize": "46px",
+      "breakdownTotal": "750 28px/1.15 var(--heading)",
+      "defaultSeries": "ALL",
+      "seriesTokens": {
+        "ALL": "maroon",
+        "PRT": "maroon",
+        "STANDARD": "chart-standard",
+        "HIGH_IMPACT": "chart-high-impact"
+      },
+      "axis": "Five ticks; maximum rounded to multiple of four, minimum four.",
+      "tableDisclosure": "View monthly data",
+      "motion": "none"
     }
   },
   "components": [
@@ -687,11 +738,11 @@
       "css": ".ds-panel { padding:26px; border:1px solid var(--line,#e5e2df); border-radius:var(--radius,14px); background:var(--paper,#fff); color:var(--ink,#292623); font:400 13px/1.6 var(--sans,\"DM Sans Variable\",sans-serif); } .ds-title { margin:0 0 18px; font:720 20px/1.35 var(--heading,\"Manrope Variable\",sans-serif); letter-spacing:-.02em; } .ds-record { padding:16px 0; border-top:1px solid var(--line,#e5e2df); } .ds-meta { display:block; margin-top:4px; font-size:12px; color:var(--muted,#68645f); } @media(max-width:760px) { .ds-panel { padding:20px 18px; } .ds-title { font-size:17px; } }"
     },
     {
-      "name": "Point total",
+      "name": "Semester points chart",
       "kind": "custom",
-      "description": "Separate category total with minimum progress reserved for PRT.",
-      "html": "<section class=\"ds-tracker\"><span class=\"ds-category\">PRT</span><div class=\"ds-total\">1 <small class=\"ds-unit\">point</small></div><progress class=\"ds-progress\" value=\"1\" max=\"1\" aria-label=\"PRT minimum met\"></progress><p class=\"ds-positive\">Semester minimum met</p></section>",
-      "css": ".ds-tracker { padding:24px 26px; background:var(--paper,#fff); color:var(--ink,#292623); font-family:var(--sans,\"DM Sans Variable\",sans-serif); } .ds-category { font-size:12px; font-weight:600; } .ds-total { margin:15px 0 20px; font:750 44px/1.2 var(--heading,\"Manrope Variable\",sans-serif); letter-spacing:-.04em; font-variant-numeric:tabular-nums; } .ds-unit { font-size:12px; font-weight:400; letter-spacing:0; color:var(--muted,#68645f); } .ds-progress { display:block; width:100%; height:5px; accent-color:var(--green,#265c43); border:0; border-radius:3px; overflow:hidden; background:var(--tint,#f7f2f3); } .ds-progress::-webkit-progress-bar { background:var(--tint,#f7f2f3); } .ds-progress::-webkit-progress-value { background:var(--green,#265c43); } .ds-positive { font-size:11px; margin:10px 0 0; color:var(--green,#265c43); }"
+      "description": "Recorded monthly cumulative history with an honest zero state; application controls select category series.",
+      "html": "<section class=\"ds-points\"><h2 class=\"ds-points-title\">Semester points</h2><div class=\"ds-points-total\">0 <small class=\"ds-points-unit\">points</small></div><p class=\"ds-points-caption\">All points \u00b7 Monthly running total</p><div class=\"ds-points-plot\"><svg class=\"ds-points-svg\" viewBox=\"0 0 600 210\" role=\"img\" aria-label=\"No points recorded yet\"><path d=\"M0 18H600M0 61H600M0 104H600M0 147H600M0 190H600\" stroke=\"#e5e2df\" fill=\"none\"/></svg><p class=\"ds-points-empty\"><strong>No points recorded yet</strong><span>Your first credited event will appear here.</span></p></div></section>",
+      "css": ".ds-points { border-top:1px solid var(--line,#e5e2df); padding:26px 0; color:var(--ink,#292623); font-family:var(--sans,\"DM Sans Variable\",sans-serif); } .ds-points-title { font:650 19px/1.35 var(--heading,\"Manrope Variable\",sans-serif); margin:0 0 18px; } .ds-points-total { font:750 54px/1.15 var(--heading,\"Manrope Variable\",sans-serif); letter-spacing:-.04em; font-variant-numeric:tabular-nums; } .ds-points-unit { font:400 13px/1.5 var(--sans,\"DM Sans Variable\",sans-serif); color:var(--muted,#68645f); letter-spacing:0; } .ds-points-caption { font-size:12px; color:var(--muted,#68645f); margin:6px 0 0; } .ds-points-plot { position:relative; height:210px; margin-top:20px; } .ds-points-svg { width:100%; height:210px; } .ds-points-empty { position:absolute; top:46px; left:0; right:0; display:flex; flex-direction:column; align-items:center; gap:6px; font-size:14px; } .ds-points-empty span { font-size:12px; color:var(--muted,#68645f); } @media(max-width:760px) { .ds-points-total { font-size:46px; } }"
     }
   ],
   "narrative": {

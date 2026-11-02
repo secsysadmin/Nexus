@@ -1740,3 +1740,222 @@ td strong {
     padding-inline: 0;
   }
 }
+
+.semester-points {
+  border-top: 1px solid var(--line);
+  padding: 26px 0;
+}
+.semester-points .section-head h2 {
+  font-size: 19px;
+  font-weight: 650;
+}
+.points-visual-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.7fr) minmax(260px, 1fr);
+  gap: 42px;
+}
+.points-chart-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.points-chart-total {
+  font: 750 54px/1.15 var(--heading);
+  letter-spacing: -0.04em;
+  font-variant-numeric: tabular-nums;
+}
+.points-chart-total span {
+  font: 400 13px/1.5 var(--sans);
+  color: var(--muted);
+  letter-spacing: 0;
+  margin-left: 10px;
+}
+.points-chart-heading p {
+  font-size: 12px;
+  margin: 6px 0 0;
+}
+.points-all {
+  background: #fff;
+  color: var(--maroon);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 8px 11px;
+  font-size: 12px;
+}
+.points-all[aria-pressed="true"] {
+  border-color: #500000;
+  background: #fcf5f5;
+}
+.points-figure {
+  margin: 20px 0 0;
+}
+.points-plot {
+  position: relative;
+  height: 210px;
+}
+.points-plot svg {
+  display: block;
+  margin-left: 30px;
+  width: calc(100% - 36px);
+  height: 210px;
+  overflow: visible;
+}
+.points-axis {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 20px;
+  height: 210px;
+  color: var(--muted);
+  font-size: 10px;
+}
+.points-axis span {
+  position: absolute;
+  transform: translateY(-50%);
+}
+.points-chart-empty {
+  position: absolute;
+  inset: 46px 18px auto 42px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  text-align: center;
+}
+.points-chart-empty strong {
+  font-size: 14px;
+}
+.points-chart-empty span {
+  font-size: 12px;
+  color: var(--muted);
+}
+.points-months {
+  position: relative;
+  margin: 0 16px 0 40px;
+  height: 24px;
+  font-size: 10px;
+  color: var(--muted);
+}
+.points-months span {
+  position: absolute;
+  transform: translateX(-50%);
+}
+.points-months .current {
+  color: var(--maroon);
+  font-weight: 650;
+}
+.points-figure figcaption {
+  color: var(--muted);
+  font-size: 11px;
+  margin: 12px 0 0 30px;
+}
+.points-breakdown {
+  border-left: 1px solid var(--line);
+  padding-left: 30px;
+}
+.points-breakdown > h3 {
+  font-size: 14px;
+  font-weight: 650;
+  margin-bottom: 4px;
+}
+.points-breakdown > p {
+  font-size: 11px;
+  margin-bottom: 12px;
+}
+.points-category {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px 12px;
+  text-align: left;
+  border: 0;
+  border-top: 1px solid var(--line);
+  background: #fff;
+  padding: 16px 0 16px 12px;
+  color: var(--ink);
+  position: relative;
+}
+.points-category:hover {
+  background: #fcf5f5;
+}
+.points-category[aria-pressed="true"]::before {
+  content: "";
+  position: absolute;
+  top: 18px;
+  bottom: 18px;
+  left: 0;
+  width: 2px;
+  background: var(--maroon);
+}
+.points-category-name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 600;
+}
+.points-category-name i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.points-category > strong {
+  font: 750 28px/1.15 var(--heading);
+  font-variant-numeric: tabular-nums;
+}
+.points-category > strong small {
+  font: 400 10px/1.5 var(--sans);
+  margin-left: 5px;
+}
+.points-category-rule {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  color: var(--muted);
+}
+.points-category-rule.met {
+  color: var(--green);
+}
+.points-data {
+  margin-top: 18px;
+}
+.points-data > summary {
+  color: var(--maroon);
+  font-size: 12px;
+  font-weight: 600;
+}
+.points-data table {
+  margin: 10px 0;
+}
+@media (max-width: 1150px) {
+  .points-visual-layout {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+  .points-breakdown {
+    border-left: 0;
+    padding-left: 0;
+  }
+}
+@media (max-width: 760px) {
+  .semester-points .section-head {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .semester-points .section-head h2 {
+    font-size: 18px;
+  }
+  .points-chart-total {
+    font-size: 46px;
+  }
+  .points-chart-heading {
+    align-items: flex-start;
+  }
+  .points-figure figcaption {
+    margin-left: 0;
+  }
+}

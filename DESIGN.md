@@ -27,6 +27,8 @@ colors:
   event-date: "#f7eef1"
   input-disabled: "#f6f4f5"
   note: "#faf7f8"
+  chart-standard: "#a64b64"
+  chart-high-impact: "#5f6682"
 typography:
   headline:
     fontFamily: '"Manrope Variable", sans-serif'
@@ -51,9 +53,9 @@ typography:
     fontWeight: 600
   point-total:
     fontFamily: '"Manrope Variable", sans-serif'
-    fontSize: "44px"
+    fontSize: "54px"
     fontWeight: 750
-    lineHeight: 1.2
+    lineHeight: 1.15
     letterSpacing: "-0.04em"
 rounded:
   panel: "14px"
@@ -142,15 +144,15 @@ Green and its pale background indicate positive status and PRT completion. Amber
 
 Both families are self-hosted through `@fontsource-variable` imports in `app/layout.tsx`. Rounded sans-serif forms keep the register approachable while strong headings and compact labels distinguish operational layers.
 
-Page titles use the headline token; mobile page titles are (29px). Section titles use the title token, reduced to (17px) in mobile panel headers. Body copy uses the body token with a paragraph measure of (72ch); working descriptions and records generally use (12–13px). Field labels use the label token; desktop input text is (13px), increasing to (16px) on mobile except the compact semester selector (12px). Point totals use the point-total token, reducing to (34px) on mobile, and tabular numerals. Tables and administrator totals also use tabular numerals. The login story headline uses `clamp(36px, 3.6vw, 56px)` with a maximum width of (480px), keeping its text clear of the ribbon’s broad outer curve.
+Page titles use the headline token; mobile page titles are (29px). Section titles use the title token, reduced to (17px) in mobile panel headers. Body copy uses the body token with a paragraph measure of (72ch); working descriptions and records generally use (12–13px). Field labels use the label token; desktop input text is (13px), increasing to (16px) on mobile except the compact semester selector (12px). The selected chart total uses the point-total token, reducing to (46px) on mobile, with tabular numerals. Category breakdown totals are Manrope Variable (28px, weight 750, line height 1.15). Tables and administrator totals also use tabular numerals. The login story headline uses `clamp(36px, 3.6vw, 56px)` with a maximum width of (480px), keeping its text clear of the ribbon’s broad outer curve.
 
 ## Layout
 
-The fixed desktop sidebar is (244px) wide; the main region offsets by the same amount. The content container is capped at (1440px) with desktop insets from the spacing tokens. The top bar is (78px) tall. Panels use the panel spacing token; the recurring panel and grid gap is (24px). The dashboard content grid divides (1.15fr / 1fr), with a (42px) column gap and no row gap, while three point trackers share equal columns.
+The fixed desktop sidebar is (244px) wide; the main region offsets by the same amount. The content container is capped at (1440px) with desktop insets from the spacing tokens. The top bar is (78px) tall. Panels use the panel spacing token; the recurring panel and grid gap is (24px). The dashboard content grid divides (1.15fr / 1fr), with a (42px) column gap and no row gap. The society points section pairs a chart with a category breakdown in `minmax(0, 1.7fr) minmax(260px, 1fr)` columns, separated by (42px); the breakdown has a left rule and (30px) left padding. At (1150px) and below, this becomes one column with a (28px) gap and no breakdown left rule or inset.
 
-At (1150px) and below, the sidebar becomes (215px), the main offset matches, content uses tablet insets, and the dashboard grid becomes one column. At (760px) and below, a (260px) navigation drawer replaces the sidebar, the main offset clears, and a sticky (65px) top bar carries the labeled menu control. Content uses mobile insets, panels use (20px 18px), point trackers become stacked rows, and forms become one column. At (1600px) and above, content top padding becomes (52px).
+At (1150px) and below, the sidebar becomes (215px), the main offset matches, content uses tablet insets, and the dashboard grid becomes one column. At (760px) and below, a (260px) navigation drawer replaces the sidebar, the main offset clears, and a sticky (65px) top bar carries the labeled menu control. Content uses mobile insets, panels use (20px 18px), forms become one column, and the points visualization retains its stacked chart/breakdown layout. At (1600px) and above, content top padding becomes (52px).
 
-The public navigation destination is Dashboard. SEC’s dashboard prioritizes the oldest five applications awaiting review with direct review actions and a full-queue link, then the earliest five upcoming or ongoing selected-semester events with event-management actions and explicit check-in or manual High Impact award status. It also shows up to five enabled societies without an active PRT credit in that semester and up to five enabled accounts awaiting setup across all semesters, with direct setup-link actions. Counts beside section headings reflect the full matching lists, and truncation text points to the complete destination. The full society points table remains available in the initially collapsed native disclosure, “All society point totals.” The society dashboard retains category totals, applications, and recent attendance, adding the next three upcoming or ongoing events and a View events link.
+The public navigation destination is Dashboard. SEC’s dashboard prioritizes the oldest five applications awaiting review with direct review actions and a full-queue link, then the earliest five upcoming or ongoing selected-semester events with event-management actions and explicit check-in or manual High Impact award status. It also shows up to five enabled societies without an active PRT credit in that semester and up to five enabled accounts awaiting setup across all semesters, with direct setup-link actions. Counts beside section headings reflect the full matching lists, and truncation text points to the complete destination. The full society points table remains available in the initially collapsed native disclosure, “All society point totals.” The society dashboard greets its account with “Hello {display_name}” and a generic subtitle without repeating the society name. It retains applications and recent attendance, shows the next three upcoming or ongoing events with a View events link, and replaces the former three-column trackers with the Semester points visualization and category breakdown.
 
 Tables scroll within their own container, retain a (650px) minimum width, and show a horizontal-scroll instruction on mobile. Long record names wrap. Login uses two white regions for the story and form on desktop and a compact white brand header above the form on mobile.
 
@@ -164,7 +166,7 @@ The user-pinned sign-in foundation is white (#ffffff) across the page, story, fo
 
 ## Shapes
 
-Operational form panels retain the panel radius. Dashboard sections and the point-tracker group are flat, with no enclosing card corners; point trackers retain only top/bottom rules and their internal dividers. Buttons, controls, navigation, and pills use the smaller frontmatter radii. Records and tables use horizontal rules rather than individual floating cards. The identity avatar is circular; event date blocks use the navigation radius.
+Operational form panels retain the panel radius. Dashboard sections, including Semester points, are flat and separated by rules without enclosing card corners. Buttons, controls, navigation, and pills use the smaller frontmatter radii. Records and tables use horizontal rules rather than individual floating cards. The identity avatar is circular; event date blocks use the navigation radius.
 
 ## Components
 
@@ -176,7 +178,7 @@ Fields place a persistent label above a white control with the input-line stroke
 
 Navigation uses full-width rows on the white sidebar, muted text at rest, and a transparent active row with maroon text and a (2px) maroon left marker inset (12px) from top and bottom. Active-row corners are (6px). The sidebar has a thin right border; the brand is maroon. Inactive hover uses tint with maroon text. The active destination exposes `aria-current="page"`. The mobile toggle exposes `aria-expanded` and `aria-controls`; closed navigation is both translated off-screen and hidden with `visibility: hidden`, removing its controls from keyboard navigation. Opening focuses its close button. Escape, close, and destination selection close the drawer and return focus to the toggle. A skip link becomes visible on focus.
 
-Pills carry short written states with positive, pending, maroon, or neutral tones. An unboxed context row presents semester, current/history state, and workspace context above the point register; the dashboard has no ribbon decoration. Point trackers keep PRT, Standard, and High Impact separate; only PRT shows minimum progress. Lists, applications, and attendance tables use ruled rows and compact metadata.
+Pills carry short written states with positive, pending, maroon, or neutral tones. An unboxed context row presents semester, current/history state, and workspace context above the point register; the dashboard has no ribbon decoration. The points breakdown keeps PRT, Standard, and High Impact separate; only PRT shows a one-point semester-minimum status. Lists, applications, and attendance tables use ruled rows and compact metadata.
 
 Application forms add a labeled confirmation-email field using the existing control style, with help text explaining the receipt destination and acceptance of an officer’s personal email. Receipt status is a normal paragraph (13px), with (16px 0 22px) margins and wrapping for long addresses; written messages distinguish queued, sent, and failed delivery while confirming that a failed email leaves the application saved. SEC review offers the existing secondary-button style to retry eligible unsent receipts, disabled while busy. These additions retain the ordinary form and record hierarchy.
 
@@ -185,6 +187,8 @@ Dashboard action rows reuse ruled records and existing primary, secondary, or te
 The login combines account setup and password-reset help in one pale rose card (#fcf5f5) with a (1px #ead4d8) border, the input-matching (6px) radius, (18px) padding, and a (32px minmax(0, 1fr)) grid with a (12px) gap. A maroon KeyRound icon (17px) sits in a white circular holder (32px). The bold title and body are (12px); body margins are (7px 0 10px). The “Contact an SEC chair” action is maroon (12px, weight 650), with an ArrowRight icon, (8px) gap, and (36px) minimum height; hover underlines the label. Its mail link targets `society@sec.tamu.edu` with subject “SocietyHub account help.” Story topic rows use ink (13px, weight 500), a (10px) flex gap, and maroon FileText, CalendarDays, and Users icons (17px). Autofilled sign-in inputs retain white fill with a (1000px) inset white shadow, ink text and text fill, and a maroon caret through `:is(:autofill, :-webkit-autofill)`.
 
 Dashboard composition uses open sections separated by hairlines, with (26px 0) section padding and (24px 0) on mobile. The page headline is `clamp(34px, 3.5vw, 52px)` with (1.12) line height and (-0.04em) tracking, fixed at (34px) on mobile. Section headings are (19px), weight (650), reducing to (18px) on mobile; counts sit outside the heading in muted body type (14px, weight 500). Empty sections become one compact status line with a check icon and an optional destination action, using (18px 0) padding, without an extra heading or description. Each section keeps its accessible name and `data-count`. SEC has one primary header action: review the oldest pending application, otherwise manage the earliest upcoming event, otherwise create an event. The collapsed points-register content is also flat. This dashboard treatment adds no motion; the static login reference artwork remains unchanged.
+
+Semester points uses a static SVG cumulative monthly step-area chart (210px high), with five grid levels from zero to a maximum rounded upward to a multiple of four, never below four. All categories is the initial filter; All and PRT use maroon, Standard uses chart-standard, and High Impact uses chart-high-impact. The selected series has a (3px) stroke and a matching area fade from opacity (0.2) to (0.02); the last plotted month has a dashed marker and maroon month label. Native category and All categories buttons expose `aria-pressed`, updating both chart and the politely announced total. Category rows use a (2px) maroon selection marker and a pale rose hover; only PRT has a minimum status, while other categories retain their point-rate explanation. Zero totals show an explicit “No points recorded yet” overlay. “View monthly data” is a native disclosure with a keyboard-scrollable all-category cumulative table; future values are shown as em dashes, with no future chart path. Data is scoped to the selected semester and signed-in society, excludes revoked credits, and uses the Central-time date recorded; early or late records extend the visible month range. This is recorded history, with no animation or forecast.
 
 ## Do's and Don'ts
 

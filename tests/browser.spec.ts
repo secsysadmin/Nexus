@@ -468,7 +468,9 @@ test("society hub end-to-end: admin, concurrent check-in, drafts, review, QR and
     .getByRole("button", { name: "Set password & continue" })
     .click();
   await expect(
-    activationPage.getByRole("heading", { name: "Your society, connected." }),
+    activationPage.getByRole("heading", {
+      name: "Hello Provisioned test society",
+    }),
   ).toBeVisible();
   const reused = await post(activationContext.request, "auth/activate", {
     token: p.activation,

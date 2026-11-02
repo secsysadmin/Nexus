@@ -32,6 +32,7 @@ import {
 } from "lucide-react";
 import QRCode from "qrcode";
 import MaroonRibbons from "./maroon-ribbons";
+import SemesterPoints from "./semester-points";
 import { dashboardItems } from "../lib/dashboard";
 import { defaultConfirmationEmail } from "../lib/application-email";
 import type {
@@ -447,7 +448,7 @@ export default function Hub() {
     );
   const dashboard = dashboardItems(data, semester, Date.now());
   const title: Record<string, string> = {
-    overview: admin ? "SEC dashboard" : "Your society, connected.",
+    overview: admin ? "SEC dashboard" : `Hello ${data.actor.display_name}`,
     events: "Events & check-in",
     applications: "Applications",
     activity: "Attendance & points",
@@ -607,7 +608,9 @@ export default function Hub() {
               <p>
                 {admin
                   ? "Manage your societies, events, and funding cycle."
-                  : `${data.actor.display_name} · Your home for SEC events and society funding.`}
+                  : tab === "overview"
+                    ? "Your home for SEC events and society funding."
+                    : `${data.actor.display_name} · Your home for SEC events and society funding.`}
               </p>
             </div>
             {tab === "overview" && admin && (
@@ -754,44 +757,15 @@ export default function Hub() {
               </div>
               {!admin ? (
                 <>
-                  <div className="point-trackers">
-                    {["PRT", "STANDARD", "HIGH_IMPACT"].map((cat, i) => (
-                      <section key={cat} className="point-tracker">
-                        <span>{labels[cat]}</span>
-                        <div className="point-value">
-                          {totals()[i]}
-                          <small>
-                            {totals()[i] === 1 ? "point" : "points"}
-                          </small>
-                        </div>
-                        {cat === "PRT" ? (
-                          <>
-                            <progress
-                              max={1}
-                              value={Math.min(1, totals()[i])}
-                              aria-label="PRT minimum progress"
-                            />
-                            <p className={totals()[i] >= 1 ? "positive" : ""}>
-                              {totals()[i] >= 1 ? (
-                                <>
-                                  <Check size={15} />
-                                  Semester minimum met
-                                </>
-                              ) : (
-                                "1 point needed this semester"
-                              )}
-                            </p>
-                          </>
-                        ) : (
-                          <p>
-                            {cat === "HIGH_IMPACT"
-                              ? "2 points per event · Awarded by SEC"
-                              : "1 point per event · No minimum"}
-                          </p>
-                        )}
-                      </section>
-                    ))}
-                  </div>
+                  {current && (
+                    <SemesterPoints
+                      key={current.id}
+                      credits={credits}
+                      semester={current}
+                      accountId={data.actor.id}
+                      onHistory={() => navigate("activity")}
+                    />
+                  )}
                   <DashboardSection
                     title="Upcoming & ongoing events"
                     count={dashboard.upcomingEvents.length}
