@@ -209,8 +209,6 @@ Attendance history is a ruled ledger with a compact date block, readable event d
 
 Calendar selected-day details begin with a date block, date heading, and event count. Each event has a clear title (17px, weight 650; 15px mobile) beside its point amount, a category label underneath, clock/location facts, description text bounded to (70ch) at (13px / 1.65), and a distinct written check-in status with a dot. The day heading is (20px), reducing to (17px) on mobile. Event rows use (24px) vertical padding and a (24px) gap; mobile stacks details and actions with a (16px) gap and puts facts on separate lines.
 
-The sign-in instruction is “Use your society username and shared password.” The existing SEC-chair contact help remains below the form. Password fields are hidden by default; the sign-in Password and activation New password controls add a (44px) right-aligned Eye/EyeOff toggle inside a relatively positioned control, with (46px) input right padding and right-side (6px) rounding. The toggle is a separate button outside the explicit input label, uses muted color with maroon hover, and exposes Show password / Hide password, `aria-pressed`, and `aria-controls="auth-password"`. Toggling changes the input type without changing its value. The activation hint is linked with `aria-describedby`; Confirm password stays hidden and has no visibility toggle.
-
 ## Do's and Don'ts
 
 ### Do:

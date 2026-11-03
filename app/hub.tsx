@@ -14,9 +14,8 @@ import {
   Users,
   Settings,
   LogOut,
+  ArrowUpRight,
   ArrowRight,
-  Eye,
-  EyeOff,
   Check,
   Plus,
   Copy,
@@ -109,13 +108,6 @@ function Empty({ title, children }: { title: string; children: ReactNode }) {
     </div>
   );
 }
-function categoryTone(category: string) {
-  return category === "PRT"
-    ? "maroon"
-    : category === "STANDARD"
-      ? "rose"
-      : "slate";
-}
 function Pill({
   children,
   tone = "neutral",
@@ -192,7 +184,6 @@ function Button({
   children,
   onClick,
   secondary = false,
-  danger = false,
   disabled = false,
   type = "button",
   value,
@@ -201,7 +192,6 @@ function Button({
   children: ReactNode;
   onClick?: () => void;
   secondary?: boolean;
-  danger?: boolean;
   disabled?: boolean;
   type?: "button" | "submit";
   value?: string;
@@ -211,10 +201,7 @@ function Button({
     <button
       type={type}
       value={value}
-      className={
-        (secondary ? "button secondary" : "button") +
-        (danger ? " danger" : "")
-      }
+      className={secondary ? "button secondary" : "button"}
       onClick={onClick}
       disabled={disabled}
       aria-label={ariaLabel}
@@ -478,15 +465,6 @@ export default function Hub() {
     reviews: "Application review",
     settings: "Workspace settings",
   };
-  const subtitle: Record<string, string> = {
-    overview: "What needs SEC attention this semester.",
-    events: "Create events and control when check-in is open.",
-    applications: "Build, publish, and track funding applications.",
-    activity: "Attendance and points by society and semester.",
-    societies: "Provision accounts and send setup links.",
-    reviews: "Review submitted society applications.",
-    settings: "Semesters, workspace options, and audit history.",
-  };
   const nav = [
     { id: "overview", label: "Dashboard", icon: LayoutDashboard },
     { id: "events", label: "Events", icon: CalendarDays },
@@ -578,6 +556,11 @@ export default function Hub() {
             <LogOut size={18} />
             Sign out
           </button>
+          <p>
+            Texas A&M University
+            <br />
+            Student Engineers’ Council
+          </p>
         </div>
       </aside>
       <div className="main">
@@ -592,18 +575,11 @@ export default function Hub() {
           >
             {mobile ? <X /> : <Menu />}
           </button>
-          <span className="topbar-context">
+          <span>
+            Engineering societies{" "}
             <span className="breadcrumb">
-              {admin ? "SEC administration" : "Member workspace"}
+              / {admin ? "SEC administration" : "Member workspace"}
             </span>
-            {data.environment === "development" && (
-              <span
-                className="env-chip"
-                title="Development workspace · Separate from production"
-              >
-                Development data
-              </span>
-            )}
           </span>
           <div className="topbar-actions">
             <SemesterPicker
@@ -652,7 +628,7 @@ export default function Hub() {
               {(admin || tab !== "overview") && (
                 <p>
                   {admin
-                    ? subtitle[tab]
+                    ? "Manage your societies, events, and funding cycle."
                     : `${data.actor.display_name} · Your home for SEC events and society funding.`}
                 </p>
               )}
@@ -690,6 +666,11 @@ export default function Hub() {
               </Button>
             )}
           </div>
+          {data.environment === "development" && (
+            <div className="environment-note">
+              Development workspace · Separate from production
+            </div>
+          )}
           {error && (
             <div className="alert error" role="alert">
               {error}
@@ -783,13 +764,16 @@ export default function Hub() {
             <>
               <div className="dashboard-context">
                 <p>
+                  {current?.name ?? "Choose a semester"} ·{" "}
                   {admin
                     ? `${societies.filter((s) => s.enabled).length} active societies`
                     : "Points update automatically after check-in."}
                 </p>
-                {current && !current.is_current && (
-                  <span>Semester history</span>
-                )}
+                <span>
+                  {current?.is_current
+                    ? "Current semester"
+                    : "Semester history"}
+                </span>
               </div>
               {!admin ? (
                 <>
@@ -811,7 +795,7 @@ export default function Hub() {
                         className="text-button"
                         onClick={() => navigate("events")}
                       >
-                        View events <ArrowRight size={16} />
+                        View events <ArrowUpRight size={16} />
                       </button>
                     }
                   >
@@ -825,7 +809,7 @@ export default function Hub() {
                               {event.location && ` · ${event.location}`}
                             </small>
                           </div>
-                          <Pill tone={categoryTone(event.category)}>
+                          <Pill tone="neutral">
                             {event.category === "PRT"
                               ? "PRT"
                               : labels[event.category]}
@@ -849,7 +833,7 @@ export default function Hub() {
                           className="text-button"
                           onClick={() => navigate("activity")}
                         >
-                          View history <ArrowRight size={16} />
+                          View history <ArrowUpRight size={16} />
                         </button>
                       }
                     >
@@ -887,7 +871,7 @@ export default function Hub() {
                           className="text-button"
                           onClick={() => navigate("applications")}
                         >
-                          View all <ArrowRight size={16} />
+                          View all <ArrowUpRight size={16} />
                         </button>
                       }
                     >
@@ -926,18 +910,6 @@ export default function Hub() {
                 </>
               ) : (
                 <>
-                  <dl className="kpi-strip">
-                    {[
-                      ["Awaiting review", dashboard.pendingReviews.length],
-                      ["Events upcoming or live", dashboard.upcomingEvents.length],
-                      ["Below PRT minimum", dashboard.missingPrt.length],
-                    ].map(([label, value]) => (
-                      <div key={label}>
-                        <dt>{label}</dt>
-                        <dd>{value}</dd>
-                      </div>
-                    ))}
-                  </dl>
                   <DashboardSection
                     title="Applications awaiting review"
                     count={dashboard.pendingReviews.length}
@@ -947,7 +919,7 @@ export default function Hub() {
                         className="text-button"
                         onClick={() => navigate("reviews")}
                       >
-                        Open review queue <ArrowRight size={16} />
+                        Open review queue <ArrowUpRight size={16} />
                       </button>
                     }
                   >
@@ -999,7 +971,7 @@ export default function Hub() {
                           className="text-button"
                           onClick={() => navigate("events")}
                         >
-                          All events <ArrowRight size={16} />
+                          All events <ArrowUpRight size={16} />
                         </button>
                       }
                     >
@@ -1061,7 +1033,7 @@ export default function Hub() {
                           className="text-button"
                           onClick={() => navigate("activity")}
                         >
-                          Attendance & points <ArrowRight size={16} />
+                          Attendance & points <ArrowUpRight size={16} />
                         </button>
                       }
                     >
@@ -1103,7 +1075,7 @@ export default function Hub() {
                         className="text-button"
                         onClick={() => navigate("societies")}
                       >
-                        Manage societies <ArrowRight size={16} />
+                        Manage societies <ArrowUpRight size={16} />
                       </button>
                     }
                   >
@@ -1165,7 +1137,7 @@ export default function Hub() {
                           className="text-button"
                           onClick={() => navigate("societies")}
                         >
-                          Manage societies <ArrowRight size={16} />
+                          Manage societies <ArrowUpRight size={16} />
                         </button>
                       }
                     >
@@ -1291,7 +1263,7 @@ export default function Hub() {
                           <div className="event-details">
                             <div className="inline">
                               <h3>{e.name}</h3>
-                              <Pill tone={categoryTone(e.category)}>
+                              <Pill>
                                 {e.category === "PRT"
                                   ? "PRT"
                                   : e.category === "STANDARD"
@@ -1788,7 +1760,6 @@ export default function Hub() {
                                 </Button>
                                 <Button
                                   secondary
-                                  danger={a.enabled}
                                   disabled={busy}
                                   onClick={() =>
                                     void run(
@@ -1977,7 +1948,6 @@ function AuthScreen({
 }) {
   const [username, setUsername] = useState(""),
     [password, setPassword] = useState(""),
-    [showPassword, setShowPassword] = useState(false),
     [confirm, setConfirm] = useState(""),
     [localError, setLocalError] = useState("");
   return (
@@ -2010,7 +1980,7 @@ function AuthScreen({
           <p>
             {activate
               ? "Your society can share this password with its authorized officers."
-              : "Use your society username and shared password."}
+              : "Use your society username and shared password. SEC chairs use the SEC account."}
           </p>
           {(error || localError) && (
             <div className="alert error" role="alert">
@@ -2043,39 +2013,20 @@ function AuthScreen({
                 />
               </Field>
             )}
-            <div className="field">
-              <label htmlFor="auth-password">
-                {activate ? "New password" : "Password"}
-              </label>
-              <span className="password-control">
-                <input
-                  id="auth-password"
-                  aria-describedby={activate ? "auth-password-hint" : undefined}
-                  required
-                  type={showPassword ? "text" : "password"}
-                  autoComplete={activate ? "new-password" : "current-password"}
-                  minLength={activate ? 12 : 1}
-                  maxLength={128}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
-                <button
-                  type="button"
-                  className="password-toggle"
-                  aria-label={showPassword ? "Hide password" : "Show password"}
-                  aria-pressed={showPassword}
-                  aria-controls="auth-password"
-                  onClick={() => setShowPassword(!showPassword)}
-                >
-                  {showPassword ? <EyeOff size={17} /> : <Eye size={17} />}
-                </button>
-              </span>
-              {activate && (
-                <small id="auth-password-hint">
-                  Use at least 12 characters.
-                </small>
-              )}
-            </div>
+            <Field
+              label={activate ? "New password" : "Password"}
+              hint={activate ? "Use at least 12 characters." : undefined}
+            >
+              <input
+                required
+                type="password"
+                autoComplete={activate ? "new-password" : "current-password"}
+                minLength={activate ? 12 : 1}
+                maxLength={128}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+            </Field>
             {activate && (
               <Field label="Confirm password">
                 <input
