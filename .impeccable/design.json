@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-11-03T06:41:24.108638+00:00",
+  "generatedAt": "2026-11-03T15:43:56.425393+00:00",
   "title": "Design System: SocietyHub",
   "extensions": {
     "colorMeta": {
@@ -367,6 +367,48 @@
           "oklch(84% 0.04522 273.78)",
           "oklch(95% 0.04522 273.78)"
         ]
+      },
+      "qr-black": {
+        "role": "qr",
+        "displayName": "QR Black",
+        "tonalRamp": [
+          "oklch(15% 0.00000 0.00)",
+          "oklch(26% 0.00000 0.00)",
+          "oklch(38% 0.00000 0.00)",
+          "oklch(49% 0.00000 0.00)",
+          "oklch(61% 0.00000 0.00)",
+          "oklch(72% 0.00000 0.00)",
+          "oklch(84% 0.00000 0.00)",
+          "oklch(95% 0.00000 0.00)"
+        ]
+      },
+      "skeleton-base": {
+        "role": "loading",
+        "displayName": "Skeleton Base",
+        "tonalRamp": [
+          "oklch(15% 0.00599 350.80)",
+          "oklch(26% 0.00599 350.80)",
+          "oklch(38% 0.00599 350.80)",
+          "oklch(49% 0.00599 350.80)",
+          "oklch(61% 0.00599 350.80)",
+          "oklch(72% 0.00599 350.80)",
+          "oklch(84% 0.00599 350.80)",
+          "oklch(95% 0.00599 350.80)"
+        ]
+      },
+      "skeleton-highlight": {
+        "role": "loading",
+        "displayName": "Skeleton Highlight",
+        "tonalRamp": [
+          "oklch(15% 0.00345 354.69)",
+          "oklch(26% 0.00345 354.69)",
+          "oklch(38% 0.00345 354.69)",
+          "oklch(49% 0.00345 354.69)",
+          "oklch(61% 0.00345 354.69)",
+          "oklch(72% 0.00345 354.69)",
+          "oklch(84% 0.00345 354.69)",
+          "oklch(95% 0.00345 354.69)"
+        ]
       }
     },
     "typographyMeta": {
@@ -461,6 +503,11 @@
         "name": "workspace-refresh",
         "value": "800ms linear infinite",
         "purpose": "Refresh icon while loading; disabled by reduced motion."
+      },
+      {
+        "name": "loading-skeleton",
+        "value": "1.6s ease-in-out infinite",
+        "purpose": "Placeholder shimmer only; reduced motion shows the static base fill."
       }
     ],
     "breakpoints": [
@@ -546,7 +593,7 @@
       "retryBusyState": "disabled"
     },
     "dashboard": {
-      "layoutDescription": "The public navigation destination is Dashboard. SEC\u2019s dashboard prioritizes the oldest five applications awaiting review with direct review actions and a full-queue link, then the earliest five upcoming or ongoing events with event-management actions and explicit check-in or manual High Impact award status. It also shows up to five enabled societies without an active PRT credit in the current point period and up to five enabled accounts awaiting setup across all point periods, with direct setup-link actions. Counts beside section headings reflect the full matching lists, and truncation text points to the complete destination. The full society points table remains available in the initially collapsed native disclosure, \u201cAll society point totals.\u201d The society dashboard greets its account with \u201cHello, {display_name}\u201d without an overview subtitle. It retains applications and recent attendance, shows the next three upcoming or ongoing events with a View events link, and replaces the former three-column trackers with the Society points ledger and separate PRT requirement.",
+      "layoutDescription": "The public navigation destination is Dashboard. SEC\u2019s dashboard prioritizes the oldest five applications awaiting review with direct review actions and a full-queue link, then the earliest five upcoming or ongoing events with event-management actions and explicit check-in status. It also shows up to five enabled societies without an active PRT credit in the current point period and up to five enabled accounts awaiting setup across all point periods, with direct setup-link actions. Counts beside section headings reflect the full matching lists, and truncation text points to the complete destination. The full society points table remains available in the initially collapsed native disclosure, \u201cAll society point totals.\u201d The society dashboard greets its account with \u201cHello, {display_name}\u201d without an overview subtitle. It retains applications and recent attendance, shows the next three upcoming or ongoing events with a View events link, and replaces the former three-column trackers with the Society points ledger and separate PRT requirement.",
       "rowDescription": "Dashboard action rows reuse ruled records and existing primary, secondary, or text actions. Row content allows shrinking with `min-width: 0`, while its direct action does not shrink. At (760px) and below, action rows stack their content and action vertically, align to the start, and use an (8px) gap. The native points-register disclosure summary is maroon, (13px), weight (650), with (12px 0 20px) padding. Repeated direct actions have descriptive accessible names; changing navigation destinations scrolls to the top.",
       "publicNavigationLabel": "Dashboard",
       "admin": {
@@ -564,7 +611,7 @@
           "sort": "Earliest start first",
           "previewLimit": 5,
           "action": "Manage event",
-          "status": "Check-in availability or manual SEC award for High Impact."
+          "status": "Shared full-text check-in status; no user-facing manual-award explanation."
         },
         "prtFollowUp": {
           "scope": "Enabled societies without an active, nonrevoked PRT credit of at least one point in the current point period",
@@ -738,10 +785,10 @@
       "draftLabelTone": "amber"
     },
     "checkInQr": {
-      "description": "Event check-in QR artwork opens in a centered native dialog with a maximum width of (900px), white surface, panel radius, shadow (`0 24px 80px #1d001a30`), and dark backdrop (#21181b66). Its width is `min(900px, calc(100% - 48px))`, with a maximum height of `calc(100dvh - 48px)`; mobile uses (24px) total viewport clearance. The dialog traps Tab focus, restores the opener and page scrolling on close, and closes by its close control, Escape, or backdrop click. It retains a locally generated (1024px) maroon-on-white PNG download, sanitized event-derived filename, and current-link-bound image. Link replacement reports success locally with role status and explicitly invalidates earlier links/QRs; failure uses role alert and asks the user to reload before sharing. The event row arranges Edit and QR & link in a (72px 104px) action grid with an (8px) gap and a compact check-in toggle below; mobile uses (72px 104px 1fr) so the toggle shares the action row. Actions retain (44px) minimum height and `aria-pressed` toggle state.",
+      "description": "Event check-in QR artwork opens in a centered native dialog with a maximum width of (900px), white surface, panel radius, shadow (`0 24px 80px #1d001a30`), and dark backdrop (#21181b66). Its width is `min(900px, calc(100% - 48px))`, with a maximum height of `calc(100dvh - 48px)`; mobile uses (24px) total viewport clearance. The dialog traps Tab focus, restores the opener and page scrolling on close, and closes by its close control, Escape, or backdrop click. It retains a locally generated (1024px) black-on-white PNG download, sanitized event-derived filename, and current-link-bound image. Link replacement reports success locally with role status and explicitly invalidates earlier links/QRs; failure uses role alert and asks the user to reload before sharing. The event row keeps Edit and QR & link together, with an outlined Enable check-in / Pause check-in action below. On mobile, the action grid uses two equal columns and the check-in action spans the full third row. All actions retain (44px) minimum height; the check-in action uses maroon text and an input-line border rather than a switch graphic.",
       "format": "image/png",
       "width": "min(900px, calc(100% - 48px))",
-      "dark": "#500000",
+      "dark": "#000000",
       "light": "#ffffff",
       "downloadLabel": "Download PNG",
       "linkBinding": "Current check-in link only; invalidate outdated image.",
@@ -759,16 +806,17 @@
         "Backdrop click"
       ],
       "replacementSuccessRole": "status",
-      "replacementFailureRole": "alert"
+      "replacementFailureRole": "alert",
+      "preparation": "260px square skeleton; accessible Preparing QR code status."
     },
     "loginLayout": {
-      "description": "Login uses equal white columns separated by a thin vertical rule. The left design panel has (48px 56px) padding, its SEC/SocietyHub brand at the top, centered contained artwork, and a short centered description at the bottom (14px, maximum 34ch). The form column uses (64px clamp(40px, 7vw, 112px)) padding and a (400px) form maximum width. At (760px) and below, art and description are hidden, leaving a compact brand header with (25px 24px) padding and a bottom divider; the form uses (36px 24px) padding and a (440px) maximum width.",
+      "description": "Login uses equal white columns separated by a thin vertical rule. The left design panel has (48px 56px) padding, its SEC/SocietyHub brand at the top, centered contained artwork, and a short centered description at the bottom (`clamp(12px, 1vw, 14px)`, no width cap, no wrapping). The form column uses (64px clamp(40px, 7vw, 112px)) padding and a (400px) form maximum width. At (760px) and below, art and description are hidden, leaving a compact brand header with (25px 24px) padding and a bottom divider; the form uses (36px 24px) padding and a (440px) maximum width.",
       "columns": "1fr 1fr",
       "divider": "1px solid var(--line)",
       "designPanelPadding": "48px 56px",
       "descriptionText": "The home for Texas A&M engineering societies and SEC.",
-      "descriptionFontSize": "14px",
-      "descriptionMaxWidth": "34ch",
+      "descriptionFontSize": "clamp(12px, 1vw, 14px)",
+      "descriptionMaxWidth": "none",
       "descriptionAlign": "center",
       "formColumnPadding": "64px clamp(40px, 7vw, 112px)",
       "formMaxWidth": "400px",
@@ -789,16 +837,22 @@
         "brandBorderBottom": "1px solid var(--line)",
         "formPadding": "36px 24px",
         "formMaxWidth": "440px"
-      }
+      },
+      "descriptionWhiteSpace": "nowrap"
     },
     "eventRowActions": {
       "desktopColumns": "72px 104px",
       "gap": "8px",
       "actionMinHeight": "44px",
-      "togglePlacementDesktop": "Below Edit and QR & link",
-      "mobileColumns": "72px 104px 1fr",
-      "togglePlacementMobile": "Same action row",
-      "toggleState": "aria-pressed"
+      "togglePlacementDesktop": "Outlined action below Edit and QR & link",
+      "mobileColumns": "1fr 1fr",
+      "togglePlacementMobile": "Full-width third row",
+      "toggleState": "aria-pressed",
+      "actionLabels": [
+        "Enable check-in",
+        "Pause check-in"
+      ],
+      "appearance": "Outlined maroon text action; no switch graphic."
     },
     "applicationChoices": {
       "description": "Choice-based application questions use separate required Choice N input rows rather than a multiline options editor. Rows use a (10px) gap with a flexible field and an icon remove control (44px minimum width, 44px minimum height). The choice group is capped at (640px) with (12px) row gaps and (20px 0 26px) margins. Add choice focuses the new field; removal focuses the preceding available choice. Each choice accepts up to (200) characters, with at least one and at most (30) choices; removal is disabled at one. Select and checkbox questions save their options array, while other question types normalize options to an empty array.",
@@ -933,6 +987,33 @@
       "provisionSummary": "Canonical name and response count",
       "databaseMutation": false,
       "relatedOrganizations": "Chapters, teams and parent organizations remain separate unless an explicit alias matches."
+    },
+    "checkInControls": {
+      "description": "Event editing presents native Enabled / Paused radio choices in a ruled fieldset, with (6px) outlined choice rows and a rose selected fill. Helper text explains that enabled QR/link check-ins accept attendance only between the chosen start/end times, while Paused accepts none. The same full-text status helper is used across lists, calendar details, and QR: Check-in paused when disabled, otherwise Check-in scheduled before start, Check-in ended at or after end, and Check-in open within the window. A future event can be enabled without changing its dates; an expired event opens the editor for a valid current/future window. Existing QR links remain usable. User-facing manual-award explanations are removed; the High Impact award business rule is preserved in PRODUCT.md.",
+      "editor": "Native Enabled / Paused radios",
+      "statusPrecedence": [
+        "Check-in paused if disabled",
+        "Check-in scheduled before start",
+        "Check-in ended at/after end",
+        "Check-in open within enabled window"
+      ],
+      "futureEnable": "Keep original dates",
+      "expiredEnable": "Open editor for valid current/future dates",
+      "preservesExistingQr": true,
+      "manualHighImpactRule": "Retained as business logic; not advertised in the UI."
+    },
+    "loadingSkeleton": {
+      "description": "Initial workspace and route loading use a white, branded skeleton shell with ruled navigation, heading, total, and record placeholders. Skeleton fill uses skeleton-base and skeleton-highlight in a (1.6s) shimmer; reduced-motion preference uses the static base fill. Placeholder shapes are hidden from assistive technology, while the main loading region exposes `aria-busy` and a screen-reader status, \u201cLoading your workspace\u2026\u201d. Mobile hides the placeholder sidebar and keeps the compact content shell. QR preparation reserves a (260px \u00d7 260px) skeleton with the status \u201cPreparing QR code,\u201d then replaces it with the generated black (#000000) on white (#ffffff) PNG; generation errors keep the sign-in link available.",
+      "baseToken": "skeleton-base",
+      "highlightToken": "skeleton-highlight",
+      "background": "linear-gradient(100deg, #eee9eb 25%, #f8f5f6 45%, #eee9eb 65%)",
+      "radius": "5px",
+      "shimmer": "1.6s ease-in-out infinite",
+      "reducedMotion": "No animation; #eee9eb static fill",
+      "workspaceAriaBusy": true,
+      "workspaceStatus": "Loading your workspace\u2026",
+      "qrSize": "260px \u00d7 260px",
+      "qrStatus": "Preparing QR code"
     }
   },
   "components": [

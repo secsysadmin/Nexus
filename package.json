@@ -13,13 +13,18 @@
     "test": "tsx --test tests/*.test.ts",
     "db:setup": "tsx scripts/setup.ts",
     "roster:stage": "tsx scripts/stage-roster.ts",
-    "test:e2e": "playwright test"
+    "test:e2e": "tsx scripts/isolated-tests.ts",
+    "test:integration": "tsx scripts/isolated-tests.ts --integration",
+    "check": "npm run typecheck && npm test && npm run test:integration",
+    "build:vercel": "tsx scripts/production-gate.ts",
+    "restore:drill": "tsx scripts/restore-drill.ts"
   },
   "dependencies": {
     "@aws-sdk/client-ses": "^3.1161.0",
     "@fontsource-variable/geist": "^5.3.0",
     "csv-parse": "^7.0.3",
     "dotenv": "^18.0.9",
+    "jose": "^6.2.15",
     "lucide-react": "^1.66.0",
     "next": "^16.4.4",
     "pg": "^8.23.1",

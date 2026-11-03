@@ -84,6 +84,7 @@ export function validateAnswers(
 }
 export function resolveEnvironment(env: Record<string, string | undefined>) {
   const schema = env.DATABASE_SCHEMA;
+  if(!env.VERCEL_ENV && !env.VERCEL && env.ISOLATED_TEST_DATABASE === "true" && /^nexus_test_[a-f0-9]{12}$/.test(schema??""))return schema!;
   if (schema !== "nexus_dev" && schema !== "nexus_prod")
     throw new Error("DATABASE_SCHEMA must be nexus_dev or nexus_prod.");
   if (env.VERCEL_ENV === "production" && schema !== "nexus_prod")

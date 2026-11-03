@@ -69,23 +69,16 @@ Deployment is deliberately separate from `next build`: builds do not run migrati
 ## Checks
 
 ```sh
-npm run typecheck
-npm test
+npm run check
 npm run build
 npm run test:e2e
 ```
 
-Unit and workflow tests use an in-memory PostgreSQL engine. Browser tests use **only the development schema**, provision isolated temporary fixtures, test the real API and UI, and remove their records afterward. They cover login, QR generation, automatic check-in, duplicate/concurrent attendance, permission boundaries, form drafts/submission/review, one-time activation, and desktop/mobile overflow. Install a Playwright Chromium browser if it is unavailable: `npx playwright install chromium`.
-
-Browser tests start a development server on port 3100. To use an already-running server:
-
-```sh
-NEXUS_TEST_BASE_URL=http://localhost:3001 npm run test:e2e
-```
+Unit and fault tests use in-memory PostgreSQL with the production migrations. `npm run test:integration` exercises real PostgreSQL concurrency and timeout recovery. `npm run test:e2e` tests the real API/UI in a disposable source copy on an available port. Each run creates a random `nexus_test_*` schema using `DATABASE_ADMIN_URL`, grants the runtime role access only to that test schema, and removes it afterward, including on SIGINT/SIGTERM. It never targets a running development server or the shared dev/prod schemas. Email delivery is disabled. CI uses its own PostgreSQL service and requires type checks, unit/fault/concurrency tests, browser tests, a build, and the dependency audit. Install Chromium with `npx playwright install chromium` if needed.
 
 ## Reference and scope
 
-Kraken informed the check-in, application-builder, draft, and access-control workflows. SocietyHub’s requirements are authoritative: credit belongs to an ESO, uses the three fixed funding categories, resets manually at the chairs’ discretion without deleting history, and High Impact awards are manual. Google OAuth, file uploads, event reminders and decision emails, funding disbursement, and institution-managed single sign-on are not implemented.
+Kraken informed the check-in, application-builder, draft, and access-control workflows. SocietyHub’s requirements are authoritative: credit belongs to an ESO, uses the three fixed funding categories, resets manually at the chairs’ discretion without deleting history, and High Impact awards are manual. Google OAuth, file uploads, event reminders, funding disbursement, and institution-managed single sign-on are not implemented.
 
 See `docs/architecture.md` for data and authorization details.
 
@@ -95,7 +88,19 @@ Receipt delivery adapts Delphi’s SES/Resend transport. Societies provide a con
 
 Production uses `EMAIL_PROVIDER=ses`, `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_REGION`, `EMAIL_FROM`, `EMAIL_DELIVERY_ENABLED=true`, and `SOCIETYHUB_APP_URL`. Optional `AWS_SESSION_TOKEN` is supported by the SDK. Resend is also supported with `EMAIL_PROVIDER=resend` and `RESEND_API_KEY`. Provider credentials copied from Delphi are in ignored/private files and Vercel Production secrets; never commit them. Local delivery defaults off; Vercel Preview always refuses real delivery.
 
-The application records confirmation status. SEC can retry a failed, pending, or expired-lease confirmation from its review view, up to five dispatch attempts. Throttling is retried by the provider transport. Normal repeat submission/dispatch cannot duplicate a sent receipt. SES cannot guarantee exactly-once external delivery if a process stops after provider acceptance but before recording that acceptance; an expired-lease retry may resend in that rare case. There is no scheduled mail worker in this release, so SEC should retry any receipts left queued after an interrupted function.
+The application records confirmation status. Provider rejections retry with exponential backoff, up to five dispatch attempts. Network timeouts and expired sending leases become **UNCERTAIN**; automatic retry never blindly resends them. Provider acceptance is recorded separately from sending, with acknowledgement retries and reconciliation. SEC can explicitly acknowledge the possible duplicate before resending an uncertain receipt. Receipt references remain stable; SES cannot promise exactly-once delivery.
+
+`.github/workflows/maintenance.yml` runs recovery and readiness checks about every five minutes (GitHub schedules can be delayed). It authenticates using a short-lived GitHub OIDC JWT bound to this repository’s immutable ID, exact workflow, main branch, issuer, audience, and schedule/manual trigger. Set `SOCIETYHUB_APP_URL` to the production origin used in the workflow; no permanent GitHub or Vercel secret is needed. Enable Actions and workflow-failure notifications for this repository. `/api/cron/maintenance` and `/api/readiness` reject unauthenticated requests. The worker returns a failure when receipts are uncertain, exhausted, or overdue, making its Actions run fail for operator attention. `/api/health` remains public liveness. An optional strong `CRON_SECRET` supports an alternative trusted scheduler.
+
+Maintenance removes expired sessions/setup links, login-attempt keys older than a day, and create-request deduplication keys older than 30 days. Funding, attendance, applications, receipt content, and audit evidence are retained; deleting those requires an SEC-approved retention policy.
+
+## Concurrency and recovery safeguards
+
+Society saves lock and compare the submission revision/status before writing. SEC decisions, form edits/publication, event edits, and check-in controls reject stale versions. Conflicts preserve the editor and offer **Reload saved version**, with confirmation before discarding changes. SEC-requested revisions remain editable after the initial application deadline or unpublishing; new applications remain closed.
+
+Passwords use asynchronous, salted, cost-encoded scrypt (N=16384, r=8, p=5). Existing hashes verify and upgrade on successful login. New passwords require 15 characters. Successful logins clear their failure counter; connection request limits and connection/username failed-attempt limits are separate. Database statement, lock, idle-transaction, connection, browser-request, and email-provider timeouts bound failures. Lost create responses can be replayed with the same idempotency key. Inputs are not saved to browser storage.
+
+Refresh payloads omit full answers/questions and archived credits. Detail endpoints enforce ownership; historical attendance loads in pages of 50. Current list metadata remains available for dashboard counts/search. A compatible CSP restricts resource origins and framing while allowing the inline bootstrap/styles Next.js needs; it is not a strict nonce-based policy.
 
 ## Login motion
 
@@ -108,3 +113,17 @@ SEC chairs use **Settings & audit → Reset all society points** and type `RESET
 Closed check-in can be reopened from Events. If its window has passed, **Reopen check-in** opens the event editor to choose a window that includes now. The existing QR code remains valid. High Impact events continue to require manual SEC awards.
 
 The interface uses a locally hosted Geist variable font, distinct heading/label/metadata roles, and reduced-motion alternatives for the greeting and point animations. Confirmation emails use table-based inline styling and email-safe sans-serif fallbacks.
+
+## Contacts, decisions, and event schedules
+
+Societies can update their president, SEC representative, and preferred notification email in **Account settings**. SEC can edit the same information from **Societies → Edit contacts**. Current values are stored separately from original imported responses; conflicting updates require an explicit reload. The preferred address suggests an address for new applications. Existing applications keep their chosen recipient. Contact changes do not grant access or change passwords; chairs continue to issue setup/reset links for officer handoff.
+
+Approval, denial, and requested-change decisions atomically queue a branded email to the application’s selected address. Emails link directly to the owning submission after sign-in and omit application answers/review feedback. They share receipt retry, uncertain-delivery, and operator controls. Moving a submission Under Review sends no email. Approval still awards no points.
+
+Events now have **Event starts / Event ends** for the calendar and a separate **Check-in window starts / ends** for QR availability. Existing records retain their previous times in both fields until a chair edits them. Extending check-in preserves event times and existing links. The calendar fetches the selected month independently of the paginated event list.
+
+Events, forms, submissions, accounts, and contact groups load in pages of 50. Dashboard counts come from full scoped aggregates rather than the visible page. Contact groups are never split between pages. Server searches reach records outside the loaded page; selected contact responses remain available while searching. Roster, administrative activity, and allowlist data load only on their relevant screens. Current-period attendance remains available for accurate point totals; archived attendance remains paginated.
+
+## Operations and production release gates
+
+See [the operations runbook](docs/operations.md) for recovery, monitoring, release checks, and permissions.

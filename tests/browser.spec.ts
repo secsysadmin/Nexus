@@ -1,10 +1,9 @@
 import { test, expect, type APIRequestContext } from "@playwright/test";
-import dotenv from "dotenv";
 import pg from "pg";
 import { randomUUID } from "node:crypto";
 import { mkdir, readFile } from "node:fs/promises";
 import { hashPassword, token, digest } from "../lib/security";
-dotenv.config({ path: ".env.local", quiet: true });
+// The test runner injects an isolated schema; never load developer credentials.
 const suffix = randomUUID().slice(0, 8),
   adminName = `qa-sec-${suffix}`,
   societyName = `qa-society-${suffix}`,
@@ -23,22 +22,29 @@ const base = process.env.NEXUS_TEST_BASE_URL ?? "http://localhost:3100";
 async function post(request: APIRequestContext, path: string, body: unknown) {
   return request.post("/api/" + path, {
     data: body,
-    headers: { Origin: base },
+    headers: { Origin: base, "X-Idempotency-Key": randomUUID() },
   });
 }
 test.beforeAll(async () => {
-  if (process.env.DATABASE_SCHEMA !== "nexus_dev")
-    throw new Error("Browser tests may only run against nexus_dev.");
+  if (
+    process.env.ISOLATED_TEST_DATABASE !== "true" ||
+    !/^nexus_test_[a-f0-9]{12}$/.test(process.env.DATABASE_SCHEMA ?? "")
+  )
+    throw new Error("Run npm run test:e2e to use an isolated test database.");
   db = new pg.Client({
     connectionString: process.env.DATABASE_URL!.replace("-pooler.", "."),
+    statement_timeout: 10000,
+    query_timeout: 12000,
   });
   await db.connect();
-  await db.query("SET search_path TO nexus_dev,pg_catalog");
+  await db.query(
+    `SET search_path TO ${process.env.DATABASE_SCHEMA},pg_catalog`,
+  );
   const create = async (username: string, name: string, role: string) =>
     (
       await db.query(
         "INSERT INTO accounts(username,display_name,role,password_hash) VALUES($1,$2,$3,$4) RETURNING id",
-        [username, name, role, hashPassword(password)],
+        [username, name, role, await hashPassword(password)],
       )
     ).rows[0].id;
   adminId = await create(adminName, "SEC Browser Test", "admin");
@@ -147,9 +153,15 @@ test("society hub end-to-end: admin, concurrent check-in, drafts, review, QR and
       .toISOString()
       .slice(0, 16);
   };
+  await admin.getByLabel("Event starts", { exact: true }).fill(local(-3600000));
+  await admin.getByLabel("Event ends", { exact: true }).fill(local(3600000));
   await admin.getByLabel("Check-in window starts").fill(local(-3600000));
   await admin.getByLabel("Check-in window ends").fill(local(3600000));
-  await admin.getByLabel("Enable check-in within this window").check();
+  await admin.getByRole("radio", { name: /^Enabled/ }).check();
+  await admin.screenshot({
+    path: ".impeccable/review/event-time-editor-desktop.png",
+    fullPage: true,
+  });
   await admin
     .getByRole("button", { name: "Create event", exact: true })
     .click();
@@ -665,7 +677,7 @@ test("society hub end-to-end: admin, concurrent check-in, drafts, review, QR and
 test("manual point controls replace semester picker; administrative activity disclosure", async ({
   page,
 }) => {
-  await page.route("**/api/data", (route) =>
+  await page.route("**/api/data*", (route) =>
     route.fulfill({
       json: {
         actor: {
@@ -748,7 +760,7 @@ test("QR replacement feedback stays inside the modal on failure and success", as
     checkin_open: true,
     checkin_token: "a".repeat(64),
   };
-  await page.route("**/api/data", (r) =>
+  await page.route("**/api/data*", (r) =>
     r.fulfill({
       json: {
         actor: {
@@ -799,6 +811,22 @@ test("QR replacement feedback stays inside the modal on failure and success", as
   await page.getByRole("button", { name: "QR & link", exact: true }).click();
   const modal = page.getByRole("dialog");
   await modal.getByRole("link", { name: "Download PNG" }).waitFor();
+  const colors = await modal.getByRole("img").evaluate(async (node) => {
+    const image = node as HTMLImageElement;
+    await image.decode();
+    const canvas = document.createElement("canvas");
+    canvas.width = image.naturalWidth;
+    canvas.height = image.naturalHeight;
+    const ctx = canvas.getContext("2d")!;
+    ctx.drawImage(image, 0, 0);
+    const bytes = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+    const colors = new Set<string>();
+    for (let i = 0; i < bytes.length; i += 4)
+      colors.add(`${bytes[i]},${bytes[i + 1]},${bytes[i + 2]},${bytes[i + 3]}`);
+    return [...colors].sort();
+  });
+  expect(colors).toEqual(["0,0,0,255", "255,255,255,255"]);
+
   await modal.getByRole("button", { name: "Replace link & QR" }).click();
   await expect(modal.getByRole("alert")).toContainText(
     "Couldn’t confirm the replacement",
@@ -809,7 +837,7 @@ test("QR replacement feedback stays inside the modal on failure and success", as
   const oldImage = await modal.getByRole("img").getAttribute("src");
   replaced = true;
   await modal.getByRole("button", { name: "Replace link & QR" }).click();
-  await expect(modal.getByRole("status")).toContainText(
+  await expect(modal.locator(".qr-feedback[role=status]")).toContainText(
     "Previous links and QR codes no longer work",
   );
   await expect(modal.getByRole("img")).not.toHaveAttribute("src", oldImage!);
@@ -829,7 +857,7 @@ test("QR replacement feedback stays inside the modal on failure and success", as
 test("mobile navigation protects focus and roster filters preserve explicit selections", async ({
   page,
 }) => {
-  await page.route("**/api/data", (route) =>
+  await page.route("**/api/data*", (route) =>
     route.fulfill({
       json: {
         actor: {
@@ -978,6 +1006,7 @@ test("mobile navigation protects focus and roster filters preserve explicit sele
 test("manual reset is explicit, preserves history, and event check-in can reopen with the same link", async ({
   page,
 }) => {
+  let starts = new Date(Date.now() - 3600000).toISOString();
   let current = "initial",
     open = true,
     end = new Date(Date.now() + 3600000).toISOString();
@@ -987,7 +1016,7 @@ test("manual reset is explicit, preserves history, and event check-in can reopen
     description: "",
     location: "Zachry",
     category: "PRT",
-    starts_at: new Date(Date.now() - 3600000).toISOString(),
+    starts_at: starts,
     ends_at: end,
     checkin_open: open,
     checkin_token: "0".repeat(64),
@@ -1024,7 +1053,10 @@ test("manual reset is explicit, preserves history, and event check-in can reopen
     allowlist: [],
     environment: "development",
   });
-  await page.route("**/api/data", (r) => r.fulfill({ json: dataset() }));
+  await page.route("**/api/data*", (r) => r.fulfill({ json: dataset() }));
+  await page.route("**/api/activity/history?*", (r) =>
+    r.fulfill({ json: { items: dataset().credits, hasMore: false } }),
+  );
   await page.route("**/api/admin/reset-points", (r) => {
     expect(r.request().postDataJSON()).toEqual({
       currentCycleId: "initial",
@@ -1039,9 +1071,9 @@ test("manual reset is explicit, preserves history, and event check-in can reopen
   });
   await page.route("**/api/admin/events", (r) => {
     const body = r.request().postDataJSON();
-    expect(body.checkinOpen).toBe(true);
-    end = body.endsAt;
-    open = true;
+    expect(typeof body.checkinOpen).toBe("boolean");
+    end = body.checkinEndsAt ?? body.endsAt;
+    open = body.checkinOpen;
     return r.fulfill({ json: { id: "demo" } });
   });
   await page.goto("/");
@@ -1070,28 +1102,57 @@ test("manual reset is explicit, preserves history, and event check-in can reopen
   await page.locator(".history-disclosure summary").click();
   await expect(page.getByText("Previous event", { exact: true })).toBeVisible();
   await page.getByRole("button", { name: "Events", exact: true }).click();
+  await page.getByRole("button", { name: "Edit", exact: true }).click();
+  await page.getByRole("radio", { name: /^Paused/ }).check();
+  await page.getByRole("button", { name: "Save event", exact: true }).click();
+  await expect(
+    page.getByRole("button", { name: "Enable check-in", exact: true }),
+  ).toBeVisible();
+  await page.getByRole("button", { name: "Edit", exact: true }).click();
+  await page.getByRole("radio", { name: /^Enabled/ }).check();
+  await page.getByRole("button", { name: "Save event", exact: true }).click();
+  await expect(
+    page.getByRole("button", { name: "Pause check-in", exact: true }),
+  ).toBeVisible();
+
   await page
-    .getByRole("button", { name: "Close check-in", exact: true })
+    .getByRole("button", { name: "Pause check-in", exact: true })
     .click();
   await expect(
-    page.getByRole("button", { name: "Reopen check-in", exact: true }),
+    page.getByRole("button", { name: "Enable check-in", exact: true }),
   ).toBeVisible();
   await page
-    .getByRole("button", { name: "Reopen check-in", exact: true })
+    .getByRole("button", { name: "Enable check-in", exact: true })
     .click();
   await expect(
-    page.getByRole("button", { name: "Close check-in", exact: true }),
+    page.getByRole("button", { name: "Pause check-in", exact: true }),
   ).toBeVisible();
+  open = false;
+  starts = new Date(Date.now() + 3600000).toISOString();
+  end = new Date(Date.now() + 7200000).toISOString();
+  await page
+    .getByRole("button", { name: "Refresh workspace", exact: true })
+    .click();
+  await page
+    .getByRole("button", { name: "Enable check-in", exact: true })
+    .click();
+  await expect(
+    page.getByRole("heading", { name: "Enable event check-in" }),
+  ).toHaveCount(0);
+  await expect(page.locator(".event-details")).toContainText(
+    "Check-in scheduled",
+  );
+  starts = new Date(Date.now() - 3600000).toISOString();
   open = false;
   end = new Date(Date.now() - 60000).toISOString();
   await page
     .getByRole("button", { name: "Refresh workspace", exact: true })
     .click();
   await page
-    .getByRole("button", { name: "Reopen check-in", exact: true })
+    .getByRole("button", { name: "Enable check-in", exact: true })
     .click();
   await expect(
-    page.getByRole("heading", { name: "Reopen event check-in" }),
+    page.getByRole("heading", { name: "Enable event check-in" }),
   ).toBeVisible();
   const local = new Date(Date.now() + 3600000);
   local.setMinutes(local.getMinutes() - local.getTimezoneOffset());
@@ -1099,9 +1160,223 @@ test("manual reset is explicit, preserves history, and event check-in can reopen
     .getByLabel("Check-in window ends", { exact: true })
     .fill(local.toISOString().slice(0, 16));
   await page
-    .getByRole("button", { name: "Reopen check-in", exact: true })
+    .getByRole("button", { name: "Enable check-in", exact: true })
     .click();
   await expect(
-    page.getByRole("button", { name: "Close check-in", exact: true }),
+    page.getByRole("button", { name: "Pause check-in", exact: true }),
   ).toBeVisible();
+});
+
+test("workspace skeleton announces loading and the desktop login footer stays on one line", async ({
+  page,
+}) => {
+  let release!: () => void;
+  const gate = new Promise<void>((r) => (release = r));
+  await page.route("**/api/data*", async (route) => {
+    await gate;
+    await route.fulfill({ status: 401, json: { error: "Please sign in." } });
+  });
+  await page.setViewportSize({ width: 1976, height: 1280 });
+  await page.goto("/");
+  await expect(
+    page.getByRole("main", { name: "Loading SocietyHub" }),
+  ).toHaveAttribute("aria-busy", "true");
+  await expect(page.getByRole("status")).toHaveText("Loading your workspace…");
+  release();
+  await page.getByRole("heading", { name: "Welcome to SocietyHub" }).waitFor();
+  await page.evaluate(() => document.fonts.ready);
+  for (const width of [1976, 1440, 1024]) {
+    await page.setViewportSize({ width, height: 1000 });
+    const footer = page.locator(".auth-description");
+    expect(
+      await footer.evaluate(
+        (n) =>
+          n.getBoundingClientRect().height <=
+          parseFloat(getComputedStyle(n).lineHeight) + 1,
+      ),
+    ).toBe(true);
+  }
+});
+
+test("stale admin edits preserve input, offer reload, and warn before discarding work", async ({
+  page,
+}) => {
+  const event = {
+    id: randomUUID(),
+    revision: 1,
+    name: "Original event",
+    description: "",
+    location: "Zachry",
+    category: "PRT",
+    starts_at: new Date(Date.now() - 60000).toISOString(),
+    ends_at: new Date(Date.now() + 3600000).toISOString(),
+    checkin_open: true,
+    checkin_token: "0".repeat(64),
+  };
+  const dataset = () => ({
+    actor: { id: "sec", username: "sec", display_name: "SEC", role: "admin" },
+    pointCycle: {
+      id: "current",
+      started_at: new Date().toISOString(),
+      ended_at: null,
+      is_current: true,
+    },
+    events: [event],
+    credits: [],
+    forms: [],
+    submissions: [],
+    accounts: [],
+    roster: [],
+    audit: [],
+    allowlist: [],
+    environment: "development",
+  });
+  await page.route("**/api/data*", (r) => r.fulfill({ json: dataset() }));
+  await page.route("**/api/events/" + event.id, (r) =>
+    r.fulfill({ json: event }),
+  );
+  await page.route("**/api/admin/events", (r) => {
+    expect(r.request().postDataJSON().expectedVersion).toBe(1);
+    event.revision = 2;
+    event.name = "Latest saved event";
+    return r.fulfill({
+      status: 409,
+      json: { error: "This event changed. Reload before saving." },
+    });
+  });
+  await page.goto("/");
+  await page.getByRole("button", { name: "Events", exact: true }).click();
+  await page.getByRole("button", { name: "Edit", exact: true }).click();
+  await page.getByLabel("Event name", { exact: true }).fill("My unsaved edit");
+  page.once("dialog", (d) => d.dismiss());
+  await page.getByRole("button", { name: "Applications", exact: true }).click();
+  await expect(page.getByLabel("Event name", { exact: true })).toHaveValue(
+    "My unsaved edit",
+  );
+  await page.getByRole("button", { name: "Save event", exact: true }).click();
+  await expect(page.locator(".alert.error[role='alert']")).toContainText(
+    "This event changed",
+  );
+  await expect(page.getByLabel("Event name", { exact: true })).toHaveValue(
+    "My unsaved edit",
+  );
+  page.once("dialog", (d) => d.accept());
+  await page
+    .getByRole("button", { name: "Reload saved version", exact: true })
+    .click();
+  await expect(page.getByLabel("Event name", { exact: true })).toHaveValue(
+    "Latest saved event",
+  );
+});
+
+test("society contacts save, stay private, and stale changes require a deliberate reload", async ({
+  browser,
+}) => {
+  const societyContext = await browser.newContext(),
+    adminContext = await browser.newContext();
+  const page = await societyContext.newPage();
+  try {
+    expect(
+      (
+        await post(societyContext.request, "auth/login", {
+          username: societyName,
+          password,
+        })
+      ).ok(),
+    ).toBe(true);
+    expect(
+      (
+        await post(adminContext.request, "auth/login", {
+          username: adminName,
+          password,
+        })
+      ).ok(),
+    ).toBe(true);
+    await page.goto("/");
+    await page
+      .getByRole("button", { name: "Account settings", exact: true })
+      .click();
+    await page
+      .getByLabel("President name", { exact: true })
+      .fill("Current Officer");
+    await page
+      .getByLabel("President email", { exact: true })
+      .fill("officer@example.invalid");
+    await page
+      .getByLabel("Preferred notification email", { exact: true })
+      .fill("preferred@example.invalid");
+    await page
+      .getByRole("button", { name: "Save contacts", exact: true })
+      .click();
+    await expect(
+      page.getByText("Society contacts updated.", { exact: true }),
+    ).toBeVisible();
+    const own = await (await societyContext.request.get("/api/data")).json();
+    const account = own.accounts.find((a: any) => a.id === societyId);
+    expect(account.contact_revision).toBe(2);
+    expect(own.accounts).toHaveLength(1);
+    const deepLinkSubmission =
+      own.submissions.find((s: any) => s.status === "APPROVED") ??
+      own.submissions[0];
+    const denied = await societyContext.request.get("/api/accounts/" + otherId);
+    expect(denied.status()).toBe(404);
+    const updated = await post(adminContext.request, "accounts/contacts", {
+      accountId: societyId,
+      revision: 2,
+      profile: {
+        ...account.contacts.current,
+        president: {
+          ...account.contacts.current.president,
+          name: "SEC corrected contact",
+        },
+      },
+    });
+    expect(updated.ok()).toBe(true);
+    await page
+      .getByLabel("President name", { exact: true })
+      .fill("My unsaved change");
+    await page
+      .getByRole("button", { name: "Save contacts", exact: true })
+      .click();
+    await expect(page.locator(".alert.error")).toContainText(
+      "contacts changed",
+    );
+    await expect(
+      page.getByLabel("President name", { exact: true }),
+    ).toHaveValue("My unsaved change");
+    page.once("dialog", (d) => d.accept());
+    await page
+      .getByRole("button", { name: "Reload saved version", exact: true })
+      .click();
+    await expect(
+      page.getByLabel("President name", { exact: true }),
+    ).toHaveValue("SEC corrected contact");
+    await page.setViewportSize({ width: 1440, height: 1000 });
+    await page.screenshot({
+      path: ".impeccable/review/contact-settings-desktop.png",
+      fullPage: true,
+    });
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.screenshot({
+      path: ".impeccable/review/contact-settings-mobile.png",
+      fullPage: true,
+    });
+    expect(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth <= innerWidth,
+      ),
+    ).toBe(true);
+    if (deepLinkSubmission) {
+      await page.goto("/?submission=" + deepLinkSubmission.id);
+      await expect(
+        page.getByRole("button", { name: "Back to applications", exact: true }),
+      ).toBeVisible();
+      await expect(page.locator(".application-content")).toContainText(
+        "submitted",
+      );
+    }
+  } finally {
+    await societyContext.close();
+    await adminContext.close();
+  }
 });

@@ -1,5 +1,6 @@
 import type { HubData } from "./types";
 export function dashboardItems(data: HubData, now: number) {
+  if (data.dashboardPreview) return data.dashboardPreview;
   const prtSocieties = new Set(
     data.credits
       .filter(

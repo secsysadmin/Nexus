@@ -1,6 +1,6 @@
 import { type PoolClient } from "pg";
 import { z } from "zod";
-import { receiptContent } from "./application-email";
+import { receiptContent, decisionContent } from "./application-email";
 import { audit } from "./db";
 import { digest, token } from "./security";
 import {
@@ -44,6 +44,7 @@ const name = z.string().trim().min(1).max(MAX_NAME_LENGTH);
 const date = z.string().datetime({ offset: true });
 const formInput = z.object({
   id: uuid.optional(),
+  expectedVersion: z.number().int().positive().optional(),
   title: name,
   description: z.string().max(MAX_DESCRIPTION_LENGTH),
   kind: z.enum(formKinds),
@@ -79,12 +80,10 @@ export async function issueActivation(
   accountId: string,
   actor: string | null,
 ) {
+  await db.query("SELECT id FROM accounts WHERE id=$1 FOR UPDATE", [accountId]);
   const raw = token();
-  await db.query("DELETE FROM activation_tokens WHERE account_id=$1", [
-    accountId,
-  ]);
   await db.query(
-    "INSERT INTO activation_tokens VALUES($1,$2,now()+make_interval(days => $3))",
+    "INSERT INTO activation_tokens(token_hash,account_id,expires_at) VALUES($1,$2,now()+make_interval(days => $3)) ON CONFLICT(account_id) DO UPDATE SET token_hash=excluded.token_hash,expires_at=excluded.expires_at",
     [digest(raw), accountId, ACTIVATION_TTL_DAYS],
   );
   await audit(db, actor, "ACCOUNT_ACTIVATION_ISSUED", accountId);
@@ -125,7 +124,7 @@ export async function checkIn(db: PoolClient, actor: Actor, input: unknown) {
       "This check-in link is invalid. Ask SEC for the current link.",
     );
   if (event.category === "HIGH_IMPACT")
-    throw new AppError("SEC awards High Impact credit manually.");
+    throw new AppError("QR check-in is unavailable for High Impact events.");
   const points = pointsFor(event.category);
   const existing = await db.query(
     "SELECT id,revoked_at FROM credits WHERE account_id=$1 AND event_id=$2",
@@ -140,8 +139,9 @@ export async function checkIn(db: PoolClient, actor: Actor, input: unknown) {
   }
   if (
     !event.checkin_open ||
-    Date.now() < new Date(event.starts_at).getTime() ||
-    Date.now() > new Date(event.ends_at).getTime()
+    Date.now() <
+      new Date(event.checkin_starts_at ?? event.starts_at).getTime() ||
+    Date.now() >= new Date(event.checkin_ends_at ?? event.ends_at).getTime()
   )
     throw new AppError("Check-in is closed. Contact SEC if you attended.");
   const inserted = await db.query(
@@ -182,18 +182,20 @@ export async function saveSubmission(
   const {
     rows: [form],
   } = await db.query("SELECT * FROM forms WHERE id=$1 FOR SHARE", [b.formId]);
-  if (
-    !form ||
-    !form.published ||
-    (form.deadline && new Date(form.deadline).getTime() < Date.now())
-  )
+  if (!form)
     throw new AppError("This application is closed. Contact SEC for help.");
   const {
     rows: [existing],
   } = await db.query(
-    "SELECT * FROM submissions WHERE form_id=$1 AND account_id=$2",
+    "SELECT * FROM submissions WHERE form_id=$1 AND account_id=$2 FOR UPDATE",
     [form.id, actor.id],
   );
+  if (
+    existing?.status !== "CHANGES_REQUESTED" &&
+    (!form.published ||
+      (form.deadline && Date.parse(form.deadline) < Date.now()))
+  )
+    throw new AppError("This application is closed. Contact SEC for help.");
   if (existing && !["DRAFT", "CHANGES_REQUESTED"].includes(existing.status))
     throw new AppError("This application has already been submitted.", 409);
   if ((existing?.revision ?? 0) !== b.revision)
@@ -226,7 +228,7 @@ export async function saveSubmission(
     rows: [saved],
   } = await db.query(
     `INSERT INTO submissions(form_id,form_version,account_id,answers,status,submitted_at,confirmation_email) VALUES($1,$2,$3,$4,$5,CASE WHEN $6 THEN now() ELSE NULL END,$7)
- ON CONFLICT(form_id,account_id) DO UPDATE SET answers=excluded.answers,status=excluded.status,confirmation_email=excluded.confirmation_email,submitted_at=CASE WHEN $6 THEN now() ELSE submissions.submitted_at END,revision=submissions.revision+1,updated_at=now() RETURNING *`,
+ ON CONFLICT(form_id,account_id) DO UPDATE SET answers=excluded.answers,status=excluded.status,confirmation_email=excluded.confirmation_email,submitted_at=CASE WHEN $6 THEN now() ELSE submissions.submitted_at END,revision=submissions.revision+1,updated_at=now() WHERE submissions.revision=$8 AND submissions.status IN ('DRAFT','CHANGES_REQUESTED') RETURNING *`,
     [
       form.id,
       version,
@@ -235,8 +237,11 @@ export async function saveSubmission(
       b.submit ? "SUBMITTED" : (existing?.status ?? "DRAFT"),
       b.submit,
       confirmationEmail,
+      b.revision,
     ],
   );
+  if (!saved)
+    throw new AppError("Submission changed. Reload before saving.", 409);
   await audit(
     db,
     actor.id,
@@ -267,10 +272,13 @@ export async function saveSubmission(
     saved.confirmation_email_id = email.id;
     saved.confirmation_status = "PENDING";
   }
+  saved.questions = fv.questions;
   return saved;
 }
 async function retryEmail(db: PoolClient, actor: Actor, input: unknown) {
-  const b = z.object({ id: uuid }).parse(input);
+  const b = z
+    .object({ id: uuid, acknowledgeDuplicate: z.boolean().default(false) })
+    .parse(input);
   const {
     rows: [email],
   } = await db.query(
@@ -286,13 +294,18 @@ async function retryEmail(db: PoolClient, actor: Actor, input: unknown) {
     new Date(email.lease_until).getTime() > Date.now()
   )
     throw new AppError("This email is currently being sent.", 409);
+  if (email.status === "UNCERTAIN" && !b.acknowledgeDuplicate)
+    throw new AppError(
+      "This receipt may already have been delivered. Confirm the duplicate-delivery risk before resending.",
+      409,
+    );
   if (email.attempts >= MAX_EMAIL_ATTEMPTS)
     throw new AppError(
       "Retry limit reached. Check the provider configuration before contacting support.",
       409,
     );
   await db.query(
-    "UPDATE application_emails SET status='PENDING',lease_token=NULL,lease_until=NULL WHERE id=$1",
+    "UPDATE application_emails SET status='PENDING',next_attempt_at=now(),accepted_at=NULL,provider_id=NULL,lease_token=NULL,lease_until=NULL WHERE id=$1",
     [email.id],
   );
   await audit(
@@ -435,6 +448,7 @@ async function saveEvent(db: PoolClient, actor: Actor, input: unknown) {
   const b = z
     .object({
       id: uuid.optional(),
+      expectedVersion: z.number().int().positive().optional(),
       name,
       description: z.string().max(MAX_DESCRIPTION_LENGTH),
       location: z.string().max(MAX_LOCATION_LENGTH),
@@ -442,22 +456,30 @@ async function saveEvent(db: PoolClient, actor: Actor, input: unknown) {
       startsAt: date,
       endsAt: date,
       checkinOpen: z.boolean(),
+      checkinStartsAt: date.optional(),
+      checkinEndsAt: date.optional(),
     })
     .refine((x) => new Date(x.endsAt) > new Date(x.startsAt), {
-      message: "Check-in end must follow its start.",
+      message: "Event end must follow its start.",
     })
     .parse(input);
+  const checkinStart = b.checkinStartsAt ?? b.startsAt,
+    checkinEnd = b.checkinEndsAt ?? b.endsAt;
+  if (Date.parse(checkinEnd) <= Date.parse(checkinStart))
+    throw new AppError("Check-in end must follow its start.");
   if (b.id) {
     const {
       rows: [old],
     } = await db.query("SELECT * FROM events WHERE id=$1 FOR UPDATE", [b.id]);
     if (!old) throw new AppError("Event not found.", 404);
+    if (old.revision !== b.expectedVersion)
+      throw new AppError("This event changed. Reload before saving.", 409);
     if (old.category !== b.category)
       throw new AppError(
         "Event category cannot change. Create a new event instead.",
       );
     await db.query(
-      "UPDATE events SET name=$1,description=$2,location=$3,starts_at=$4,ends_at=$5,checkin_open=$6 WHERE id=$7",
+      "UPDATE events SET name=$1,description=$2,location=$3,starts_at=$4,ends_at=$5,checkin_open=$6,revision=revision+1,checkin_starts_at=$8,checkin_ends_at=$9 WHERE id=$7",
       [
         b.name,
         b.description,
@@ -466,6 +488,8 @@ async function saveEvent(db: PoolClient, actor: Actor, input: unknown) {
         b.endsAt,
         b.category === "HIGH_IMPACT" ? false : b.checkinOpen,
         b.id,
+        checkinStart,
+        checkinEnd,
       ],
     );
     await audit(db, actor.id, "EVENT_UPDATED", b.id);
@@ -474,7 +498,7 @@ async function saveEvent(db: PoolClient, actor: Actor, input: unknown) {
   const {
     rows: [event],
   } = await db.query(
-    "INSERT INTO events(semester_id,name,description,location,category,starts_at,ends_at,checkin_open,checkin_token,created_by) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING *",
+    "INSERT INTO events(semester_id,name,description,location,category,starts_at,ends_at,checkin_open,checkin_token,created_by,checkin_starts_at,checkin_ends_at) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) RETURNING *",
     [
       await legacyContainer(db),
       b.name,
@@ -486,6 +510,8 @@ async function saveEvent(db: PoolClient, actor: Actor, input: unknown) {
       b.category === "HIGH_IMPACT" ? false : b.checkinOpen,
       token(),
       actor.id,
+      checkinStart,
+      checkinEnd,
     ],
   );
   await audit(db, actor.id, "EVENT_CREATED", event.id);
@@ -495,15 +521,20 @@ async function setEventCheckin(db: PoolClient, actor: Actor, input: unknown) {
   const b = z
     .object({
       id: uuid,
+      expectedVersion: z.number().int().positive(),
       open: z.boolean(),
       rotate: z.boolean().default(false),
     })
     .parse(input);
   const result = await db.query(
-    "UPDATE events SET checkin_open=$1,checkin_token=CASE WHEN $2 THEN $3 ELSE checkin_token END WHERE id=$4 AND category!='HIGH_IMPACT' RETURNING id",
-    [b.open, b.rotate, token(), b.id],
+    "UPDATE events SET checkin_open=$1,checkin_token=CASE WHEN $2 THEN $3 ELSE checkin_token END,revision=revision+1 WHERE id=$4 AND revision=$5 AND category!='HIGH_IMPACT' RETURNING id",
+    [b.open, b.rotate, token(), b.id, b.expectedVersion],
   );
-  if (!result.rowCount) throw new AppError("Check-in event not found.", 404);
+  if (!result.rowCount)
+    throw new AppError(
+      "This event changed. Refresh before changing check-in.",
+      409,
+    );
   await audit(db, actor.id, "EVENT_CHECKIN_CHANGED", b.id, {
     open: b.open,
     rotated: b.rotate,
@@ -619,10 +650,16 @@ async function reviewSubmission(db: PoolClient, actor: Actor, input: unknown) {
     .parse(input);
   if (b.status === "CHANGES_REQUESTED" && !b.note.trim())
     throw new AppError("Explain the requested changes.");
+  const previous = (
+    await db.query(
+      "SELECT status,review_note FROM submissions WHERE id=$1 FOR UPDATE",
+      [b.id],
+    )
+  ).rows[0];
   const {
     rows: [s],
   } = await db.query(
-    "UPDATE submissions SET status=$1,review_note=$2,revision=revision+1,updated_at=now() WHERE id=$3 AND status!='DRAFT' AND revision=$4 RETURNING id",
+    "UPDATE submissions SET status=$1,review_note=$2,revision=revision+1,updated_at=now() WHERE id=$3 AND status!='DRAFT' AND revision=$4 RETURNING *",
     [b.status, b.note, b.id, b.revision],
   );
   if (!s)
@@ -630,7 +667,39 @@ async function reviewSubmission(db: PoolClient, actor: Actor, input: unknown) {
   await audit(db, actor.id, "APPLICATION_REVIEWED", b.id, {
     status: b.status,
   });
-  return { ok: true };
+  let emailId: string | undefined;
+  if (
+    ["APPROVED", "DENIED", "CHANGES_REQUESTED"].includes(b.status) &&
+    (previous?.status !== b.status || previous?.review_note !== b.note) &&
+    z.email().safeParse(s.confirmation_email).success
+  ) {
+    const info = (
+      await db.query(
+        "SELECT f.title,a.display_name FROM forms f JOIN accounts a ON a.id=$2 WHERE f.id=$1",
+        [s.form_id, s.account_id],
+      )
+    ).rows[0];
+    const content = decisionContent({
+      societyName: info.display_name,
+      formTitle: info.title,
+      submissionId: s.id,
+      status: b.status,
+    });
+    emailId = (
+      await db.query(
+        "INSERT INTO application_emails(submission_id,submission_revision,recipient,subject,html,body,kind) VALUES($1,$2,$3,$4,$5,$6,'DECISION') RETURNING id",
+        [
+          s.id,
+          s.revision,
+          s.confirmation_email,
+          content.subject,
+          content.html,
+          content.body,
+        ],
+      )
+    ).rows[0].id;
+  }
+  return { ok: true, confirmation_email_id: emailId };
 }
 async function updateAllowlist(db: PoolClient, actor: Actor, input: unknown) {
   const b = z
@@ -662,6 +731,8 @@ async function updateForm(db: PoolClient, id: string, b: FormInput) {
     rows: [f],
   } = await db.query("SELECT * FROM forms WHERE id=$1 FOR UPDATE", [id]);
   if (!f) throw new AppError("Application not found.", 404);
+  if (f.current_version !== b.expectedVersion)
+    throw new AppError("This application changed. Reload before saving.", 409);
   if (!f.published && b.published && deadlinePassed(b.deadline))
     throw new AppError(PAST_DEADLINE_MESSAGE);
   if (f.kind !== b.kind) throw new AppError("Application type cannot change.");

@@ -6,6 +6,7 @@ export type Account = {
   role: "society" | "admin";
   enabled: boolean;
   activated: boolean;
+  contact_revision?: number;
   contacts: Record<string, unknown>;
 };
 export type PointCycle = {
@@ -16,12 +17,15 @@ export type PointCycle = {
 };
 export type Event = {
   id: string;
+  revision: number;
   name: string;
   description: string;
   location: string;
   category: "PRT" | "STANDARD" | "HIGH_IMPACT";
   starts_at: string;
   ends_at: string;
+  checkin_starts_at?: string;
+  checkin_ends_at?: string;
   checkin_open: boolean;
   checkin_token?: string;
 };
@@ -50,9 +54,10 @@ export type Form = {
   questions: Question[];
 };
 export type Submission = {
+  email_kind?: "RECEIPT" | "DECISION";
   confirmation_email: string;
   confirmation_email_id?: string;
-  confirmation_status?: "PENDING" | "SENDING" | "SENT" | "FAILED";
+  confirmation_status?: "PENDING" | "SENDING" | "SENT" | "FAILED" | "UNCERTAIN";
   confirmation_attempts?: number;
   id: string;
   form_id: string;
@@ -83,6 +88,28 @@ export type Audit = {
   created_at: string;
 };
 export type HubData = {
+  operations?: {
+    errors: number;
+    client_errors: number;
+    sampled_requests: number;
+    p95_ms: number;
+  };
+  pagination?: Record<string, { hasMore: boolean; nextOffset: number }>;
+  dashboardPreview?: {
+    upcomingEvents: Event[];
+    pendingReviews: Submission[];
+    missingPrt: Account[];
+    awaitingSetup: Account[];
+  };
+  dashboardCounts?: {
+    upcomingEvents: number;
+    pendingReviews: number;
+    missingPrt: number;
+    awaitingSetup: number;
+    activeSocieties: number;
+  };
+  outboxHealth?: { uncertain: number; exhausted: number; delayed: number };
+  historyCount?: number;
   environment: "development" | "production";
   actor: Pick<Account, "id" | "username" | "display_name" | "role">;
   pointCycle: PointCycle;

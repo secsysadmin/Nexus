@@ -10,3 +10,4 @@ playwright-report/
 .impeccable/review/
 .impeccable/mocks/
 .claude/worktrees/
+.next-test-*/
