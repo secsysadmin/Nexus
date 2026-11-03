@@ -28,21 +28,22 @@ export type Actor = {
   display_name: string;
   role: "admin" | "society";
 };
-const uuid = z.string().uuid();
 const MAX_NAME_LENGTH = 200;
-const name = z.string().trim().min(1).max(MAX_NAME_LENGTH);
-const date = z.string().datetime({ offset: true });
 const ACTIVATION_TTL_DAYS = 7;
 const FIRST_FORM_VERSION = 1;
+const MAX_SUBMISSION_EMAIL_LENGTH = 254;
 const MAX_DESCRIPTION_LENGTH = 5000;
-const MAX_NOTE_LENGTH = 2000;
 const MAX_REVIEW_NOTE_LENGTH = 5000;
+const MAX_NOTE_LENGTH = 2000;
 const MAX_LOCATION_LENGTH = 300;
 const MAX_ROSTER_SELECTION = 100;
-const SEMESTER_LOCK_KEY = "semesters";
+const POINT_CYCLE_LOCK_KEY = ":point-cycle";
+const PAST_DEADLINE_MESSAGE = "Choose a future deadline before publishing.";
+const uuid = z.string().uuid();
+const name = z.string().trim().min(1).max(MAX_NAME_LENGTH);
+const date = z.string().datetime({ offset: true });
 const formInput = z.object({
   id: uuid.optional(),
-  semesterId: uuid,
   title: name,
   description: z.string().max(MAX_DESCRIPTION_LENGTH),
   kind: z.enum(formKinds),
@@ -51,7 +52,6 @@ const formInput = z.object({
   questions: questionsSchema,
 });
 type FormInput = z.infer<typeof formInput>;
-const MAX_SUBMISSION_EMAIL_LENGTH = 254;
 type AdminAction = (
   db: PoolClient,
   actor: Actor,
@@ -63,15 +63,15 @@ const ADMIN_ACTIONS = new Map<string, AdminAction>(
     "admin/societies": createSociety,
     "admin/activation": reissueActivation,
     "admin/account-status": setAccountStatus,
-    "admin/semesters": createSemester,
-    "admin/current-semester": setCurrentSemester,
+    "admin/reset-points": resetPoints,
     "admin/events": saveEvent,
     "admin/event-checkin": setEventCheckin,
     "admin/credits": awardHighImpact,
     "admin/credit-status": setCreditStatus,
-    "admin/forms": saveForm,
+    "admin/form-publication": setFormPublication,
     "admin/review": reviewSubmission,
     "admin/allowlist": updateAllowlist,
+    "admin/forms": saveForm,
   }),
 );
 export async function issueActivation(
@@ -90,18 +90,36 @@ export async function issueActivation(
   await audit(db, actor, "ACCOUNT_ACTIVATION_ISSUED", accountId);
   return raw;
 }
+async function lockPointCycle(db: PoolClient) {
+  await db.query(
+    "SELECT pg_advisory_xact_lock_shared(hashtext(current_schema()||$1))",
+    [POINT_CYCLE_LOCK_KEY],
+  );
+}
+function deadlinePassed(deadline: string | Date | null) {
+  return !!deadline && new Date(deadline).getTime() <= Date.now();
+}
+async function legacyContainer(db: PoolClient) {
+  const {
+    rows: [row],
+  } = await db.query(
+    "SELECT id FROM semesters ORDER BY is_current DESC,starts_on DESC LIMIT 1",
+  );
+  if (!row)
+    throw new AppError("Workspace setup is incomplete. Contact SEC.", 503);
+  const id: string = row.id;
+  return id;
+}
 export async function checkIn(db: PoolClient, actor: Actor, input: unknown) {
   if (actor.role !== "society")
     throw new AppError("Check in with your society account.", 403);
   const b = z
     .object({ eventId: uuid, token: z.string().length(64) })
     .parse(input);
+  await lockPointCycle(db);
   const {
     rows: [event],
-  } = await db.query(
-    "SELECT e.*,s.is_current FROM events e JOIN semesters s ON s.id=e.semester_id WHERE e.id=$1 FOR SHARE OF e,s",
-    [b.eventId],
-  );
+  } = await db.query("SELECT * FROM events WHERE id=$1 FOR SHARE", [b.eventId]);
   if (!event || event.checkin_token !== b.token)
     throw new AppError(
       "This check-in link is invalid. Ask SEC for the current link.",
@@ -121,7 +139,6 @@ export async function checkIn(db: PoolClient, actor: Actor, input: unknown) {
     return { already: true, event: event.name, points };
   }
   if (
-    !event.is_current ||
     !event.checkin_open ||
     Date.now() < new Date(event.starts_at).getTime() ||
     Date.now() > new Date(event.ends_at).getTime()
@@ -227,15 +244,9 @@ export async function saveSubmission(
     saved.id,
   );
   if (b.submit) {
-    const {
-      rows: [semester],
-    } = await db.query("SELECT name FROM semesters WHERE id=$1", [
-      form.semester_id,
-    ]);
     const content = receiptContent({
       societyName: actor.display_name,
       formTitle: form.title,
-      semester: semester.name,
       submissionId: saved.id,
       submittedAt: saved.submitted_at,
       resubmission: !!existing?.submitted_at,
@@ -378,57 +389,52 @@ async function setAccountStatus(db: PoolClient, actor: Actor, input: unknown) {
   });
   return { ok: true };
 }
-async function lockSemesters(db: PoolClient) {
-  await db.query(
-    "SELECT pg_advisory_xact_lock(hashtext(current_schema()||$1))",
-    [SEMESTER_LOCK_KEY],
-  );
-}
-async function createSemester(db: PoolClient, actor: Actor, input: unknown) {
+async function resetPoints(db: PoolClient, actor: Actor, input: unknown) {
   const b = z
     .object({
-      name,
-      startsOn: z.string().date(),
-      endsOn: z.string().date(),
-      current: z.boolean(),
-    })
-    .refine((x) => x.endsOn >= x.startsOn, {
-      message: "Semester end must follow its start.",
+      currentCycleId: uuid,
+      confirmation: z.literal("RESET POINTS"),
     })
     .parse(input);
-  await lockSemesters(db);
-  if (b.current)
-    await db.query("UPDATE semesters SET is_current=false WHERE is_current");
-  const {
-    rows: [s],
-  } = await db.query(
-    "INSERT INTO semesters(name,starts_on,ends_on,is_current) VALUES($1,$2,$3,$4) RETURNING *",
-    [b.name, b.startsOn, b.endsOn, b.current],
+  await db.query(
+    "SELECT pg_advisory_xact_lock(hashtext(current_schema()||$1))",
+    [POINT_CYCLE_LOCK_KEY],
   );
-  await audit(db, actor.id, "SEMESTER_CREATED", s.id);
-  return s;
-}
-async function setCurrentSemester(
-  db: PoolClient,
-  actor: Actor,
-  input: unknown,
-) {
-  const b = z.object({ id: uuid }).parse(input);
-  await lockSemesters(db);
-  if (
-    !(await db.query("SELECT id FROM semesters WHERE id=$1", [b.id])).rowCount
-  )
-    throw new AppError("Semester not found.", 404);
-  await db.query("UPDATE semesters SET is_current=false WHERE is_current");
-  await db.query("UPDATE semesters SET is_current=true WHERE id=$1", [b.id]);
-  await audit(db, actor.id, "CURRENT_SEMESTER_CHANGED", b.id);
-  return { ok: true };
+  const {
+    rows: [current],
+  } = await db.query("SELECT id FROM point_cycles WHERE is_current FOR UPDATE");
+  if (!current || current.id !== b.currentCycleId)
+    throw new AppError(
+      "Points have already been reset. Refresh the workspace before continuing.",
+      409,
+    );
+  const {
+    rows: [counts],
+  } = await db.query(
+    "SELECT count(*)::int records,COALESCE(sum(points),0)::int points FROM credits WHERE cycle_id=$1 AND revoked_at IS NULL",
+    [current.id],
+  );
+  await db.query(
+    "UPDATE point_cycles SET is_current=false,ended_at=clock_timestamp() WHERE id=$1",
+    [current.id],
+  );
+  const {
+    rows: [cycle],
+  } = await db.query(
+    "INSERT INTO point_cycles(started_at,is_current,created_by) VALUES(clock_timestamp(),true,$1) RETURNING *",
+    [actor.id],
+  );
+  await audit(db, actor.id, "POINTS_RESET", cycle.id, {
+    previous_cycle_id: current.id,
+    archived_records: counts.records,
+    archived_points: counts.points,
+  });
+  return cycle;
 }
 async function saveEvent(db: PoolClient, actor: Actor, input: unknown) {
   const b = z
     .object({
       id: uuid.optional(),
-      semesterId: uuid,
       name,
       description: z.string().max(MAX_DESCRIPTION_LENGTH),
       location: z.string().max(MAX_LOCATION_LENGTH),
@@ -446,9 +452,9 @@ async function saveEvent(db: PoolClient, actor: Actor, input: unknown) {
       rows: [old],
     } = await db.query("SELECT * FROM events WHERE id=$1 FOR UPDATE", [b.id]);
     if (!old) throw new AppError("Event not found.", 404);
-    if (old.semester_id !== b.semesterId || old.category !== b.category)
+    if (old.category !== b.category)
       throw new AppError(
-        "Semester and category cannot change. Create a new event instead.",
+        "Event category cannot change. Create a new event instead.",
       );
     await db.query(
       "UPDATE events SET name=$1,description=$2,location=$3,starts_at=$4,ends_at=$5,checkin_open=$6 WHERE id=$7",
@@ -470,7 +476,7 @@ async function saveEvent(db: PoolClient, actor: Actor, input: unknown) {
   } = await db.query(
     "INSERT INTO events(semester_id,name,description,location,category,starts_at,ends_at,checkin_open,checkin_token,created_by) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING *",
     [
-      b.semesterId,
+      await legacyContainer(db),
       b.name,
       b.description,
       b.location,
@@ -528,6 +534,7 @@ async function awardHighImpact(db: PoolClient, actor: Actor, input: unknown) {
     ).rowCount
   )
     throw new AppError("Choose an active society.");
+  await lockPointCycle(db);
   const {
     rows: [credit],
   } = await db.query(
@@ -561,52 +568,40 @@ async function setCreditStatus(db: PoolClient, actor: Actor, input: unknown) {
   );
   return { ok: true };
 }
-async function updateForm(db: PoolClient, id: string, b: FormInput) {
+async function setFormPublication(
+  db: PoolClient,
+  actor: Actor,
+  input: unknown,
+) {
+  const b = z
+    .object({
+      id: uuid,
+      version: z.number().int().min(1),
+      published: z.boolean(),
+    })
+    .parse(input);
   const {
-    rows: [f],
-  } = await db.query("SELECT * FROM forms WHERE id=$1 FOR UPDATE", [id]);
-  if (!f) throw new AppError("Application not found.", 404);
-  if (f.semester_id !== b.semesterId || f.kind !== b.kind)
-    throw new AppError("Application semester and type cannot change.");
-  const version: number = f.current_version + 1;
-  await db.query(
-    "UPDATE forms SET title=$1,description=$2,published=$3,deadline=$4,current_version=$5 WHERE id=$6",
-    [b.title, b.description, b.published, b.deadline, version, id],
+    rows: [form],
+  } = await db.query("SELECT * FROM forms WHERE id=$1 FOR UPDATE", [b.id]);
+  if (!form) throw new AppError("Application not found.", 404);
+  if (form.current_version !== b.version)
+    throw new AppError(
+      "This application changed. Refresh before publishing.",
+      409,
+    );
+  if (b.published && deadlinePassed(form.deadline))
+    throw new AppError(PAST_DEADLINE_MESSAGE);
+  await db.query("UPDATE forms SET published=$1 WHERE id=$2", [
+    b.published,
+    b.id,
+  ]);
+  await audit(
+    db,
+    actor.id,
+    b.published ? "APPLICATION_PUBLISHED" : "APPLICATION_UNPUBLISHED",
+    b.id,
   );
-  return { id, version };
-}
-async function insertForm(db: PoolClient, actor: Actor, b: FormInput) {
-  const {
-    rows: [f],
-  } = await db.query(
-    "INSERT INTO forms(semester_id,title,description,kind,published,deadline,created_by) VALUES($1,$2,$3,$4,$5,$6,$7) RETURNING id",
-    [
-      b.semesterId,
-      b.title,
-      b.description,
-      b.kind,
-      b.published,
-      b.deadline,
-      actor.id,
-    ],
-  );
-  const id: string = f.id;
-  return { id, version: FIRST_FORM_VERSION };
-}
-async function saveForm(db: PoolClient, actor: Actor, input: unknown) {
-  const b = formInput.parse(input);
-  const { id, version } = b.id
-    ? await updateForm(db, b.id, b)
-    : await insertForm(db, actor, b);
-  await db.query(
-    "INSERT INTO form_versions(form_id,version,questions) VALUES($1,$2,$3)",
-    [id, version, JSON.stringify(b.questions)],
-  );
-  await audit(db, actor.id, "APPLICATION_FORM_SAVED", id, {
-    version,
-    published: b.published,
-  });
-  return { id, version };
+  return { ok: true };
 }
 async function reviewSubmission(db: PoolClient, actor: Actor, input: unknown) {
   const b = z
@@ -661,6 +656,56 @@ async function updateAllowlist(db: PoolClient, actor: Actor, input: unknown) {
     removed: b.remove,
   });
   return { ok: true };
+}
+async function updateForm(db: PoolClient, id: string, b: FormInput) {
+  const {
+    rows: [f],
+  } = await db.query("SELECT * FROM forms WHERE id=$1 FOR UPDATE", [id]);
+  if (!f) throw new AppError("Application not found.", 404);
+  if (!f.published && b.published && deadlinePassed(b.deadline))
+    throw new AppError(PAST_DEADLINE_MESSAGE);
+  if (f.kind !== b.kind) throw new AppError("Application type cannot change.");
+  const version: number = f.current_version + 1;
+  await db.query(
+    "UPDATE forms SET title=$1,description=$2,published=$3,deadline=$4,current_version=$5 WHERE id=$6",
+    [b.title, b.description, b.published, b.deadline, version, id],
+  );
+  return { id, version };
+}
+async function insertForm(db: PoolClient, actor: Actor, b: FormInput) {
+  if (b.published && deadlinePassed(b.deadline))
+    throw new AppError(PAST_DEADLINE_MESSAGE);
+  const {
+    rows: [f],
+  } = await db.query(
+    "INSERT INTO forms(semester_id,title,description,kind,published,deadline,created_by) VALUES($1,$2,$3,$4,$5,$6,$7) RETURNING id",
+    [
+      await legacyContainer(db),
+      b.title,
+      b.description,
+      b.kind,
+      b.published,
+      b.deadline,
+      actor.id,
+    ],
+  );
+  const id: string = f.id;
+  return { id, version: FIRST_FORM_VERSION };
+}
+async function saveForm(db: PoolClient, actor: Actor, input: unknown) {
+  const b = formInput.parse(input);
+  const { id, version } = b.id
+    ? await updateForm(db, b.id, b)
+    : await insertForm(db, actor, b);
+  await db.query(
+    "INSERT INTO form_versions(form_id,version,questions) VALUES($1,$2,$3)",
+    [id, version, JSON.stringify(b.questions)],
+  );
+  await audit(db, actor.id, "APPLICATION_FORM_SAVED", id, {
+    version,
+    published: b.published,
+  });
+  return { id, version };
 }
 export async function adminMutation(
   db: PoolClient,

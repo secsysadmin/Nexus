@@ -2,7 +2,7 @@ import { test, expect, type APIRequestContext } from "@playwright/test";
 import dotenv from "dotenv";
 import pg from "pg";
 import { randomUUID } from "node:crypto";
-import { mkdir } from "node:fs/promises";
+import { mkdir, readFile } from "node:fs/promises";
 import { hashPassword, token, digest } from "../lib/security";
 dotenv.config({ path: ".env.local", quiet: true });
 const suffix = randomUUID().slice(0, 8),
@@ -126,7 +126,7 @@ test("society hub end-to-end: admin, concurrent check-in, drafts, review, QR and
   await admin.getByLabel("Password", { exact: true }).fill(password);
   await admin.getByRole("button", { name: "Sign in", exact: true }).click();
   await expect(
-    admin.getByRole("heading", { name: "SEC overview" }),
+    admin.getByRole("heading", { name: "SEC dashboard" }),
   ).toBeVisible();
   await admin.getByRole("button", { name: "Events", exact: true }).click();
   await admin
@@ -172,7 +172,69 @@ test("society hub end-to-end: admin, concurrent check-in, drafts, review, QR and
       "Check-in QR code for Presidents’ Round Table · Test data",
     ),
   ).toBeVisible();
+  const downloaded = admin.waitForEvent("download");
+  await admin.getByRole("link", { name: "Download PNG", exact: true }).click();
+  const png = await downloaded;
+  const pngPath = await png.path();
+  expect(pngPath).toBeTruthy();
+  const pngBytes = await readFile(pngPath!);
+  expect(pngBytes.subarray(0, 8).toString("hex")).toBe("89504e470d0a1a0a");
+  expect(pngBytes.readUInt32BE(16)).toBe(1024);
+  expect(png.suggestedFilename()).toMatch(/check-in\.png$/);
+  await admin.setViewportSize({ width: 1440, height: 1000 });
+  await admin.evaluate(() => window.scrollTo(0, 0));
+  await admin.screenshot({
+    path: ".impeccable/review/qr-download-desktop.png",
+    fullPage: true,
+  });
+  await expect(
+    admin.getByRole("dialog", {
+      name: "Check-in · Presidents’ Round Table · Test data",
+    }),
+  ).toBeVisible();
+  await admin.keyboard.press("Escape");
+  await expect(admin.getByRole("dialog")).toHaveCount(0);
+  await expect(
+    admin.getByRole("button", { name: "QR & link", exact: true }),
+  ).toBeFocused();
+  await admin.getByRole("button", { name: "QR & link", exact: true }).click();
   await admin.getByRole("button", { name: "Close QR panel" }).click();
+  await admin.getByRole("button", { name: "Calendar", exact: true }).click();
+  await expect(
+    admin.getByRole("grid", { name: /event calendar/ }),
+  ).toBeVisible();
+  const today = admin.locator('.calendar-day[aria-current="date"]');
+  await today.focus();
+  await today.press("ArrowRight");
+  await admin
+    .locator('.calendar-cell[aria-selected="true"] button')
+    .press("ArrowLeft");
+  await expect(
+    admin
+      .locator(".calendar-day-details")
+      .getByText("Presidents’ Round Table · Test data", { exact: true }),
+  ).toBeVisible();
+  await admin.evaluate(() => {
+    (document.activeElement as HTMLElement)?.blur();
+    window.scrollTo(0, 0);
+  });
+  await admin.screenshot({
+    path: ".impeccable/review/events-calendar-desktop.png",
+    fullPage: true,
+  });
+  await admin.setViewportSize({ width: 390, height: 844 });
+  expect(
+    await admin.evaluate(
+      () => document.documentElement.scrollWidth <= innerWidth,
+    ),
+  ).toBe(true);
+  await admin.screenshot({
+    path: ".impeccable/review/events-calendar-mobile.png",
+    fullPage: true,
+  });
+  await admin.setViewportSize({ width: 1440, height: 1000 });
+  await admin.getByRole("button", { name: "List", exact: true }).click();
+
   const high = await post(adminContext.request, "admin/events", {
     semesterId,
     name: "Cross-society Engineering Expo · Test data",
@@ -201,11 +263,32 @@ test("society hub end-to-end: admin, concurrent check-in, drafts, review, QR and
     .getByLabel("Question text")
     .fill("What will the funding support?");
   await admin.getByLabel("Answer type").selectOption("long");
-  await admin.getByLabel("Publish for societies to view and submit").check();
+  await admin.evaluate(() => {
+    (document.activeElement as HTMLElement)?.blur();
+    window.scrollTo(0, 0);
+  });
+  await admin.screenshot({
+    path: ".impeccable/review/application-publication-editor.png",
+    fullPage: true,
+  });
+  await admin.getByRole("button", { name: "Save draft", exact: true }).click();
+  await expect(admin.getByRole("status")).toContainText("Draft saved.");
+  await expect(admin.getByText("Draft", { exact: true })).toBeVisible();
+  await admin.evaluate(() => window.scrollTo(0, 0));
+  await admin.screenshot({
+    path: ".impeccable/review/application-draft-list.png",
+    fullPage: true,
+  });
   await admin
-    .getByRole("button", { name: "Save application", exact: true })
+    .getByRole("button", {
+      name: "Publish Society Funding Application · Test data",
+      exact: true,
+    })
     .click();
-  await expect(admin.getByRole("status")).toContainText("Application saved.");
+  await expect(admin.getByRole("status")).toContainText(
+    "Application published.",
+  );
+  await expect(admin.getByText("Published", { exact: true })).toBeVisible();
   await expect(
     admin.getByRole("heading", {
       name: "Society Funding Application · Test data",
@@ -227,11 +310,9 @@ test("society hub end-to-end: admin, concurrent check-in, drafts, review, QR and
   await society.getByRole("button", { name: "Confirm check-in" }).click();
   await expect(
     society.getByRole("heading", { name: "You’re checked in." }),
-  ).toBeVisible();
+  ).toBeFocused();
   await society.getByRole("button", { name: "View dashboard" }).click();
-  await expect(
-    society.getByText("Semester minimum met", { exact: true }),
-  ).toBeVisible();
+  await expect(society.getByText("Minimum met", { exact: true })).toBeVisible();
   const concurrent = await Promise.all(
     Array.from({ length: 12 }, () =>
       post(societyContext.request, "checkin", { eventId, token: eventToken }),
@@ -353,11 +434,80 @@ test("society hub end-to-end: admin, concurrent check-in, drafts, review, QR and
     animations: "disabled",
   });
   await society.setViewportSize({ width: 1440, height: 1000 });
-  await admin
-    .getByRole("button", { name: "Review queue", exact: true })
-    .click();
+  const provision = await post(adminContext.request, "admin/societies", {
+    username: `qa-provision-${suffix}`,
+    displayName: "Provisioned test society",
+    candidateIds: [],
+  });
+  const p = await provision.json();
+  expect(provision.ok()).toBeTruthy();
+  provisionId = (
+    await db.query("SELECT id FROM accounts WHERE username=$1", [p.username])
+  ).rows[0].id;
+  await admin.getByRole("button", { name: "Dashboard", exact: true }).click();
   await admin.getByRole("button", { name: "Refresh workspace" }).click();
-  await admin.getByRole("button", { name: "Review", exact: true }).click();
+  await expect(
+    admin.getByRole("region", {
+      name: "Applications awaiting review",
+      exact: true,
+    }),
+  ).toHaveAttribute("data-count", "1");
+  await expect(
+    admin.getByRole("region", { name: "Accounts awaiting setup", exact: true }),
+  ).toHaveAttribute("data-count", "1");
+  await admin.setViewportSize({ width: 1440, height: 1000 });
+  await admin.screenshot({
+    path: ".impeccable/review/dashboard-actions-desktop.png",
+    fullPage: true,
+  });
+  await admin.setViewportSize({ width: 1976, height: 1143 });
+  await admin.screenshot({
+    path: ".impeccable/review/dashboard-actions-user.png",
+    fullPage: true,
+  });
+  await admin.setViewportSize({ width: 390, height: 844 });
+  expect(
+    await admin.evaluate(
+      () => document.documentElement.scrollWidth <= innerWidth,
+    ),
+  ).toBe(true);
+  await admin.screenshot({
+    path: ".impeccable/review/dashboard-actions-mobile.png",
+    fullPage: true,
+  });
+  await admin.setViewportSize({ width: 1440, height: 1000 });
+  await admin
+    .getByRole("button", {
+      name: "Issue setup link for Provisioned test society",
+      exact: true,
+    })
+    .click();
+  await expect(
+    admin.getByRole("heading", {
+      name: `Account setup link for @${p.username}`,
+    }),
+  ).toBeVisible();
+  const setupUrl = await admin.locator(".activation-result input").inputValue();
+  p.activation = new URL(setupUrl).searchParams.get("token");
+  await admin
+    .getByRole("button", { name: "Dismiss link", exact: true })
+    .click();
+  await admin
+    .getByRole("button", {
+      name: "Manage Presidents’ Round Table · Test data",
+      exact: true,
+    })
+    .click();
+  await expect(admin.getByLabel("Event name")).toHaveValue(
+    "Presidents’ Round Table · Test data",
+  );
+  await admin.getByRole("button", { name: "Dashboard", exact: true }).click();
+  await admin
+    .getByRole("button", {
+      name: "Review next application",
+      exact: true,
+    })
+    .click();
   await expect(
     admin.getByText("An engineering outreach workshop for our members.", {
       exact: true,
@@ -387,16 +537,6 @@ test("society hub end-to-end: admin, concurrent check-in, drafts, review, QR and
       )
     ).rows[0].points,
   ).toBe(4);
-  const provision = await post(adminContext.request, "admin/societies", {
-    username: `qa-provision-${suffix}`,
-    displayName: "Provisioned test society",
-    candidateIds: [],
-  });
-  const p = await provision.json();
-  expect(provision.ok()).toBeTruthy();
-  provisionId = (
-    await db.query("SELECT id FROM accounts WHERE username=$1", [p.username])
-  ).rows[0].id;
   const activationContext = await browser.newContext();
   const activationPage = await activationContext.newPage();
   await activationPage.goto(`/activate?token=${p.activation}`);
@@ -408,7 +548,9 @@ test("society hub end-to-end: admin, concurrent check-in, drafts, review, QR and
     .getByRole("button", { name: "Set password & continue" })
     .click();
   await expect(
-    activationPage.getByRole("heading", { name: "Your society, connected." }),
+    activationPage.getByRole("heading", {
+      name: "Hello, Provisioned test society",
+    }),
   ).toBeVisible();
   const reused = await post(activationContext.request, "auth/activate", {
     token: p.activation,
@@ -419,7 +561,7 @@ test("society hub end-to-end: admin, concurrent check-in, drafts, review, QR and
   expect(nonAdmin.status()).toBe(403);
   await activationContext.close();
   await mkdir(".impeccable/review", { recursive: true });
-  await society.getByRole("button", { name: "Overview", exact: true }).click();
+  await society.getByRole("button", { name: "Dashboard", exact: true }).click();
   await society.getByRole("button", { name: "Refresh workspace" }).click();
   await expect(society.getByText("approved", { exact: true })).toBeVisible();
   await society.setViewportSize({ width: 1440, height: 1000 });
@@ -439,9 +581,30 @@ test("society hub end-to-end: admin, concurrent check-in, drafts, review, QR and
     fullPage: true,
     animations: "disabled",
   });
-  await admin.getByRole("button", { name: "Overview", exact: true }).click();
+  await admin.getByRole("button", { name: "Dashboard", exact: true }).click();
   await admin.getByRole("button", { name: "Refresh workspace" }).click();
+  await expect(
+    admin.getByRole("region", { name: "Accounts awaiting setup", exact: true }),
+  ).toHaveAttribute("data-count", "0");
+  await expect(
+    admin.getByRole("region", {
+      name: "Applications awaiting review",
+      exact: true,
+    }),
+  ).toHaveAttribute("data-count", "0");
+  await admin.getByText("All society point totals", { exact: true }).click();
+  await expect(
+    admin.getByRole("heading", {
+      name: "Society funding progress",
+      exact: true,
+    }),
+  ).toBeVisible();
+  await admin.getByText("All society point totals", { exact: true }).click();
   await admin.setViewportSize({ width: 1440, height: 1000 });
+  await admin.evaluate(() => {
+    (document.activeElement as HTMLElement)?.blur();
+    window.scrollTo(0, 0);
+  });
   await admin.screenshot({
     path: ".impeccable/review/admin-desktop.png",
     fullPage: true,
@@ -479,9 +642,10 @@ test("society hub end-to-end: admin, concurrent check-in, drafts, review, QR and
   await expect(
     admin.getByRole("button", { name: "Close sidebar" }),
   ).toBeFocused();
-  await expect(
-    admin.getByRole("button", { name: "Close navigation" }),
-  ).toHaveAttribute("aria-expanded", "true");
+  await expect(admin.locator(".mobile-menu")).toHaveAttribute(
+    "aria-expanded",
+    "true",
+  );
   await admin.keyboard.press("Escape");
   await expect(
     admin.getByRole("button", { name: "Open navigation" }),
@@ -496,4 +660,448 @@ test("society hub end-to-end: admin, concurrent check-in, drafts, review, QR and
   expect(errors).toEqual([]);
   await adminContext.close();
   await societyContext.close();
+});
+
+test("manual point controls replace semester picker; administrative activity disclosure", async ({
+  page,
+}) => {
+  await page.route("**/api/data", (route) =>
+    route.fulfill({
+      json: {
+        actor: {
+          id: "visual",
+          username: "sec",
+          display_name: "Test SEC",
+          role: "admin",
+        },
+        pointCycle: {
+          id: "fall",
+          started_at: "2026-07-01T05:00:00Z",
+          ended_at: null,
+          is_current: true,
+        },
+        legacyContainers: [
+          {
+            id: "fall",
+            name: "Fall 2026",
+            starts_on: "2026-07-01",
+            ends_on: "2026-12-31",
+            is_current: true,
+          },
+          {
+            id: "spring",
+            name: "Spring 2026",
+            starts_on: "2026-01-01",
+            ends_on: "2026-06-30",
+            is_current: false,
+          },
+        ],
+        events: [],
+        forms: [],
+        accounts: [],
+        credits: [],
+        submissions: [],
+        roster: [],
+        audit: [
+          {
+            id: 1,
+            actor_name: "sec",
+            action: "EVENT_CREATED",
+            created_at: "2026-11-02T20:00:00Z",
+            details: {},
+          },
+        ],
+        allowlist: [],
+        environment: "development",
+      },
+    }),
+  );
+  await page.goto("/");
+  await expect(
+    page.getByRole("combobox", { name: "Viewing semester" }),
+  ).toHaveCount(0);
+  await page
+    .getByRole("button", { name: "Settings & audit", exact: true })
+    .click();
+  const disclosure = page.locator(".audit-disclosure");
+  await expect(disclosure).not.toHaveAttribute("open");
+  await disclosure.locator("summary").click();
+  await expect(disclosure).toHaveAttribute("open", "");
+  await expect(disclosure.locator(".record-list")).toBeVisible();
+  await disclosure.locator("summary").press("Enter");
+  await expect(disclosure.locator(".record-list")).toBeHidden();
+});
+
+test("QR replacement feedback stays inside the modal on failure and success", async ({
+  page,
+}) => {
+  let replaced = false;
+  const event = {
+    id: "qr-test",
+    semester_id: "fall",
+    name: "QR feedback · Test data",
+    category: "PRT",
+    description: "Test fixture",
+    location: "Test workspace",
+    starts_at: "2026-11-02T21:00:00Z",
+    ends_at: "2026-11-09T22:00:00Z",
+    checkin_open: true,
+    checkin_token: "a".repeat(64),
+  };
+  await page.route("**/api/data", (r) =>
+    r.fulfill({
+      json: {
+        actor: {
+          id: "sec",
+          username: "sec",
+          display_name: "SEC · Test data",
+          role: "admin",
+        },
+        pointCycle: {
+          id: "fall",
+          started_at: "2026-07-01T05:00:00Z",
+          ended_at: null,
+          is_current: true,
+        },
+        legacyContainers: [
+          {
+            id: "fall",
+            name: "Fall 2026",
+            starts_on: "2026-07-01",
+            ends_on: "2026-12-31",
+            is_current: true,
+          },
+        ],
+        events: [
+          { ...event, checkin_token: (replaced ? "b" : "a").repeat(64) },
+        ],
+        accounts: [],
+        credits: [],
+        forms: [],
+        submissions: [],
+        roster: [],
+        audit: [],
+        allowlist: [],
+        environment: "development",
+      },
+    }),
+  );
+  await page.route("**/api/admin/event-checkin", (r) =>
+    replaced
+      ? r.fulfill({ json: { ok: true } })
+      : r.fulfill({
+          status: 503,
+          json: { error: "Test provider unavailable" },
+        }),
+  );
+  await page.goto("/");
+  await page.getByRole("button", { name: "Events", exact: true }).click();
+  await page.getByRole("button", { name: "QR & link", exact: true }).click();
+  const modal = page.getByRole("dialog");
+  await modal.getByRole("link", { name: "Download PNG" }).waitFor();
+  await modal.getByRole("button", { name: "Replace link & QR" }).click();
+  await expect(modal.getByRole("alert")).toContainText(
+    "Couldn’t confirm the replacement",
+  );
+  await page.screenshot({
+    path: ".impeccable/review/qr-modal-failure-desktop.png",
+  });
+  const oldImage = await modal.getByRole("img").getAttribute("src");
+  replaced = true;
+  await modal.getByRole("button", { name: "Replace link & QR" }).click();
+  await expect(modal.getByRole("status")).toContainText(
+    "Previous links and QR codes no longer work",
+  );
+  await expect(modal.getByRole("img")).not.toHaveAttribute("src", oldImage!);
+  await page.screenshot({
+    path: ".impeccable/review/qr-modal-success-desktop.png",
+  });
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.screenshot({
+    path: ".impeccable/review/qr-modal-success-mobile.png",
+  });
+  await expect(modal).toBeVisible();
+  expect(await modal.evaluate((n) => n.scrollWidth <= n.clientWidth)).toBe(
+    true,
+  );
+});
+
+test("mobile navigation protects focus and roster filters preserve explicit selections", async ({
+  page,
+}) => {
+  await page.route("**/api/data", (route) =>
+    route.fulfill({
+      json: {
+        actor: {
+          id: "sec",
+          username: "sec",
+          display_name: "SEC accessibility fixture",
+          role: "admin",
+        },
+        pointCycle: {
+          id: "fall",
+          started_at: "2026-07-01T05:00:00Z",
+          ended_at: null,
+          is_current: true,
+        },
+        legacyContainers: [
+          {
+            id: "fall",
+            name: "Fall 2026",
+            starts_on: "2026-07-01",
+            ends_on: "2026-12-31",
+            is_current: true,
+          },
+        ],
+        events: [],
+        forms: [],
+        accounts: [],
+        credits: [],
+        submissions: [],
+        audit: [],
+        allowlist: [],
+        environment: "development",
+        roster: [
+          {
+            id: "gamma-two",
+            name: "GAMMA ENGINEERING SOCIETY",
+            source_timestamp: "11/02/2026",
+            contacts: {
+              president: {
+                name: "Second Officer",
+                email: "gamma-two@example.invalid",
+              },
+            },
+          },
+          {
+            id: "gamma",
+            name: "Gamma Engineering Society",
+            source_timestamp: "11/01/2026",
+            contacts: {
+              president: {
+                name: "Gamma President",
+                email: "gamma@example.invalid",
+              },
+            },
+          },
+          {
+            id: "delta",
+            name: "Delta Engineering Society",
+            source_timestamp: "11/02/2026",
+            contacts: {
+              president: {
+                name: "Delta President",
+                email: "delta@example.invalid",
+              },
+            },
+          },
+        ],
+      },
+    }),
+  );
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/");
+  await page.getByRole("heading", { name: "SEC dashboard" }).waitFor();
+  await page.getByRole("link", { name: "Skip to content" }).focus();
+  await page.keyboard.press("Enter");
+  await expect(page.locator("#main-content")).toBeFocused();
+  const menu = page.getByRole("button", { name: "Open navigation" });
+  await menu.click();
+  await expect(
+    page.getByRole("dialog", { name: "Workspace navigation" }),
+  ).toBeVisible();
+  expect(
+    await page.locator(".main").evaluate((n) => (n as HTMLElement).inert),
+  ).toBe(true);
+  expect(await page.evaluate(() => document.body.style.overflow)).toBe(
+    "hidden",
+  );
+  for (let i = 0; i < 18; i++) {
+    await page.keyboard.press("Tab");
+    expect(
+      await page
+        .locator(".sidebar")
+        .evaluate((n) => n.contains(document.activeElement)),
+    ).toBe(true);
+  }
+  await page.keyboard.press("Escape");
+  await expect(menu).toBeFocused();
+  expect(
+    await page.locator(".main").evaluate((n) => (n as HTMLElement).inert),
+  ).toBe(false);
+  await menu.click();
+  await page.getByRole("button", { name: "Societies", exact: true }).click();
+  const search = page.getByRole("searchbox", { name: "Search contact roster" });
+  await search.fill("Gamma");
+  await expect(page.locator(".roster-row")).toHaveCount(1);
+  await page.locator(".roster-row").getByRole("checkbox").check();
+  await search.fill("Delta");
+  await expect(page.locator(".roster-toolbar")).toContainText(
+    "2 responses selected",
+  );
+  await search.fill("");
+  await expect(
+    page
+      .locator(".roster-row")
+      .filter({ hasText: "Gamma Engineering Society" })
+      .getByRole("checkbox"),
+  ).toBeChecked();
+  await page
+    .locator(".roster-row")
+    .filter({ hasText: "gamma@example.invalid" })
+    .locator("summary")
+    .click();
+  await expect(
+    page.getByRole("link", { name: "gamma@example.invalid" }),
+  ).toHaveAttribute("href", "mailto:gamma@example.invalid");
+  await expect(
+    page.getByRole("link", { name: "gamma-two@example.invalid", exact: true }),
+  ).toBeVisible();
+  await page.getByRole("button", { name: "Add society", exact: true }).click();
+  const username = page.getByRole("textbox", {
+    name: "Society username",
+    exact: true,
+  });
+  await expect(username).toHaveAttribute("aria-describedby", /.+/);
+  await expect(username).toHaveAccessibleDescription(/lowercase letters/);
+  await menu.click();
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await expect(
+    page.getByRole("dialog", { name: "Workspace navigation" }),
+  ).toHaveCount(0);
+  expect(
+    await page.locator(".main").evaluate((n) => (n as HTMLElement).inert),
+  ).toBe(false);
+  expect(await page.evaluate(() => document.body.style.overflow)).toBe("");
+});
+
+test("manual reset is explicit, preserves history, and event check-in can reopen with the same link", async ({
+  page,
+}) => {
+  let current = "initial",
+    open = true,
+    end = new Date(Date.now() + 3600000).toISOString();
+  const event = () => ({
+    id: "demo",
+    name: "Reopening test event",
+    description: "",
+    location: "Zachry",
+    category: "PRT",
+    starts_at: new Date(Date.now() - 3600000).toISOString(),
+    ends_at: end,
+    checkin_open: open,
+    checkin_token: "0".repeat(64),
+  });
+  const dataset = () => ({
+    actor: { id: "sec", username: "sec", display_name: "SEC", role: "admin" },
+    pointCycle: {
+      id: current,
+      started_at: new Date().toISOString(),
+      ended_at: null,
+      is_current: true,
+    },
+    events: [event()],
+    forms: [],
+    accounts: [],
+    credits: [
+      {
+        id: "credit",
+        cycle_id: "initial",
+        account_id: "society",
+        society_name: "Test Society",
+        event_name: "Previous event",
+        event_id: "old",
+        points: 1,
+        category: "PRT",
+        source: "CHECK_IN",
+        created_at: new Date().toISOString(),
+        revoked_at: null,
+      },
+    ],
+    submissions: [],
+    roster: [],
+    audit: [],
+    allowlist: [],
+    environment: "development",
+  });
+  await page.route("**/api/data", (r) => r.fulfill({ json: dataset() }));
+  await page.route("**/api/admin/reset-points", (r) => {
+    expect(r.request().postDataJSON()).toEqual({
+      currentCycleId: "initial",
+      confirmation: "RESET POINTS",
+    });
+    current = "next";
+    return r.fulfill({ json: { id: current } });
+  });
+  await page.route("**/api/admin/event-checkin", (r) => {
+    open = r.request().postDataJSON().open;
+    return r.fulfill({ json: { ok: true } });
+  });
+  await page.route("**/api/admin/events", (r) => {
+    const body = r.request().postDataJSON();
+    expect(body.checkinOpen).toBe(true);
+    end = body.endsAt;
+    open = true;
+    return r.fulfill({ json: { id: "demo" } });
+  });
+  await page.goto("/");
+  await page
+    .getByRole("button", { name: "Settings & audit", exact: true })
+    .click();
+  await page
+    .getByRole("button", { name: "Reset all society points", exact: true })
+    .click();
+  const modal = page.getByRole("dialog", { name: "Reset all society points?" });
+  await expect(modal).toBeVisible();
+  await expect(
+    modal.getByRole("button", { name: "Reset points", exact: true }),
+  ).toBeDisabled();
+  await modal.getByLabel("Type RESET POINTS to confirm").fill("RESET POINTS");
+  await modal
+    .getByRole("button", { name: "Reset points", exact: true })
+    .click();
+  await expect(modal).not.toBeVisible();
+  await page
+    .getByRole("button", { name: "Attendance & points", exact: true })
+    .click();
+  await expect(
+    page.getByRole("heading", { name: "No attendance recorded", exact: true }),
+  ).toBeVisible();
+  await page.locator(".history-disclosure summary").click();
+  await expect(page.getByText("Previous event", { exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "Events", exact: true }).click();
+  await page
+    .getByRole("button", { name: "Close check-in", exact: true })
+    .click();
+  await expect(
+    page.getByRole("button", { name: "Reopen check-in", exact: true }),
+  ).toBeVisible();
+  await page
+    .getByRole("button", { name: "Reopen check-in", exact: true })
+    .click();
+  await expect(
+    page.getByRole("button", { name: "Close check-in", exact: true }),
+  ).toBeVisible();
+  open = false;
+  end = new Date(Date.now() - 60000).toISOString();
+  await page
+    .getByRole("button", { name: "Refresh workspace", exact: true })
+    .click();
+  await page
+    .getByRole("button", { name: "Reopen check-in", exact: true })
+    .click();
+  await expect(
+    page.getByRole("heading", { name: "Reopen event check-in" }),
+  ).toBeVisible();
+  const local = new Date(Date.now() + 3600000);
+  local.setMinutes(local.getMinutes() - local.getTimezoneOffset());
+  await page
+    .getByLabel("Check-in window ends", { exact: true })
+    .fill(local.toISOString().slice(0, 16));
+  await page
+    .getByRole("button", { name: "Reopen check-in", exact: true })
+    .click();
+  await expect(
+    page.getByRole("button", { name: "Close check-in", exact: true }),
+  ).toBeVisible();
 });

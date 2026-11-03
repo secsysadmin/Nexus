@@ -8,16 +8,14 @@ export type Account = {
   activated: boolean;
   contacts: Record<string, unknown>;
 };
-export type Semester = {
+export type PointCycle = {
   id: string;
-  name: string;
-  starts_on: string;
-  ends_on: string;
+  started_at: string;
+  ended_at: string | null;
   is_current: boolean;
 };
 export type Event = {
   id: string;
-  semester_id: string;
   name: string;
   description: string;
   location: string;
@@ -29,10 +27,10 @@ export type Event = {
 };
 export type Credit = {
   id: string;
+  cycle_id: string;
   account_id: string;
   event_id: string;
   event_name: string;
-  semester_id: string;
   category: Event["category"];
   points: number;
   source: string;
@@ -43,7 +41,6 @@ export type Credit = {
 };
 export type Form = {
   id: string;
-  semester_id: string;
   title: string;
   description: string;
   kind: "FUNDING" | "HIGH_IMPACT";
@@ -88,7 +85,7 @@ export type Audit = {
 export type HubData = {
   environment: "development" | "production";
   actor: Pick<Account, "id" | "username" | "display_name" | "role">;
-  semesters: Semester[];
+  pointCycle: PointCycle;
   events: Event[];
   credits: Credit[];
   forms: Form[];

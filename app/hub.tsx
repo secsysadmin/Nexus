@@ -1,6 +1,9 @@
 "use client";
 import {
   useCallback,
+  useId,
+  cloneElement,
+  isValidElement,
   useEffect,
   useState,
   useRef,
@@ -28,9 +31,15 @@ import {
   Menu,
   X,
   ShieldCheck,
+  KeyRound,
+  Download,
 } from "lucide-react";
 import QRCode from "qrcode";
 import MaroonRibbons from "./maroon-ribbons";
+import PointsSummary from "./points-summary";
+import EventCalendar from "./event-calendar";
+import { dashboardItems } from "../lib/dashboard";
+import { groupSocietyRoster, rosterGroupMatches } from "../lib/society-roster";
 import { defaultConfirmationEmail } from "../lib/application-email";
 import type {
   HubData,
@@ -47,10 +56,27 @@ import {
   questionTypes,
   isOneOf,
   MAX_EMAIL_ATTEMPTS,
+  MAX_QUESTIONS,
   type Question,
   type Answers,
 } from "../lib/domain";
 type Run = (path: string, body: unknown, message?: string) => Promise<unknown>;
+type FormSave = {
+  id?: string;
+  title: string;
+  description: string;
+  kind: Form["kind"];
+  published: boolean;
+  deadline: string | null;
+  questions: Question[];
+};
+type SubmissionSave = {
+  formId: string;
+  answers: Answers;
+  submit: boolean;
+  revision: number;
+  confirmationEmail: string;
+};
 type FieldProps = {
   label: string;
   children: ReactNode;
@@ -65,12 +91,21 @@ type PanelProps = {
   children: ReactNode;
   action?: ReactNode;
 };
+type DashboardSectionProps = {
+  title: string;
+  count: number;
+  emptyText: string;
+  action?: ReactNode;
+  children: ReactNode;
+};
 type ButtonProps = {
   children: ReactNode;
   onClick?: () => void;
   secondary?: boolean;
   disabled?: boolean;
   type?: "button" | "submit";
+  value?: string;
+  "aria-label"?: string;
 };
 type FormActionsProps = {
   busy: boolean;
@@ -87,8 +122,7 @@ type AuthScreenProps = {
 };
 type EventEditorProps = {
   initial: Event | null;
-  semesters: HubData["semesters"];
-  selectedSemester: string;
+  reopening?: boolean;
   busy: boolean;
   cancel: () => void;
   save: (b: unknown) => Promise<void>;
@@ -96,7 +130,7 @@ type EventEditorProps = {
 type QRPanelProps = {
   event: Event;
   close: () => void;
-  rotate: () => Promise<void>;
+  rotate: () => Promise<boolean>;
   busy: boolean;
 };
 type ManualAwardProps = {
@@ -113,24 +147,15 @@ type CreditCorrectionProps = {
 };
 type FormEditorProps = {
   initial: Form | null;
-  semesters: HubData["semesters"];
-  selectedSemester: string;
   busy: boolean;
   cancel: () => void;
-  save: (b: unknown) => Promise<void>;
+  save: (b: FormSave) => Promise<void>;
 };
 type AnswerFieldsProps = {
   questions: Question[];
   answers: Answers;
   setAnswers: (a: Answers) => void;
   disabled: boolean;
-};
-type SubmissionSave = {
-  formId: string;
-  answers: Answers;
-  submit: boolean;
-  revision: number;
-  confirmationEmail: string;
 };
 type ApplicationViewProps = {
   form: Form;
@@ -158,7 +183,7 @@ type PasswordFormProps = {
   busy: boolean;
   save: (b: unknown) => Promise<void>;
 };
-type SemesterManagerProps = {
+type PointResetProps = {
   data: HubData;
   busy: boolean;
   run: Run;
@@ -182,7 +207,7 @@ type ReceiptStatusProps = {
   submission?: Submission;
 };
 const REFRESH_INTERVAL_MS = 30000;
-const QR_SIZE_PX = 400;
+const QR_SIZE_PX = 1024;
 const QR_MARGIN_MODULES = 3;
 const QR_DARK = "#500000";
 const QR_LIGHT = "#ffffff";
@@ -229,12 +254,38 @@ async function api<T = Record<string, unknown>>(
   return data;
 }
 function Field({ label, children, hint }: FieldProps) {
+  const generatedId = useId();
+  const control = isValidElement<{
+    id?: string;
+    required?: boolean;
+    "aria-describedby"?: string;
+  }>(children)
+    ? children
+    : null;
+  const id = control?.props.id ?? generatedId;
+  const hintId = hint ? `${id}-hint` : undefined;
   return (
-    <label className="field">
-      <span>{label}</span>
-      {children}
-      {hint && <small>{hint}</small>}
-    </label>
+    <div className="field">
+      <div className="field-label">
+        <label htmlFor={id}>{label}</label>
+        {control?.props.required && !label.endsWith("*") && (
+          <span className="required-mark" aria-hidden="true">
+            {" "}
+            *
+          </span>
+        )}
+      </div>
+      {control
+        ? cloneElement(control, {
+            id,
+            "aria-describedby":
+              [control.props["aria-describedby"], hintId]
+                .filter(Boolean)
+                .join(" ") || undefined,
+          })
+        : children}
+      {hint && <small id={hintId}>{hint}</small>}
+    </div>
   );
 }
 function Empty({ title, children }: EmptyProps) {
@@ -259,19 +310,61 @@ function Panel({ title, children, action }: PanelProps) {
     </section>
   );
 }
+function DashboardSection({
+  title,
+  count,
+  emptyText,
+  action,
+  children,
+}: DashboardSectionProps) {
+  return (
+    <section
+      className={count ? "dashboard-section" : "dashboard-clear"}
+      aria-label={title}
+      data-count={count}
+    >
+      {count ? (
+        <>
+          <div className="section-head">
+            <div className="dashboard-section-title">
+              <h2>{title}</h2>
+              <span className="dashboard-count" aria-label={`${count} items`}>
+                {count}
+              </span>
+            </div>
+            {action}
+          </div>
+          {children}
+        </>
+      ) : (
+        <>
+          <p>
+            <Check size={16} aria-hidden="true" />
+            {emptyText}
+          </p>
+          {action}
+        </>
+      )}
+    </section>
+  );
+}
 function Button({
   children,
   onClick,
   secondary = false,
   disabled = false,
   type = "button",
+  value,
+  "aria-label": ariaLabel,
 }: ButtonProps) {
   return (
     <button
       type={type}
+      value={value}
       className={secondary ? "button secondary" : "button"}
       onClick={onClick}
       disabled={disabled}
+      aria-label={ariaLabel}
     >
       {children}
     </button>
@@ -294,7 +387,50 @@ function FormActions({
   );
 }
 function ContactInfo({ contacts }: ContactInfoProps) {
-  return <pre className="contacts">{JSON.stringify(contacts, null, 2)}</pre>;
+  const readable = (key: string) =>
+    key.replaceAll("_", " ").replace(/\b\w/g, (c) => c.toUpperCase());
+  const flatten = (value: unknown, path: string[] = []): [string, string][] => {
+    if (Array.isArray(value))
+      return value.flatMap((v, i) => flatten(v, [...path, `Entry ${i + 1}`]));
+    if (value && typeof value === "object")
+      return Object.entries(value).flatMap(([key, v]) =>
+        flatten(v, [...path, readable(key)]),
+      );
+    return value === null || value === undefined || String(value).trim() === ""
+      ? []
+      : [[path.join(" · "), String(value)]];
+  };
+  const responses = Array.isArray(contacts.responses)
+    ? contacts.responses
+    : [contacts];
+  const groups = responses
+    .map((response) => flatten(response))
+    .filter((rows) => rows.length);
+  return groups.length ? (
+    <div className="contact-details">
+      {groups.map((rows, index) => (
+        <dl key={index}>
+          {rows.map(([label, value], i) => (
+            <div key={i}>
+              <dt>{label}</dt>
+              <dd>
+                {/email/i.test(label) &&
+                /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(value) ? (
+                  <a href={`mailto:${value}`}>{value}</a>
+                ) : /phone/i.test(label) && /^[+()\d.\s-]{7,}$/.test(value) ? (
+                  <a href={`tel:${value.replace(/[^+\d]/g, "")}`}>{value}</a>
+                ) : (
+                  value
+                )}
+              </dd>
+            </div>
+          ))}
+        </dl>
+      ))}
+    </div>
+  ) : (
+    <p className="contact-empty">No contact details are on file.</p>
+  );
 }
 export default function Hub() {
   const menuButtonRef = useRef<HTMLButtonElement>(null);
@@ -306,13 +442,17 @@ export default function Hub() {
     [notice, setNotice] = useState(""),
     [busy, setBusy] = useState(false),
     [tab, setTab] = useState("overview"),
-    [semester, setSemester] = useState(""),
     [mobile, setMobile] = useState(false);
   const [route, setRoute] = useState<{
     mode: string;
     token: string;
     eventId: string;
   }>({ mode: "home", token: "", eventId: "" });
+  const greetingSeen = useRef(false);
+  const [directorySearch, setDirectorySearch] = useState("");
+  const [rosterSearch, setRosterSearch] = useState("");
+  const [refreshing, setRefreshing] = useState(false);
+  const [eventsView, setEventsView] = useState<"list" | "calendar">("list");
   const [editingEvent, setEditingEvent] = useState<Event | null | undefined>(),
     [editingForm, setEditingForm] = useState<Form | null | undefined>(),
     [application, setApplication] = useState<Form | null>(null),
@@ -329,25 +469,25 @@ export default function Hub() {
       event: string;
       points: number;
     } | null>(null);
+  useEffect(() => {
+    if (checkResult) document.getElementById("checkin-result-heading")?.focus();
+  }, [checkResult]);
+  const [reopenEventId, setReopenEventId] = useState<string | null>(null);
   const refresh = useCallback(async () => {
+    setRefreshing(true);
     try {
       const d = await api<HubData>("data");
       setData(d);
       setAuthNeeded(false);
-      setSemester(
-        (s) =>
-          s ||
-          d.semesters.find((s) => s.is_current)?.id ||
-          d.semesters[0]?.id ||
-          "",
-      );
     } catch (e) {
       if (e instanceof RequestError && e.status === 401) {
         setData(null);
+        greetingSeen.current = false;
         setAuthNeeded(true);
       } else setError(errorMessage(e));
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   }, []);
   useEffect(() => {
@@ -361,10 +501,42 @@ export default function Hub() {
     return () => window.removeEventListener("keydown", escape);
   }, [mobile]);
   useEffect(() => {
-    if (mobile)
-      sidebarRef.current
-        ?.querySelector<HTMLButtonElement>(".sidebar-close")
-        ?.focus();
+    if (!mobile) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    sidebarRef.current
+      ?.querySelector<HTMLButtonElement>(".sidebar-close")
+      ?.focus();
+    const keyboard = (event: KeyboardEvent) => {
+      if (event.key !== "Tab") return;
+      const controls = Array.from(
+        sidebarRef.current?.querySelectorAll<HTMLElement>(
+          "a[href],button:not(:disabled)",
+        ) ?? [],
+      ).filter((n) => n.getClientRects().length);
+      const first = controls[0],
+        last = controls.at(-1);
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last?.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first?.focus();
+      }
+    };
+    const resize = () => {
+      if (window.innerWidth > 760) setMobile(false);
+    };
+    window.addEventListener("keydown", keyboard);
+    window.addEventListener("resize", resize);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", keyboard);
+      window.removeEventListener("resize", resize);
+      queueMicrotask(() => {
+        if (window.innerWidth <= 760) menuButtonRef.current?.focus();
+      });
+    };
   }, [mobile]);
   useEffect(() => {
     const path = window.location.pathname;
@@ -436,6 +608,7 @@ export default function Hub() {
     if (mobile) menuButtonRef.current?.focus();
     setMobile(false);
     setEditingEvent(undefined);
+    setReopenEventId(null);
     setEditingForm(undefined);
     setApplication(null);
     setReview(null);
@@ -443,6 +616,7 @@ export default function Hub() {
     setProvision(false);
     setError("");
     setNotice("");
+    window.scrollTo({ top: 0, behavior: "instant" });
   };
   if (loading)
     return (
@@ -502,20 +676,63 @@ export default function Hub() {
     );
   }
   const admin = data.actor.role === "admin";
-  const current = data.semesters.find((s) => s.id === semester);
-  const events = data.events.filter((e) => e.semester_id === semester);
-  const credits = data.credits.filter((c) => c.semester_id === semester);
+  const current = data.pointCycle;
+  const events = data.events;
+  const credits = data.credits.filter((c) => c.cycle_id === current.id);
   const activeCredits = credits.filter((c) => !c.revoked_at);
-  const forms = data.forms.filter((f) => f.semester_id === semester);
+  const forms = data.forms;
   const societies = data.accounts.filter((a) => a.role === "society");
+  const visibleSocieties = societies.filter((a) =>
+    `${a.display_name} ${a.username}`
+      .toLowerCase()
+      .includes(directorySearch.trim().toLowerCase()),
+  );
+  const rosterGroups = groupSocietyRoster(data.roster);
+  const visibleRoster = rosterGroups.filter((group) =>
+    rosterGroupMatches(group, rosterSearch),
+  );
+  const societyActions = (a: Account) => (
+    <div className="actions society-actions">
+      <Button
+        secondary
+        disabled={busy || !a.enabled}
+        aria-label={`Issue setup or reset link for ${a.display_name}`}
+        onClick={async () => {
+          const result = await run<{ username: string; activation: string }>(
+            "admin/activation",
+            { accountId: a.id },
+          );
+          if (result) setActivation(result);
+        }}
+      >
+        Issue setup / reset link
+      </Button>
+      <Button
+        secondary
+        disabled={busy}
+        aria-label={`${a.enabled ? "Disable" : "Enable"} ${a.display_name}`}
+        onClick={() =>
+          void run(
+            "admin/account-status",
+            { accountId: a.id, enabled: !a.enabled },
+            a.enabled ? "Society disabled." : "Society enabled.",
+          )
+        }
+      >
+        {a.enabled ? "Disable" : "Enable"}
+      </Button>
+    </div>
+  );
+
   const totals = (id?: string) =>
     ["PRT", "STANDARD", "HIGH_IMPACT"].map((category) =>
       activeCredits
         .filter((c) => c.category === category && (!id || c.account_id === id))
         .reduce((s, c) => s + c.points, 0),
     );
+  const dashboard = dashboardItems(data, Date.now());
   const title: Record<string, string> = {
-    overview: admin ? "SEC overview" : "Your society, connected.",
+    overview: admin ? "SEC dashboard" : `Hello, ${data.actor.display_name}`,
     events: "Events & check-in",
     applications: "Applications",
     activity: "Attendance & points",
@@ -524,7 +741,7 @@ export default function Hub() {
     settings: "Workspace settings",
   };
   const nav = [
-    { id: "overview", label: "Overview", icon: LayoutDashboard },
+    { id: "overview", label: "Dashboard", icon: LayoutDashboard },
     { id: "events", label: "Events", icon: CalendarDays },
     { id: "applications", label: "Applications", icon: FileText },
     { id: "activity", label: "Attendance & points", icon: History },
@@ -549,6 +766,9 @@ export default function Hub() {
         id="workspace-navigation"
         ref={sidebarRef}
         className={"sidebar " + (mobile ? "open" : "")}
+        role={mobile ? "dialog" : undefined}
+        aria-modal={mobile || undefined}
+        aria-label="Workspace navigation"
       >
         <a href="/" className="brand">
           <img
@@ -621,7 +841,15 @@ export default function Hub() {
           </p>
         </div>
       </aside>
-      <div className="main">
+      {mobile && (
+        <button
+          className="navigation-backdrop"
+          aria-label="Close navigation backdrop"
+          tabIndex={-1}
+          onClick={() => setMobile(false)}
+        />
+      )}
+      <div className="main" inert={mobile}>
         <header className="topbar">
           <button
             ref={menuButtonRef}
@@ -640,41 +868,103 @@ export default function Hub() {
             </span>
           </span>
           <div className="topbar-actions">
-            <label className="semester-select">
-              <CalendarDays size={16} />
-              <span className="sr-only">Viewing semester</span>
-              <select
-                value={semester}
-                onChange={(e) => setSemester(e.target.value)}
-              >
-                {data.semesters.map((s) => (
-                  <option key={s.id} value={s.id}>
-                    {s.name}
-                    {s.is_current ? " · Current" : ""}
-                  </option>
-                ))}
-              </select>
-              <ChevronDown size={14} />
-            </label>
             <button
-              className="icon-button"
+              className={"icon-button" + (refreshing ? " is-refreshing" : "")}
+              disabled={refreshing || busy}
+              aria-busy={refreshing}
               onClick={() => void refresh()}
-              aria-label="Refresh workspace"
+              aria-label={
+                refreshing ? "Refreshing workspace" : "Refresh workspace"
+              }
+              title="Reload the latest workspace data"
             >
               <RefreshCw size={17} />
             </button>
           </div>
         </header>
-        <main id="main-content" className="content">
+        <main
+          id="main-content"
+          tabIndex={-1}
+          className={tab === "overview" ? "content is-dashboard" : "content"}
+        >
           <div className="page-heading">
             <div>
-              <h1>{title[tab]}</h1>
-              <p>
-                {admin
-                  ? "Manage your societies, events, and funding cycle."
-                  : `${data.actor.display_name} · Your home for SEC events and society funding.`}
-              </p>
+              <h1 aria-label={title[tab]}>
+                {!admin && tab === "overview"
+                  ? title[tab].split(/\s+/).map((word, index) => (
+                      <span
+                        key={index}
+                        className={
+                          "greeting-word" +
+                          (!greetingSeen.current ? " greeting-enter" : "")
+                        }
+                        style={{
+                          animationDelay: `${Math.min(index, 10) * 60}ms`,
+                        }}
+                        onAnimationEnd={() => {
+                          greetingSeen.current = true;
+                        }}
+                        aria-hidden="true"
+                      >
+                        {word}{" "}
+                      </span>
+                    ))
+                  : title[tab]}
+              </h1>
+              {(admin || tab !== "overview") && (
+                <p>
+                  {admin
+                    ? (
+                        {
+                          overview:
+                            "Review applications, events, and society requirements.",
+                          events:
+                            "Manage events, check-in windows, and QR codes.",
+                          applications:
+                            "Create and publish funding and collaboration forms.",
+                          activity: "Review attendance and point records.",
+                          societies:
+                            "Manage society access and reconcile contact responses.",
+                          reviews:
+                            "Read applications and send decisions or feedback.",
+                          settings:
+                            "Manage point resets, access, and your SEC password.",
+                        } as Record<string, string>
+                      )[tab]
+                    : (
+                        {
+                          events:
+                            "Find SEC events and check-in windows for your society.",
+                          applications:
+                            "Complete funding and collaboration applications.",
+                          activity:
+                            "Your society’s attendance and earned points.",
+                          settings: "Manage your society’s shared password.",
+                        } as Record<string, string>
+                      )[tab]}
+                </p>
+              )}
             </div>
+            {tab === "overview" && admin && (
+              <Button
+                onClick={() => {
+                  if (dashboard.pendingReviews.length) {
+                    navigate("reviews");
+                    setReview(dashboard.pendingReviews[0]);
+                  } else {
+                    navigate("events");
+                    setEditingEvent(dashboard.upcomingEvents[0] ?? null);
+                  }
+                }}
+              >
+                {dashboard.pendingReviews.length
+                  ? "Review next application"
+                  : dashboard.upcomingEvents.length
+                    ? "Manage next event"
+                    : "Create event"}
+                <ArrowRight size={17} />
+              </Button>
+            )}
             {tab === "events" && admin && editingEvent === undefined && (
               <Button onClick={() => setEditingEvent(null)}>
                 <Plus size={17} />
@@ -708,7 +998,14 @@ export default function Hub() {
           {notice && (
             <div className="alert success" role="status">
               <Check size={18} />
-              {notice}
+              <span className="alert-message">{notice}</span>
+              <button
+                className="icon-button"
+                aria-label="Dismiss confirmation"
+                onClick={() => setNotice("")}
+              >
+                <X size={16} />
+              </button>
             </div>
           )}
           {activation && (
@@ -732,12 +1029,16 @@ export default function Hub() {
               {checkResult ? (
                 <div className="checkin-result">
                   <ShieldCheck size={36} />
-                  <h3>
+                  <h3
+                    id="checkin-result-heading"
+                    tabIndex={-1}
+                    aria-describedby="checkin-result-detail"
+                  >
                     {checkResult.already
                       ? "You’re already checked in."
                       : "You’re checked in."}
                   </h3>
-                  <p>
+                  <p id="checkin-result-detail">
                     {checkResult.event} ·{" "}
                     {checkResult.already
                       ? "No additional points awarded."
@@ -784,69 +1085,68 @@ export default function Hub() {
           )}
           {tab === "overview" && (
             <>
-              <section className="semester-summary">
-                <div>
-                  <h2>
-                    {admin
-                      ? "A clear view of the semester."
-                      : "Your semester at a glance."}
-                  </h2>
-                  <p>
-                    {current?.name ?? "Choose a semester"} ·{" "}
-                    {admin
-                      ? `${societies.filter((s) => s.enabled).length} active societies`
-                      : "Points update automatically after check-in."}
-                  </p>
-                </div>
-                <Pill tone="maroon">
-                  {current?.is_current
-                    ? "Current semester"
-                    : "Semester history"}
-                </Pill>
-              </section>
+              <div className="dashboard-context">
+                <p>
+                  {`Points since ${when(current.started_at)} CT`} ·{" "}
+                  {admin
+                    ? `${societies.filter((s) => s.enabled).length} active societies`
+                    : "Points update automatically after check-in."}
+                </p>
+                <span>Current points</span>
+              </div>
               {!admin ? (
                 <>
-                  <div className="point-trackers">
-                    {["PRT", "STANDARD", "HIGH_IMPACT"].map((cat, i) => (
-                      <section key={cat} className="point-tracker">
-                        <span>{labels[cat]}</span>
-                        <div className="point-value">
-                          {totals()[i]}
-                          <small>
-                            {totals()[i] === 1 ? "point" : "points"}
-                          </small>
+                  {current && (
+                    <PointsSummary
+                      key={current.id}
+                      credits={credits}
+                      cycleId={current.id}
+                      accountId={data.actor.id}
+                      onHistory={() => navigate("activity")}
+                    />
+                  )}
+                  <DashboardSection
+                    title="Upcoming & ongoing events"
+                    count={dashboard.upcomingEvents.length}
+                    emptyText="No upcoming events"
+                    action={
+                      <button
+                        className="text-button"
+                        onClick={() => navigate("events")}
+                      >
+                        View events <ArrowUpRight size={16} />
+                      </button>
+                    }
+                  >
+                    {dashboard.upcomingEvents.length ? (
+                      dashboard.upcomingEvents.slice(0, 3).map((event) => (
+                        <div className="record" key={event.id}>
+                          <div>
+                            <strong>{event.name}</strong>
+                            <small>
+                              {when(event.starts_at)} CT
+                              {event.location && ` · ${event.location}`}
+                            </small>
+                          </div>
+                          <Pill tone="neutral">
+                            {event.category === "PRT"
+                              ? "PRT"
+                              : labels[event.category]}
+                          </Pill>
                         </div>
-                        {cat === "PRT" ? (
-                          <>
-                            <progress
-                              max={1}
-                              value={Math.min(1, totals()[i])}
-                              aria-label="PRT minimum progress"
-                            />
-                            <p className={totals()[i] >= 1 ? "positive" : ""}>
-                              {totals()[i] >= 1 ? (
-                                <>
-                                  <Check size={15} />
-                                  Semester minimum met
-                                </>
-                              ) : (
-                                "1 point needed this semester"
-                              )}
-                            </p>
-                          </>
-                        ) : (
-                          <p>
-                            {cat === "HIGH_IMPACT"
-                              ? "2 points per event · Awarded by SEC"
-                              : "1 point per event · No minimum"}
-                          </p>
-                        )}
-                      </section>
-                    ))}
-                  </div>
+                      ))
+                    ) : (
+                      <Empty title="No upcoming events">
+                        SEC events will appear here when they are scheduled for
+                        the current point period.
+                      </Empty>
+                    )}
+                  </DashboardSection>
                   <div className="dashboard-grid">
-                    <Panel
+                    <DashboardSection
                       title="Recent attendance"
+                      count={credits.length}
+                      emptyText="No attendance recorded yet"
                       action={
                         <button
                           className="text-button"
@@ -880,9 +1180,11 @@ export default function Hub() {
                           earn your first point.
                         </Empty>
                       )}
-                    </Panel>
-                    <Panel
+                    </DashboardSection>
+                    <DashboardSection
                       title="Applications"
+                      count={forms.length}
+                      emptyText="No published applications"
                       action={
                         <button
                           className="text-button"
@@ -922,34 +1224,168 @@ export default function Hub() {
                           applications here.
                         </Empty>
                       )}
-                    </Panel>
+                    </DashboardSection>
                   </div>
                 </>
               ) : (
                 <>
-                  <div className="admin-summary">
-                    <span>
-                      <strong>{events.length}</strong> events this semester
-                    </span>
-                    <span>
-                      <strong>{activeCredits.length}</strong> verified event
-                      credits
-                    </span>
-                    <span>
-                      <strong>
-                        {
-                          data.submissions.filter(
-                            (s) =>
-                              s.status === "SUBMITTED" &&
-                              forms.some((f) => f.id === s.form_id),
-                          ).length
-                        }
-                      </strong>{" "}
-                      applications awaiting review
-                    </span>
+                  <DashboardSection
+                    title="Applications awaiting review"
+                    count={dashboard.pendingReviews.length}
+                    emptyText="Review queue clear"
+                    action={
+                      <button
+                        className="text-button"
+                        onClick={() => navigate("reviews")}
+                      >
+                        Open review queue <ArrowUpRight size={16} />
+                      </button>
+                    }
+                  >
+                    <p className="section-intro">
+                      Oldest submissions appear first.
+                    </p>
+                    {dashboard.pendingReviews.length ? (
+                      dashboard.pendingReviews.slice(0, 5).map((item) => (
+                        <div className="record dashboard-record" key={item.id}>
+                          <div>
+                            <strong>{item.society_name}</strong>
+                            <small>
+                              {item.form_title} · Submitted{" "}
+                              {when(item.submitted_at)} CT
+                            </small>
+                          </div>
+                          <Button
+                            secondary
+                            onClick={() => {
+                              navigate("reviews");
+                              setReview(item);
+                            }}
+                            aria-label={`Review ${item.form_title} from ${item.society_name}`}
+                          >
+                            Review application
+                          </Button>
+                        </div>
+                      ))
+                    ) : (
+                      <Empty title="The review queue is clear">
+                        No submitted applications are waiting for review in this
+                        point period.
+                      </Empty>
+                    )}
+                    {dashboard.pendingReviews.length > 5 && (
+                      <small>
+                        Showing 5 of {dashboard.pendingReviews.length}. Open the
+                        review queue for all submissions.
+                      </small>
+                    )}
+                  </DashboardSection>
+                  <div className="dashboard-grid">
+                    <DashboardSection
+                      title="Upcoming & ongoing events"
+                      count={dashboard.upcomingEvents.length}
+                      emptyText="No upcoming events"
+                      action={
+                        <button
+                          className="text-button"
+                          onClick={() => navigate("events")}
+                        >
+                          All events <ArrowUpRight size={16} />
+                        </button>
+                      }
+                    >
+                      {dashboard.upcomingEvents.length ? (
+                        dashboard.upcomingEvents.slice(0, 5).map((event) => (
+                          <div
+                            className="record dashboard-record"
+                            key={event.id}
+                          >
+                            <div>
+                              <strong>{event.name}</strong>
+                              <small>
+                                {when(event.starts_at)} – {when(event.ends_at)}{" "}
+                                CT
+                              </small>
+                              <small>
+                                {event.category === "HIGH_IMPACT"
+                                  ? "High Impact · SEC awards points manually"
+                                  : event.checkin_open
+                                    ? Date.parse(event.starts_at) > Date.now()
+                                      ? "Check-in scheduled for the event window"
+                                      : "Check-in is live"
+                                    : "Check-in disabled"}
+                              </small>
+                            </div>
+                            <button
+                              className="text-button"
+                              onClick={() => {
+                                navigate("events");
+                                setEditingEvent(event);
+                              }}
+                              aria-label={`Manage ${event.name}`}
+                            >
+                              Manage event <ArrowRight size={16} />
+                            </button>
+                          </div>
+                        ))
+                      ) : (
+                        <Empty title="No upcoming events">
+                          There are no ongoing or upcoming events in this point
+                          period. Add or manage events from the Events tab.
+                        </Empty>
+                      )}
+                      {dashboard.upcomingEvents.length > 5 && (
+                        <small>
+                          Showing the next 5 events. Open All events for the
+                          full schedule.
+                        </small>
+                      )}
+                    </DashboardSection>
+                    <DashboardSection
+                      title="PRT minimum not yet met"
+                      count={dashboard.missingPrt.length}
+                      emptyText="No societies need PRT follow-up"
+                      action={
+                        <button
+                          className="text-button"
+                          onClick={() => navigate("activity")}
+                        >
+                          Attendance & points <ArrowUpRight size={16} />
+                        </button>
+                      }
+                    >
+                      <p className="section-intro">
+                        Enabled societies with less than 1 PRT point. Each
+                        society needs 1 PRT point per point period.
+                      </p>
+                      {dashboard.missingPrt.length ? (
+                        dashboard.missingPrt.slice(0, 5).map((account) => (
+                          <div className="record" key={account.id}>
+                            <div>
+                              <strong>{account.display_name}</strong>
+                              <small>@{account.username}</small>
+                            </div>
+                            <Pill tone="amber">0 / 1 PRT</Pill>
+                          </div>
+                        ))
+                      ) : (
+                        <Empty title="No PRT follow-up needed">
+                          All enabled societies have met the minimum, or no
+                          enabled societies have been added.
+                        </Empty>
+                      )}
+                      {dashboard.missingPrt.length > 5 && (
+                        <small>
+                          Showing 5 of {dashboard.missingPrt.length}. Expand All
+                          society point totals below for every society.
+                        </small>
+                      )}
+                    </DashboardSection>
                   </div>
-                  <Panel
-                    title="Society funding progress"
+                  <DashboardSection
+                    title="Accounts awaiting setup"
+                    count={dashboard.awaitingSetup.length}
+                    emptyText="No accounts awaiting setup"
                     action={
                       <button
                         className="text-button"
@@ -959,87 +1395,179 @@ export default function Hub() {
                       </button>
                     }
                   >
-                    {societies.length ? (
-                      <div
-                        className="table-wrap"
-                        tabIndex={0}
-                        role="region"
-                        aria-label="Scrollable data table"
-                      >
-                        <table>
-                          <thead>
-                            <tr>
-                              <th>Society</th>
-                              <th>PRT</th>
-                              <th>Standard</th>
-                              <th>High Impact</th>
-                              <th>PRT minimum</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {societies.map((a) => {
-                              const t = totals(a.id);
-                              return (
-                                <tr key={a.id}>
-                                  <td>
-                                    <strong>{a.display_name}</strong>
-                                    <small>@{a.username}</small>
-                                  </td>
-                                  {t.map((n, i) => (
-                                    <td key={i}>{n}</td>
-                                  ))}
-                                  <td>
-                                    <Pill tone={t[0] >= 1 ? "green" : "amber"}>
-                                      {t[0] >= 1 ? "Met" : "Not yet met"}
-                                    </Pill>
-                                  </td>
-                                </tr>
-                              );
-                            })}
-                          </tbody>
-                        </table>
-                      </div>
+                    <p className="section-intro">
+                      Across all records. These enabled society accounts have
+                      not set their password.
+                    </p>
+                    {dashboard.awaitingSetup.length ? (
+                      dashboard.awaitingSetup.slice(0, 5).map((account) => (
+                        <div
+                          className="record dashboard-record"
+                          key={account.id}
+                        >
+                          <div>
+                            <strong>{account.display_name}</strong>
+                            <small>@{account.username}</small>
+                          </div>
+                          <Button
+                            secondary
+                            disabled={busy}
+                            onClick={async () => {
+                              const result = await run<{
+                                username: string;
+                                activation: string;
+                              }>("admin/activation", { accountId: account.id });
+                              if (result) {
+                                setActivation(result);
+                                window.scrollTo({
+                                  top: 0,
+                                  behavior: "instant",
+                                });
+                              }
+                            }}
+                            aria-label={`Issue setup link for ${account.display_name}`}
+                          >
+                            Issue setup link
+                          </Button>
+                        </div>
+                      ))
                     ) : (
-                      <Empty title="Bring your societies together">
-                        Open Societies to review the contact roster and issue
-                        account setup links.
+                      <Empty title="Account setup is complete">
+                        No enabled society accounts are waiting to set their
+                        password.
                       </Empty>
                     )}
-                  </Panel>
+                    {dashboard.awaitingSetup.length > 5 && (
+                      <small>
+                        Showing 5 of {dashboard.awaitingSetup.length}. Manage
+                        societies to view all accounts.
+                      </small>
+                    )}
+                  </DashboardSection>
+                  <details className="dashboard-register">
+                    <summary>All society point totals</summary>
+                    <Panel
+                      title="Society funding progress"
+                      action={
+                        <button
+                          className="text-button"
+                          onClick={() => navigate("societies")}
+                        >
+                          Manage societies <ArrowUpRight size={16} />
+                        </button>
+                      }
+                    >
+                      {societies.length ? (
+                        <div
+                          className="table-wrap"
+                          tabIndex={0}
+                          role="region"
+                          aria-label="Scrollable data table"
+                        >
+                          <table>
+                            <thead>
+                              <tr>
+                                <th>Society</th>
+                                <th>PRT</th>
+                                <th>Standard</th>
+                                <th>High Impact</th>
+                                <th>PRT minimum</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {societies.map((a) => {
+                                const t = totals(a.id);
+                                return (
+                                  <tr key={a.id}>
+                                    <td>
+                                      <strong>{a.display_name}</strong>
+                                      <small>@{a.username}</small>
+                                    </td>
+                                    {t.map((n, i) => (
+                                      <td key={i}>{n}</td>
+                                    ))}
+                                    <td>
+                                      <Pill
+                                        tone={t[0] >= 1 ? "green" : "amber"}
+                                      >
+                                        {t[0] >= 1 ? "Met" : "Not yet met"}
+                                      </Pill>
+                                    </td>
+                                  </tr>
+                                );
+                              })}
+                            </tbody>
+                          </table>
+                        </div>
+                      ) : (
+                        <Empty title="Bring your societies together">
+                          Open Societies to review the contact roster and issue
+                          account setup links.
+                        </Empty>
+                      )}
+                    </Panel>
+                  </details>
                 </>
               )}
-              <section className="funding-note">
-                <FileText size={22} />
-                <div>
-                  <h3>One society. One record.</h3>
-                  <p>
-                    PRT and Standard attendance earn one point per event. SEC
-                    awards two points for each qualifying High Impact event. The
-                    PRT minimum is one point per semester.
-                  </p>
-                </div>
-              </section>
             </>
           )}
           {tab === "events" &&
             (editingEvent !== undefined ? (
               <EventEditor
                 initial={editingEvent}
-                semesters={data.semesters}
-                selectedSemester={semester}
+                reopening={reopenEventId === editingEvent?.id}
                 busy={busy}
-                cancel={() => setEditingEvent(undefined)}
+                cancel={() => {
+                  setEditingEvent(undefined);
+                  setReopenEventId(null);
+                }}
                 save={async (body) => {
-                  if (await run("admin/events", body, "Event saved."))
+                  if (
+                    await run(
+                      "admin/events",
+                      body,
+                      reopenEventId
+                        ? "Check-in reopened within the updated window. Existing QR links still work."
+                        : "Event saved.",
+                    )
+                  ) {
                     setEditingEvent(undefined);
+                    setReopenEventId(null);
+                  }
                 }}
               />
             ) : (
               <>
-                <Panel
-                  title={admin ? "Semester events" : "Events this semester"}
-                >
-                  {events.length ? (
+                <div className="events-view-toolbar">
+                  <span>View events</span>
+                  <div
+                    className="view-switch"
+                    role="group"
+                    aria-label="Event view"
+                  >
+                    <button
+                      aria-pressed={eventsView === "list"}
+                      onClick={() => setEventsView("list")}
+                    >
+                      List
+                    </button>
+                    <button
+                      aria-pressed={eventsView === "calendar"}
+                      onClick={() => setEventsView("calendar")}
+                    >
+                      Calendar
+                    </button>
+                  </div>
+                </div>
+                <Panel title={admin ? "Society events" : "Society events"}>
+                  {eventsView === "calendar" && current ? (
+                    <EventCalendar
+                      key={current.id}
+                      events={events}
+                      onEdit={admin ? setEditingEvent : undefined}
+                      onQr={admin ? setQrEvent : undefined}
+                    />
+                  ) : events.length ? (
                     <div className="event-list">
                       {events.map((e) => (
                         <article className="event-row" key={e.id}>
@@ -1095,23 +1623,44 @@ export default function Hub() {
                                   >
                                     QR & link
                                   </Button>
-                                  <Button
-                                    secondary
+                                  <button
+                                    className="event-checkin-toggle"
+                                    aria-pressed={
+                                      e.checkin_open &&
+                                      Date.parse(e.ends_at) > Date.now()
+                                    }
                                     disabled={busy}
-                                    onClick={() =>
+                                    onClick={() => {
+                                      const now = Date.now();
+                                      const enabled =
+                                        e.checkin_open &&
+                                        Date.parse(e.ends_at) > now;
+                                      if (
+                                        !enabled &&
+                                        (Date.parse(e.starts_at) > now ||
+                                          Date.parse(e.ends_at) <= now)
+                                      ) {
+                                        setReopenEventId(e.id);
+                                        setEditingEvent({
+                                          ...e,
+                                          checkin_open: true,
+                                        });
+                                        return;
+                                      }
                                       void run(
                                         "admin/event-checkin",
-                                        { id: e.id, open: !e.checkin_open },
-                                        e.checkin_open
-                                          ? "Check-in disabled."
-                                          : "Check-in enabled within the event window.",
-                                      )
-                                    }
+                                        { id: e.id, open: !enabled },
+                                        enabled
+                                          ? "Check-in closed. You can reopen it from this event."
+                                          : "Check-in reopened. Existing QR links still work.",
+                                      );
+                                    }}
                                   >
-                                    {e.checkin_open
+                                    {e.checkin_open &&
+                                    Date.parse(e.ends_at) > Date.now()
                                       ? "Close check-in"
-                                      : "Open check-in"}
-                                  </Button>
+                                      : "Reopen check-in"}
+                                  </button>
                                 </>
                               )}
                             </div>
@@ -1120,7 +1669,7 @@ export default function Hub() {
                       ))}
                     </div>
                   ) : (
-                    <Empty title="No events in this semester">
+                    <Empty title="No events yet">
                       {admin
                         ? "Create a PRT, Standard, or High Impact event to get started."
                         : "SEC will add upcoming society events here."}
@@ -1134,14 +1683,16 @@ export default function Hub() {
                     }
                     close={() => setQrEvent(null)}
                     rotate={async () => {
-                      await run(
-                        "admin/event-checkin",
-                        {
-                          id: qrEvent.id,
-                          open: qrEvent.checkin_open,
-                          rotate: true,
-                        },
-                        "A new check-in link was generated. Previous links no longer work.",
+                      return Boolean(
+                        await run(
+                          "admin/event-checkin",
+                          {
+                            id: qrEvent.id,
+                            open: qrEvent.checkin_open,
+                            rotate: true,
+                          },
+                          "A new check-in link was generated. Previous links no longer work.",
+                        ),
                       );
                     }}
                     busy={busy}
@@ -1175,9 +1726,47 @@ export default function Hub() {
               >
                 {credits.length ? (
                   <div className="ledger">
+                    <p className="ledger-caption">
+                      {credits.filter((c) => !c.revoked_at).length} active{" "}
+                      {credits.filter((c) => !c.revoked_at).length === 1
+                        ? "record"
+                        : "records"}{" "}
+                      ·{" "}
+                      {credits
+                        .filter((c) => !c.revoked_at)
+                        .reduce((sum, c) => sum + c.points, 0)}{" "}
+                      {credits
+                        .filter((c) => !c.revoked_at)
+                        .reduce((sum, c) => sum + c.points, 0) === 1
+                        ? "point"
+                        : "points"}{" "}
+                      recorded in the current point period
+                    </p>
                     {credits.map((c) => (
-                      <article className="ledger-row" key={c.id}>
-                        <div>
+                      <article
+                        className={
+                          "ledger-row" + (c.revoked_at ? " removed" : "")
+                        }
+                        key={c.id}
+                      >
+                        <div
+                          className="date-block ledger-date"
+                          aria-hidden="true"
+                        >
+                          <span>
+                            {new Intl.DateTimeFormat("en-US", {
+                              month: "short",
+                              timeZone: "America/Chicago",
+                            }).format(new Date(c.created_at))}
+                          </span>
+                          <strong>
+                            {new Intl.DateTimeFormat("en-US", {
+                              day: "numeric",
+                              timeZone: "America/Chicago",
+                            }).format(new Date(c.created_at))}
+                          </strong>
+                        </div>
+                        <div className="ledger-entry">
                           <h3>{c.event_name}</h3>
                           <p>
                             {admin ? `${c.society_name} · ` : ""}
@@ -1191,9 +1780,16 @@ export default function Hub() {
                             {c.note && ` · ${c.note}`}
                           </small>
                         </div>
-                        <Pill tone={c.revoked_at ? "neutral" : "green"}>
-                          {c.revoked_at ? "Removed" : `+${c.points}`}
-                        </Pill>
+                        <div className="ledger-point-value">
+                          {c.revoked_at ? (
+                            <Pill>Removed</Pill>
+                          ) : (
+                            <>
+                              <strong>+{c.points}</strong>
+                              <span>{c.points === 1 ? "point" : "points"}</span>
+                            </>
+                          )}
+                        </div>
                         {admin && (
                           <CreditCorrection
                             id={c.id}
@@ -1218,18 +1814,50 @@ export default function Hub() {
                   </Empty>
                 )}
               </Panel>
+              {data.credits.some((c) => c.cycle_id !== current.id) && (
+                <details className="history-disclosure">
+                  <summary>Previous attendance records</summary>
+                  <div className="record-list">
+                    {data.credits
+                      .filter((c) => c.cycle_id !== current.id)
+                      .map((c) => (
+                        <div className="record" key={c.id}>
+                          <div>
+                            <strong>{c.event_name}</strong>
+                            <small>
+                              {admin ? c.society_name + " · " : ""}
+                              {when(c.created_at)} CT · {labels[c.category]}
+                            </small>
+                          </div>
+                          <Pill>
+                            {c.revoked_at ? "Removed" : `+${c.points} archived`}
+                          </Pill>
+                        </div>
+                      ))}
+                  </div>
+                  <Button secondary onClick={() => exportCredits(data.credits)}>
+                    Export all history
+                  </Button>
+                </details>
+              )}
             </>
           )}
           {tab === "applications" &&
             (editingForm !== undefined ? (
               <FormEditor
                 initial={editingForm}
-                semesters={data.semesters}
-                selectedSemester={semester}
                 busy={busy}
                 cancel={() => setEditingForm(undefined)}
                 save={async (b) => {
-                  if (await run("admin/forms", b, "Application saved."))
+                  if (
+                    await run(
+                      "admin/forms",
+                      b,
+                      b.published
+                        ? "Application published. Societies can now view and submit."
+                        : "Draft saved. Publish it from this list when ready.",
+                    )
+                  )
                     setEditingForm(undefined);
                 }}
               />
@@ -1270,11 +1898,21 @@ export default function Hub() {
                       return (
                         <article className="form-row" key={f.id}>
                           <div>
-                            <Pill tone={closed ? "neutral" : "green"}>
+                            <Pill
+                              tone={
+                                admin && !f.published
+                                  ? "amber"
+                                  : closed
+                                    ? "neutral"
+                                    : "green"
+                              }
+                            >
                               {admin
-                                ? closed
-                                  ? "Closed"
-                                  : "Published"
+                                ? !f.published
+                                  ? "Draft"
+                                  : closed
+                                    ? "Closed"
+                                    : "Published"
                                 : s
                                   ? status(s.status)
                                   : closed
@@ -1283,6 +1921,15 @@ export default function Hub() {
                             </Pill>
                             <h3>{f.title}</h3>
                             <p>{f.description}</p>
+                            {admin && !f.published && (
+                              <p className="draft-hint">
+                                Not published · Not accepting new submissions
+                                {f.deadline &&
+                                Date.parse(f.deadline) <= Date.now()
+                                  ? " · Update the deadline before publishing."
+                                  : ""}
+                              </p>
+                            )}
                             <small>
                               {f.kind === "FUNDING"
                                 ? "Society funding"
@@ -1291,6 +1938,31 @@ export default function Hub() {
                             </small>
                           </div>
                           <div className="actions">
+                            {admin && !f.published && (
+                              <Button
+                                disabled={
+                                  busy ||
+                                  !!(
+                                    f.deadline &&
+                                    Date.parse(f.deadline) <= Date.now()
+                                  )
+                                }
+                                aria-label={`Publish ${f.title}`}
+                                onClick={() =>
+                                  void run(
+                                    "admin/form-publication",
+                                    {
+                                      id: f.id,
+                                      version: f.current_version,
+                                      published: true,
+                                    },
+                                    "Application published. Societies can now view and submit.",
+                                  )
+                                }
+                              >
+                                Publish application
+                              </Button>
+                            )}
                             {admin && (
                               <Button
                                 secondary
@@ -1318,7 +1990,7 @@ export default function Hub() {
                     })}
                   </div>
                 ) : (
-                  <Empty title="No applications in this semester">
+                  <Empty title="No applications yet">
                     {admin
                       ? "Create a form for Society Funding or Cross-collaboration High Impact event approval."
                       : "SEC will publish application forms here when they are ready."}
@@ -1403,96 +2075,119 @@ export default function Hub() {
                   </Button>
                 }
               >
-                {societies.length ? (
-                  <div
-                    className="table-wrap"
-                    tabIndex={0}
-                    role="region"
-                    aria-label="Scrollable data table"
-                  >
-                    <table>
-                      <thead>
-                        <tr>
-                          <th>Society</th>
-                          <th>Account</th>
-                          <th>Actions</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {societies.map((a) => (
-                          <tr key={a.id}>
-                            <td>
-                              <strong>{a.display_name}</strong>
-                              <small>@{a.username}</small>
-                              <details>
-                                <summary>Contact responses</summary>
-                                <ContactInfo contacts={a.contacts} />
-                              </details>
-                            </td>
-                            <td>
-                              <Pill tone={a.enabled ? "green" : "neutral"}>
-                                {a.enabled
-                                  ? a.activated
-                                    ? "Active"
-                                    : "Awaiting setup"
-                                  : "Disabled"}
-                              </Pill>
-                            </td>
-                            <td>
-                              <div className="actions">
-                                <Button
-                                  secondary
-                                  disabled={busy || !a.enabled}
-                                  onClick={async () => {
-                                    const r = await run<{
-                                      username: string;
-                                      activation: string;
-                                    }>("admin/activation", { accountId: a.id });
-                                    if (r) setActivation(r);
-                                  }}
-                                >
-                                  Issue setup / reset link
-                                </Button>
-                                <Button
-                                  secondary
-                                  disabled={busy}
-                                  onClick={() =>
-                                    void run(
-                                      "admin/account-status",
-                                      { accountId: a.id, enabled: !a.enabled },
-                                      a.enabled
-                                        ? "Society disabled."
-                                        : "Society enabled.",
-                                    )
-                                  }
-                                >
-                                  {a.enabled ? "Disable" : "Enable"}
-                                </Button>
-                              </div>
-                            </td>
+                {societies.length > 0 && (
+                  <Field label="Search society accounts">
+                    <input
+                      type="search"
+                      value={directorySearch}
+                      onChange={(e) => setDirectorySearch(e.target.value)}
+                      placeholder="Search name or username"
+                    />
+                  </Field>
+                )}
+                {visibleSocieties.length ? (
+                  <>
+                    <div
+                      className="table-wrap directory-table"
+                      tabIndex={0}
+                      role="region"
+                      aria-label="Society account directory"
+                    >
+                      <table>
+                        <thead>
+                          <tr>
+                            <th scope="col">Society</th>
+                            <th scope="col">Account</th>
+                            <th scope="col">Actions</th>
                           </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
+                        </thead>
+                        <tbody>
+                          {visibleSocieties.map((a) => (
+                            <tr key={a.id}>
+                              <td>
+                                <strong>{a.display_name}</strong>
+                                <small>@{a.username}</small>
+                                <details>
+                                  <summary>Contact responses</summary>
+                                  <ContactInfo contacts={a.contacts} />
+                                </details>
+                              </td>
+                              <td>
+                                <Pill tone={a.enabled ? "green" : "neutral"}>
+                                  {a.enabled
+                                    ? a.activated
+                                      ? "Active"
+                                      : "Awaiting setup"
+                                    : "Disabled"}
+                                </Pill>
+                              </td>
+                              <td>{societyActions(a)}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                    <ul className="mobile-society-list">
+                      {visibleSocieties.map((a) => (
+                        <li key={a.id}>
+                          <div className="mobile-society-heading">
+                            <h3>{a.display_name}</h3>
+                            <Pill tone={a.enabled ? "green" : "neutral"}>
+                              {a.enabled
+                                ? a.activated
+                                  ? "Active"
+                                  : "Awaiting setup"
+                                : "Disabled"}
+                            </Pill>
+                          </div>
+                          <small>@{a.username}</small>
+                          <details>
+                            <summary>Contact responses</summary>
+                            <ContactInfo contacts={a.contacts} />
+                          </details>
+                          {societyActions(a)}
+                        </li>
+                      ))}
+                    </ul>
+                  </>
                 ) : (
-                  <Empty title="No society accounts yet">
-                    Select roster responses below or add a society manually.
+                  <Empty
+                    title={
+                      societies.length
+                        ? "No matching society accounts"
+                        : "No society accounts yet"
+                    }
+                  >
+                    {societies.length
+                      ? "Try another name or username."
+                      : "Select roster responses below or add a society manually."}
                   </Empty>
                 )}
               </Panel>
               <Panel
-                title={`Contact roster review · ${data.roster.length} unassigned responses`}
+                title={`Contact roster review · ${rosterGroups.length} societies`}
               >
                 <p className="section-intro">
-                  Select all responses that belong to one society, then create
-                  one account. Original names and contacts are retained. Review
-                  name variations before combining.
+                  Repeated names and known aliases are grouped into one society.
+                  Select a society to include all its contact responses, then
+                  create one account. Expand Contacts to review the originals.
                 </p>
                 {data.roster.length ? (
                   <>
+                    <Field label="Search contact roster">
+                      <input
+                        type="search"
+                        value={rosterSearch}
+                        onChange={(e) => setRosterSearch(e.target.value)}
+                        placeholder="Search society name or contact"
+                      />
+                    </Field>
                     <div className="roster-toolbar">
-                      <span>{selectedRoster.length} selected</span>
+                      <span aria-live="polite">
+                        {selectedRoster.length} responses selected ·{" "}
+                        {visibleRoster.length} of {rosterGroups.length}{" "}
+                        societies shown
+                      </span>
                       <Button
                         disabled={!selectedRoster.length}
                         onClick={() => setProvision(true)}
@@ -1501,39 +2196,76 @@ export default function Hub() {
                       </Button>
                       <button
                         className="text-button"
+                        disabled={!selectedRoster.length}
                         onClick={() => setSelectedRoster([])}
                       >
                         Clear selection
                       </button>
                     </div>
+                    {!visibleRoster.length && (
+                      <Empty title="No matching contact responses">
+                        Try another society name or contact email. Your selected
+                        responses are preserved.
+                      </Empty>
+                    )}
                     <div className="roster-list">
-                      {data.roster.map((r) => (
-                        <div className="roster-row" key={r.id}>
-                          <label>
-                            <input
-                              type="checkbox"
-                              checked={selectedRoster.includes(r.id)}
-                              onChange={(e) =>
-                                setSelectedRoster(
-                                  e.target.checked
-                                    ? [...selectedRoster, r.id]
-                                    : selectedRoster.filter(
-                                        (id) => id !== r.id,
-                                      ),
-                                )
-                              }
-                            />
-                            <span>
-                              <strong>{r.name}</strong>
-                              <small>{r.source_timestamp}</small>
-                            </span>
-                          </label>
-                          <details>
-                            <summary>Contacts</summary>
-                            <ContactInfo contacts={r.contacts} />
-                          </details>
-                        </div>
-                      ))}
+                      {visibleRoster.map((group) => {
+                        const ids = group.responses.map((r) => r.id);
+                        const allSelected = ids.every((id) =>
+                          selectedRoster.includes(id),
+                        );
+                        const partiallySelected =
+                          !allSelected &&
+                          ids.some((id) => selectedRoster.includes(id));
+                        return (
+                          <div className="roster-row" key={group.id}>
+                            <label>
+                              <input
+                                type="checkbox"
+                                checked={allSelected}
+                                ref={(node) => {
+                                  if (node)
+                                    node.indeterminate = partiallySelected;
+                                }}
+                                onChange={(e) =>
+                                  setSelectedRoster((selected) =>
+                                    e.target.checked
+                                      ? [...new Set([...selected, ...ids])]
+                                      : selected.filter(
+                                          (id) => !ids.includes(id),
+                                        ),
+                                  )
+                                }
+                              />
+                              <span>
+                                <strong>{group.name}</strong>
+                                <small>
+                                  {group.responses.length} contact{" "}
+                                  {group.responses.length === 1
+                                    ? "response"
+                                    : "responses"}
+                                </small>
+                              </span>
+                            </label>
+                            <details>
+                              <summary>Contacts</summary>
+                              {group.responses.map((response) => (
+                                <div
+                                  className="roster-response"
+                                  key={response.id}
+                                >
+                                  <p>
+                                    {response.source_timestamp}
+                                    {response.name !== group.name &&
+                                      ` · Submitted as ${response.name}`}
+                                  </p>
+                                  <ContactInfo contacts={response.contacts} />
+                                </div>
+                              ))}
+                            </details>
+                          </div>
+                        );
+                      })}
                     </div>
                   </>
                 ) : (
@@ -1580,9 +2312,20 @@ export default function Hub() {
               />
               {admin && (
                 <>
-                  <SemesterManager data={data} busy={busy} run={run} />
+                  <PointReset data={data} busy={busy} run={run} />
                   <Allowlist data={data} busy={busy} run={run} />
-                  <Panel title="Recent administrative activity">
+                  <details className="panel audit-disclosure">
+                    <summary>
+                      <span>Recent administrative activity</span>
+                      <small>
+                        {data.audit.length}{" "}
+                        {data.audit.length === 1 ? "entry" : "entries"}
+                      </small>
+                      <ChevronDown size={18} aria-hidden="true" />
+                    </summary>
+                    {!data.audit.length && (
+                      <p>No administrative activity recorded.</p>
+                    )}
                     <div className="record-list">
                       {data.audit.map((a) => (
                         <div className="record" key={a.id}>
@@ -1601,7 +2344,7 @@ export default function Hub() {
                         </div>
                       ))}
                     </div>
-                  </Panel>
+                  </details>
                 </>
               )}
             </>
@@ -1641,42 +2384,19 @@ function AuthScreen({
           />
           <span>SocietyHub</span>
         </a>
-        <div>
-          <h1>
-            Engineering is better
-            <br />
-            together.
-          </h1>
-          <p>
-            The shared home for Texas A&M’s engineering societies and the
-            Student Engineers’ Council.
-          </p>
-          <div className="auth-topics">
-            <span>Society funding</span>
-            <span>Event check-in</span>
-            <span>Cross-collaboration</span>
-          </div>
-        </div>
-        <p className="auth-footer">
-          Built around your society. Connected through SEC.
+        <p className="auth-description">
+          The home for Texas A&M engineering societies and SEC.
         </p>
       </section>
       <section className="auth-main">
         <div className="auth-form">
-          <img
-            src="/sec-logo.png"
-            alt="Student Engineers’ Council"
-            width={48}
-            height={48}
-            className="auth-mark brand-logo"
-          />
-          <h2>
+          <h1>
             {activate
               ? "Set your account password"
               : checkin
                 ? "Sign in to check in"
                 : "Welcome to SocietyHub"}
-          </h2>
+          </h1>
           <p>
             {activate
               ? "Your society can share this password with its authorized officers."
@@ -1750,15 +2470,23 @@ function AuthScreen({
             </Button>
           </form>
           <div className="auth-help">
-            <strong>
-              {activate
-                ? "Link not working?"
-                : "New society or forgot your password?"}
-            </strong>
-            <p>
-              Ask an SEC chair for a one-time account setup or password reset
-              link.
-            </p>
+            <span className="auth-help-icon" aria-hidden="true">
+              <KeyRound size={17} />
+            </span>
+            <div>
+              <strong>
+                {activate
+                  ? "Link not working?"
+                  : "New society or forgot your password?"}
+              </strong>
+              <p>Request a one-time setup or password reset link.</p>
+              <a
+                className="auth-help-action"
+                href="mailto:society@sec.tamu.edu?subject=SocietyHub%20account%20help"
+              >
+                Contact an SEC chair <ArrowRight size={17} aria-hidden="true" />
+              </a>
+            </div>
           </div>
         </div>
       </section>
@@ -1797,8 +2525,7 @@ function CopyLink({ value }: CopyLinkProps) {
 }
 function EventEditor({
   initial,
-  semesters,
-  selectedSemester,
+  reopening = false,
   busy,
   cancel,
   save,
@@ -1807,34 +2534,60 @@ function EventEditor({
     [description, setDescription] = useState(initial?.description ?? ""),
     [location, setLocation] = useState(initial?.location ?? ""),
     [category, setCategory] = useState(initial?.category ?? "PRT"),
-    [semester, setSemester] = useState(
-      initial?.semester_id ?? selectedSemester,
-    ),
     [start, setStart] = useState(initial ? localDate(initial.starts_at) : ""),
     [end, setEnd] = useState(initial ? localDate(initial.ends_at) : ""),
     [open, setOpen] = useState(initial?.checkin_open ?? false);
+  const [windowError, setWindowError] = useState("");
   return (
-    <Panel title={initial ? "Edit event" : "Create event"}>
+    <Panel
+      title={
+        reopening
+          ? "Reopen event check-in"
+          : initial
+            ? "Edit event"
+            : "Create event"
+      }
+    >
+      {reopening && (
+        <p className="section-intro">
+          Choose a window that includes the current time to reopen check-in.
+          Existing QR links and earned points are preserved.
+        </p>
+      )}
+      {windowError && (
+        <p className="alert error" role="alert">
+          {windowError}
+        </p>
+      )}
       <form
         className="editor-form"
         onSubmit={(e) => {
           e.preventDefault();
+          setWindowError("");
+          if (
+            reopening &&
+            (Date.parse(start) > Date.now() || Date.parse(end) <= Date.now())
+          ) {
+            setWindowError(
+              "To reopen now, choose a start time at or before now and an end time in the future.",
+            );
+            return;
+          }
           void save({
             id: initial?.id,
-            semesterId: semester,
             name,
             description,
             location,
             category,
             startsAt: new Date(start).toISOString(),
             endsAt: new Date(end).toISOString(),
-            checkinOpen: open,
+            checkinOpen: reopening || open,
           });
         }}
       >
         <Field label="Event name">
           <input
-            autoFocus
+            autoFocus={!reopening}
             required
             maxLength={200}
             value={name}
@@ -1842,20 +2595,6 @@ function EventEditor({
           />
         </Field>
         <div className="form-grid">
-          <Field label="Semester">
-            <select
-              disabled={!!initial}
-              value={semester}
-              onChange={(e) => setSemester(e.target.value)}
-              required
-            >
-              {semesters.map((s) => (
-                <option key={s.id} value={s.id}>
-                  {s.name}
-                </option>
-              ))}
-            </select>
-          </Field>
           <Field label="Event category">
             <select
               disabled={!!initial}
@@ -1896,21 +2635,34 @@ function EventEditor({
             <input
               required
               type="datetime-local"
+              max={reopening ? localDate(new Date().toISOString()) : undefined}
               value={start}
               onChange={(e) => setStart(e.target.value)}
             />
           </Field>
-          <Field label="Check-in window ends">
+          <Field
+            label="Check-in window ends"
+            hint={reopening ? "Choose an end time in the future." : undefined}
+          >
             <input
               required
               type="datetime-local"
-              min={start}
+              autoFocus={reopening}
+              min={
+                reopening
+                  ? localDate(
+                      new Date(
+                        Math.max(Date.parse(start) || 0, Date.now()),
+                      ).toISOString(),
+                    )
+                  : start
+              }
               value={end}
               onChange={(e) => setEnd(e.target.value)}
             />
           </Field>
         </div>
-        {category !== "HIGH_IMPACT" && (
+        {category !== "HIGH_IMPACT" && !reopening && (
           <label className="check-field">
             <input
               type="checkbox"
@@ -1923,78 +2675,182 @@ function EventEditor({
         <FormActions
           busy={busy}
           onCancel={cancel}
-          label={initial ? "Save event" : "Create event"}
+          label={
+            reopening
+              ? "Reopen check-in"
+              : initial
+                ? "Save event"
+                : "Create event"
+          }
         />
       </form>
     </Panel>
   );
 }
 function QRPanel({ event, close, rotate, busy }: QRPanelProps) {
-  const [src, setSrc] = useState(""),
-    [error, setError] = useState("");
-  const link = `${window.location.origin}/checkin/${event.id}?token=${event.checkin_token}`;
+  const dialog = useRef<HTMLDialogElement>(null);
   useEffect(() => {
+    const opener = document.activeElement as HTMLElement | null;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const modal = dialog.current;
+    modal?.showModal();
+    return () => {
+      modal?.close();
+      document.body.style.overflow = previousOverflow;
+      if (opener?.isConnected) opener.focus({ preventScroll: true });
+    };
+  }, []);
+  const [qr, setQr] = useState<{ link: string; src: string } | null>(null),
+    [error, setError] = useState(""),
+    [replacement, setReplacement] = useState<{
+      ok: boolean;
+      message: string;
+    } | null>(null);
+  const link = `${window.location.origin}/checkin/${event.id}?token=${event.checkin_token}`;
+  const src = qr?.link === link ? qr.src : "";
+  const filename = `${
+    event.name
+      .toLowerCase()
+      .normalize("NFKD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-|-$/g, "")
+      .slice(0, 70) || "event"
+  }-check-in.png`;
+  useEffect(() => {
+    let active = true;
+    setError("");
     void QRCode.toDataURL(link, {
+      type: "image/png",
       width: QR_SIZE_PX,
       margin: QR_MARGIN_MODULES,
       errorCorrectionLevel: "M",
       color: { dark: QR_DARK, light: QR_LIGHT },
     })
-      .then(setSrc)
-      .catch(() =>
-        setError("Unable to generate QR code. Use the sign-in link below."),
-      );
+      .then((src) => {
+        if (active) setQr({ link, src });
+      })
+      .catch(() => {
+        if (active)
+          setError("Unable to generate QR code. Use the sign-in link below.");
+      });
+    return () => {
+      active = false;
+    };
   }, [link]);
   return (
-    <Panel
-      title={`Check-in · ${event.name}`}
-      action={
-        <button
-          className="icon-button"
-          onClick={close}
-          aria-label="Close QR panel"
-        >
-          <X />
-        </button>
-      }
+    <dialog
+      ref={dialog}
+      className="qr-modal"
+      onKeyDown={(e) => {
+        if (e.key !== "Tab") return;
+        const controls = Array.from(
+          e.currentTarget.querySelectorAll<HTMLElement>(
+            'button:not(:disabled), a[href], input:not(:disabled), [tabindex="0"]',
+          ),
+        ).filter((n) => n.getClientRects().length);
+        const first = controls[0],
+          last = controls.at(-1);
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last?.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first?.focus();
+        }
+      }}
+      aria-label={`Check-in · ${event.name}`}
+      onCancel={close}
+      onClick={(e) => {
+        if (e.target !== e.currentTarget) return;
+        const rect = e.currentTarget.getBoundingClientRect();
+        if (
+          e.clientX < rect.left ||
+          e.clientX > rect.right ||
+          e.clientY < rect.top ||
+          e.clientY > rect.bottom
+        )
+          close();
+      }}
     >
-      <div className="qr-layout">
-        {src && (
-          <img
-            src={src}
-            width={260}
-            height={260}
-            alt={`Check-in QR code for ${event.name}`}
-          />
-        )}
-        <div>
-          <p>Display this QR code at the event or share the sign-in link.</p>
-          <p>
-            {when(event.starts_at)} – {when(event.ends_at)} CT
-          </p>
-          <Pill tone={event.checkin_open ? "green" : "neutral"}>
-            {event.checkin_open
-              ? "Enabled within event window"
-              : "Check-in disabled"}
-          </Pill>
-          {error && <p role="alert">{error}</p>}
-          <CopyLink value={link} />
-          <div className="actions">
-            <a
-              className="button secondary"
-              href={link}
-              target="_blank"
-              rel="noreferrer"
-            >
-              Open sign-in link <ExternalLink size={15} />
-            </a>
-            <Button secondary disabled={busy} onClick={() => void rotate()}>
-              Replace link & QR
-            </Button>
+      <Panel
+        title={`Check-in · ${event.name}`}
+        action={
+          <button
+            className="icon-button"
+            onClick={close}
+            aria-label="Close QR panel"
+          >
+            <X />
+          </button>
+        }
+      >
+        <div className="qr-layout">
+          {src && (
+            <img
+              src={src}
+              width={260}
+              height={260}
+              alt={`Check-in QR code for ${event.name}`}
+            />
+          )}
+          <div>
+            <p>Display this QR code at the event or share the sign-in link.</p>
+            <p>
+              {when(event.starts_at)} – {when(event.ends_at)} CT
+            </p>
+            <Pill tone={event.checkin_open ? "green" : "neutral"}>
+              {event.checkin_open
+                ? "Enabled within event window"
+                : "Check-in disabled"}
+            </Pill>
+            {error && <p role="alert">{error}</p>}
+            {replacement && (
+              <p
+                className="qr-feedback"
+                role={replacement.ok ? "status" : "alert"}
+              >
+                {replacement.message}
+              </p>
+            )}
+            <CopyLink value={link} />
+            <div className="actions">
+              {src && (
+                <a className="button" href={src} download={filename}>
+                  <Download size={16} aria-hidden="true" />
+                  Download PNG
+                </a>
+              )}
+              <a
+                className="button secondary"
+                href={link}
+                target="_blank"
+                rel="noreferrer"
+              >
+                Open sign-in link <ExternalLink size={15} />
+              </a>
+              <Button
+                secondary
+                disabled={busy}
+                onClick={async () => {
+                  setReplacement(null);
+                  const ok = await rotate();
+                  setReplacement({
+                    ok,
+                    message: ok
+                      ? "New link created. Previous links and QR codes no longer work."
+                      : "Couldn’t confirm the replacement. Reload the workspace before sharing this QR code.",
+                  });
+                }}
+              >
+                Replace link & QR
+              </Button>
+            </div>
           </div>
         </div>
-      </div>
-    </Panel>
+      </Panel>
+    </dialog>
   );
 }
 function ManualAward({ events, societies, busy, save }: ManualAwardProps) {
@@ -2103,21 +2959,10 @@ function CreditCorrection({ id, revoked, busy, save }: CreditCorrectionProps) {
     </div>
   );
 }
-function FormEditor({
-  initial,
-  semesters,
-  selectedSemester,
-  busy,
-  cancel,
-  save,
-}: FormEditorProps) {
+function FormEditor({ initial, busy, cancel, save }: FormEditorProps) {
   const [title, setTitle] = useState(initial?.title ?? ""),
     [description, setDescription] = useState(initial?.description ?? ""),
     [kind, setKind] = useState(initial?.kind ?? "FUNDING"),
-    [semester, setSemester] = useState(
-      initial?.semester_id ?? selectedSemester,
-    ),
-    [published, setPublished] = useState(initial?.published ?? false),
     [deadline, setDeadline] = useState(
       initial?.deadline ? localDate(initial.deadline) : "",
     ),
@@ -2149,15 +2994,22 @@ function FormEditor({
         className="editor-form"
         onSubmit={(e) => {
           e.preventDefault();
+          const submitter = (e.nativeEvent as SubmitEvent)
+            .submitter as HTMLButtonElement | null;
+          const publish = submitter
+            ? submitter.value === "publish"
+            : !!initial?.published;
           void save({
             id: initial?.id,
-            semesterId: semester,
             title,
             description,
             kind,
-            published,
+            published: publish,
             deadline: deadline ? new Date(deadline).toISOString() : null,
-            questions,
+            questions: questions.map((q) => ({
+              ...q,
+              options: ["select", "checkbox"].includes(q.type) ? q.options : [],
+            })),
           });
         }}
       >
@@ -2171,20 +3023,6 @@ function FormEditor({
           />
         </Field>
         <div className="form-grid">
-          <Field label="Semester">
-            <select
-              required
-              disabled={!!initial}
-              value={semester}
-              onChange={(e) => setSemester(e.target.value)}
-            >
-              {semesters.map((s) => (
-                <option key={s.id} value={s.id}>
-                  {s.name}
-                </option>
-              ))}
-            </select>
-          </Field>
           <Field label="Application type">
             <select
               disabled={!!initial}
@@ -2261,16 +3099,73 @@ function FormEditor({
                 </label>
               </div>
               {["select", "checkbox"].includes(q.type) && (
-                <Field label="Choices (one per line)">
-                  <textarea
-                    required
-                    rows={4}
-                    value={q.options.join("\n")}
-                    onChange={(e) =>
-                      update(i, { options: e.target.value.split("\n") })
-                    }
-                  />
-                </Field>
+                <div
+                  className="choice-options"
+                  role="group"
+                  aria-label={`Choices for question ${i + 1}`}
+                >
+                  {(q.options.length ? q.options : [""]).map(
+                    (option, optionIndex, options) => (
+                      <div className="choice-option-row" key={optionIndex}>
+                        <Field label={`Choice ${optionIndex + 1}`}>
+                          <input
+                            id={`choice-${q.id}-${optionIndex}`}
+                            required
+                            maxLength={200}
+                            value={option}
+                            onChange={(e) =>
+                              update(i, {
+                                options: options.map((value, index) =>
+                                  index === optionIndex
+                                    ? e.target.value
+                                    : value,
+                                ),
+                              })
+                            }
+                          />
+                        </Field>
+                        <button
+                          type="button"
+                          className="icon-button"
+                          disabled={options.length === 1}
+                          aria-label={`Remove choice ${optionIndex + 1} from question ${i + 1}`}
+                          onClick={() => {
+                            update(i, {
+                              options: options.filter(
+                                (_, index) => index !== optionIndex,
+                              ),
+                            });
+                            requestAnimationFrame(() =>
+                              document
+                                .getElementById(
+                                  `choice-${q.id}-${Math.max(0, optionIndex - 1)}`,
+                                )
+                                ?.focus(),
+                            );
+                          }}
+                        >
+                          <Trash2 size={17} />
+                        </button>
+                      </div>
+                    ),
+                  )}
+                  <Button
+                    secondary
+                    disabled={q.options.length >= 30}
+                    onClick={() => {
+                      const options = q.options.length ? q.options : [""];
+                      update(i, { options: [...options, ""] });
+                      requestAnimationFrame(() =>
+                        document
+                          .getElementById(`choice-${q.id}-${options.length}`)
+                          ?.focus(),
+                      );
+                    }}
+                  >
+                    <Plus size={15} /> Add choice
+                  </Button>
+                  <small>Up to 30 choices, 200 characters each.</small>
+                </div>
               )}
               <div className="actions">
                 <button
@@ -2308,7 +3203,7 @@ function FormEditor({
         </div>
         <Button
           secondary
-          disabled={questions.length >= 50}
+          disabled={questions.length >= MAX_QUESTIONS}
           onClick={() =>
             setQuestions([
               ...questions,
@@ -2325,15 +3220,37 @@ function FormEditor({
           <Plus size={16} />
           Add question
         </Button>
-        <label className="check-field">
-          <input
-            type="checkbox"
-            checked={published}
-            onChange={(e) => setPublished(e.target.checked)}
-          />
-          Publish for societies to view and submit
-        </label>
-        <FormActions busy={busy} onCancel={cancel} label="Save application" />
+        <div className="publication-actions">
+          <p>
+            {initial?.published
+              ? "Save changes to the published form, or unpublish it to return to a draft."
+              : "Save a draft to keep a new application private, then publish it here or from the application list."}
+          </p>
+          <div className="actions">
+            {initial?.published ? (
+              <>
+                <Button type="submit" value="publish" disabled={busy}>
+                  Save published changes
+                </Button>
+                <Button secondary type="submit" value="draft" disabled={busy}>
+                  Unpublish and save draft
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button secondary type="submit" value="draft" disabled={busy}>
+                  Save draft
+                </Button>
+                <Button type="submit" value="publish" disabled={busy}>
+                  Publish application
+                </Button>
+              </>
+            )}
+            <Button secondary onClick={cancel} disabled={busy}>
+              Cancel
+            </Button>
+          </div>
+        </div>
       </form>
     </Panel>
   );
@@ -2459,78 +3376,144 @@ function ApplicationView({
         </Button>
       }
     >
-      <p className="section-intro">{form.description}</p>
-      <div className="inline">
-        <Pill>
-          {admin
-            ? "Admin preview"
-            : existing
-              ? status(existing.status)
-              : closed
-                ? "Closed"
-                : "Not started"}
-        </Pill>
-        <small>
-          Question version {existing?.form_version ?? form.current_version}
-          {form.deadline && ` · Due ${when(form.deadline)} CT`}
-        </small>
-      </div>
-      {existing?.review_note && (
-        <div className="review-note">
-          <h3>SEC feedback</h3>
-          <p>{existing.review_note}</p>
+      <div className="application-content">
+        <p className="section-intro">{form.description}</p>
+        <div className="application-meta">
+          <Pill
+            tone={
+              existing?.status === "APPROVED"
+                ? "green"
+                : existing?.status === "SUBMITTED" ||
+                    existing?.status === "UNDER_REVIEW"
+                  ? "rose"
+                  : "neutral"
+            }
+          >
+            {admin
+              ? "Admin preview"
+              : existing
+                ? status(existing.status)
+                : closed
+                  ? "Closed"
+                  : "Not started"}
+          </Pill>
+          <small>
+            Question version {existing?.form_version ?? form.current_version}
+            {form.deadline && ` · Due ${when(form.deadline)} CT`}
+          </small>
         </div>
-      )}
-      {form.kind === "HIGH_IMPACT" && (
-        <p>
-          Event approval and point awards are separate. SEC records High Impact
-          points manually.
-        </p>
-      )}
-      <form
-        className="editor-form"
-        onSubmit={(e) => {
-          e.preventDefault();
-          void persist(true);
-        }}
-      >
-        <Field
-          label="Confirmation email"
-          hint="We’ll send a receipt here when you submit. An officer’s personal email is fine."
-        >
-          <input
-            type="email"
-            autoComplete="email"
-            maxLength={254}
-            value={confirmationEmail}
-            onChange={(e) => setConfirmationEmail(e.target.value)}
-            disabled={readOnly || busy}
-          />
-        </Field>
-        <ReceiptStatus submission={existing} />
-        <AnswerFields
-          questions={questions}
-          answers={answers}
-          setAnswers={setAnswers}
-          disabled={readOnly || busy}
-        />
-        {!readOnly && (
-          <div className="actions">
-            <Button
-              secondary
-              disabled={busy}
-              onClick={() => void persist(false)}
-            >
-              Save draft
-            </Button>
-            <Button type="submit" disabled={busy}>
-              {busy ? "Saving…" : "Submit application"}
-              <ArrowRight size={16} />
-            </Button>
+        {existing?.review_note && (
+          <div className="review-note">
+            <h3>SEC feedback</h3>
+            <p>{existing.review_note}</p>
           </div>
         )}
-        {savedAt && <small>Last saved {when(savedAt)} CT</small>}
-      </form>
+        {form.kind === "HIGH_IMPACT" && (
+          <p>
+            Event approval and point awards are separate. SEC records High
+            Impact points manually.
+          </p>
+        )}
+        {existing &&
+        !admin &&
+        !["DRAFT", "CHANGES_REQUESTED"].includes(existing.status) ? (
+          <div className="application-submitted">
+            <section
+              className="application-receipt"
+              aria-label="Submission details"
+            >
+              <div>
+                <Check size={18} aria-hidden="true" />
+                <strong>Application submitted</strong>
+              </div>
+              {existing.submitted_at && (
+                <p>Submitted {when(existing.submitted_at)} CT</p>
+              )}
+              <ReceiptStatus submission={existing} />
+              {!existing.confirmation_status && (
+                <p>
+                  Confirmation email:{" "}
+                  {existing.confirmation_email || "Not provided"}
+                </p>
+              )}
+            </section>
+            <h3>Your responses</h3>
+            <dl className="application-responses">
+              {questions.map((q) => {
+                const value = answers[q.id];
+                return (
+                  <div key={q.id}>
+                    <dt>{q.label}</dt>
+                    <dd>
+                      {Array.isArray(value) ? (
+                        value.length ? (
+                          <ul>
+                            {value.map((option, index) => (
+                              <li key={index}>
+                                <Check size={15} aria-hidden="true" />
+                                {option}
+                              </li>
+                            ))}
+                          </ul>
+                        ) : (
+                          "No answer provided"
+                        )
+                      ) : (
+                        value || "No answer provided"
+                      )}
+                    </dd>
+                  </div>
+                );
+              })}
+            </dl>
+          </div>
+        ) : (
+          <form
+            className="editor-form"
+            onSubmit={(e) => {
+              e.preventDefault();
+              void persist(true);
+            }}
+          >
+            <Field
+              label="Confirmation email"
+              hint="We’ll send a receipt here when you submit. An officer’s personal email or a society email works."
+            >
+              <input
+                type="email"
+                autoComplete="email"
+                maxLength={254}
+                value={confirmationEmail}
+                onChange={(e) => setConfirmationEmail(e.target.value)}
+                disabled={readOnly || busy}
+              />
+            </Field>
+            <ReceiptStatus submission={existing} />
+            <AnswerFields
+              questions={questions}
+              answers={answers}
+              setAnswers={setAnswers}
+              disabled={readOnly || busy}
+            />
+            {!readOnly && (
+              <div className="actions">
+                <Button
+                  secondary
+                  disabled={busy}
+                  onClick={() => void persist(false)}
+                >
+                  Save draft
+                </Button>
+                <Button type="submit" disabled={busy}>
+                  {busy ? "Saving…" : "Submit application"}
+                  <ArrowRight size={16} />
+                </Button>
+              </div>
+            )}
+            {savedAt && <small>Last saved {when(savedAt)} CT</small>}
+          </form>
+        )}
+      </div>
     </Panel>
   );
 }
@@ -2627,7 +3610,7 @@ function ReviewView({
   );
 }
 function ProvisionForm({ selected, busy, cancel, save }: ProvisionFormProps) {
-  const [name, setName] = useState(selected[0]?.name ?? ""),
+  const [name, setName] = useState(groupSocietyRoster(selected)[0]?.name ?? ""),
     [username, setUsername] = useState("");
   return (
     <Panel title="Create society account">
@@ -2636,9 +3619,10 @@ function ProvisionForm({ selected, busy, cancel, save }: ProvisionFormProps) {
           ? `${selected.length} selected contact responses will be attached to this account. Confirm they all belong to the same society.`
           : "Create an account for a society not yet in the contact roster."}
       </p>
-      {selected.map((s) => (
-        <p key={s.id}>
-          {s.name} · {s.source_timestamp}
+      {groupSocietyRoster(selected).map((group) => (
+        <p key={group.id}>
+          {group.name} · {group.responses.length} contact{" "}
+          {group.responses.length === 1 ? "response" : "responses"}
         </p>
       ))}
       <form
@@ -2746,101 +3730,90 @@ function PasswordForm({ busy, save }: PasswordFormProps) {
     </Panel>
   );
 }
-function SemesterManager({ data, busy, run }: SemesterManagerProps) {
-  const [name, setName] = useState(""),
-    [start, setStart] = useState(""),
-    [end, setEnd] = useState(""),
-    [current, setCurrent] = useState(false);
+function PointReset({ data, busy, run }: PointResetProps) {
+  const dialog = useRef<HTMLDialogElement>(null);
+  const [confirmation, setConfirmation] = useState("");
+  const [failure, setFailure] = useState("");
+  const records = data.credits.filter(
+    (c) => c.cycle_id === data.pointCycle.id && !c.revoked_at,
+  );
+  const close = () => dialog.current?.close();
   return (
-    <Panel title="Semesters">
-      <div className="record-list">
-        {data.semesters.map((s) => (
-          <div className="record" key={s.id}>
-            <div>
-              <strong>{s.name}</strong>
-              <small>
-                {String(s.starts_on).slice(0, 10)} –{" "}
-                {String(s.ends_on).slice(0, 10)}
-              </small>
-            </div>
-            {s.is_current ? (
-              <Pill tone="green">Current</Pill>
-            ) : (
-              <Button
-                secondary
-                disabled={busy}
-                onClick={() =>
-                  void run(
-                    "admin/current-semester",
-                    { id: s.id },
-                    "Current semester changed. Historical points are preserved.",
-                  )
-                }
-              >
-                Make current
-              </Button>
-            )}
-          </div>
-        ))}
-      </div>
-      <form
-        className="editor-form"
-        onSubmit={async (e) => {
-          e.preventDefault();
-          if (
-            await run(
-              "admin/semesters",
-              { name, startsOn: start, endsOn: end, current },
-              "Semester created.",
-            )
-          ) {
-            setName("");
-            setStart("");
-            setEnd("");
-          }
+    <Panel title="Reset society points">
+      <p className="section-intro">
+        Start a new point period when SEC is ready. All societies return to
+        zero; attendance history, events, applications, and existing QR links
+        are preserved.
+      </p>
+      <Button
+        secondary
+        onClick={() => {
+          setConfirmation("");
+          setFailure("");
+          dialog.current?.showModal();
         }}
       >
-        <h3>Add semester</h3>
-        <Field label="Semester name">
-          <input
-            required
-            placeholder="Spring 2027"
-            value={name}
-            maxLength={200}
-            onChange={(e) => setName(e.target.value)}
-          />
-        </Field>
-        <div className="form-grid">
-          <Field label="Start date">
+        Reset all society points
+      </Button>
+      <dialog
+        ref={dialog}
+        className="reset-modal"
+        aria-labelledby="reset-title"
+        onCancel={(e) => {
+          if (busy) e.preventDefault();
+        }}
+        onClick={(e) => {
+          if (e.target === e.currentTarget && !busy) close();
+        }}
+      >
+        <h2 id="reset-title">Reset all society points?</h2>
+        <p>
+          This archives {records.length} attendance records worth{" "}
+          {records.reduce((sum, c) => sum + c.points, 0)} points. Every society
+          starts at zero. Archived records remain available in attendance
+          history.
+        </p>
+        <form
+          onSubmit={async (e) => {
+            e.preventDefault();
+            const result = await run(
+              "admin/reset-points",
+              { currentCycleId: data.pointCycle.id, confirmation },
+              "Society points reset. Previous attendance is preserved.",
+            );
+            if (result) close();
+            else
+              setFailure(
+                "Couldn’t confirm the reset. Close and refresh before retrying.",
+              );
+          }}
+        >
+          <Field label="Type RESET POINTS to confirm">
             <input
-              required
-              type="date"
-              value={start}
-              onChange={(e) => setStart(e.target.value)}
+              autoComplete="off"
+              value={confirmation}
+              onChange={(e) => setConfirmation(e.target.value)}
+              disabled={busy}
             />
           </Field>
-          <Field label="End date">
-            <input
-              required
-              type="date"
-              min={start}
-              value={end}
-              onChange={(e) => setEnd(e.target.value)}
-            />
-          </Field>
-        </div>
-        <label className="check-field">
-          <input
-            type="checkbox"
-            checked={current}
-            onChange={(e) => setCurrent(e.target.checked)}
-          />
-          Make this the current semester
-        </label>
-        <Button type="submit" disabled={busy}>
-          Add semester
-        </Button>
-      </form>
+          {failure && (
+            <p role="alert" className="alert error">
+              {failure}
+            </p>
+          )}
+          <div className="button-row">
+            <Button secondary type="button" disabled={busy} onClick={close}>
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              disabled={busy || confirmation !== "RESET POINTS"}
+            >
+              Reset points
+            </Button>
+          </div>
+        </form>
+      </dialog>
     </Panel>
   );
 }

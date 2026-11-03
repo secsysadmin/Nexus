@@ -6,7 +6,7 @@ A shared workspace for Texas A&M engineering student organizations and the Stude
 
 - Shared society username/password accounts; single-use setup and reset links, hashed passwords, revocable HTTP-only sessions, and server-side SEC authorization.
 - SEC username/password administrator account. Google OAuth is a future integration; a TAMU email whitelist can be maintained now but does not yet grant access.
-- Semester-specific attendance and point history: **PRT 1**, **Standard 1**, **High Impact 2**. PRT has a one-point semester minimum; other categories have no minimum.
+- Attendance and point history: **PRT 1**, **Standard 1**, **High Impact 2**. PRT has a one-point minimum per point period; other categories have no minimum. SEC chairs reset totals manually from Settings & audit when a new semester begins, preserving previous attendance.
 - SEC-created events with QR/sign-in links and configurable check-in windows. Successful PRT and Standard check-ins award credit immediately. Database constraints prevent duplicate society/event credits, including concurrent check-ins.
 - Manual SEC High Impact awards, reasoned credit removals/restorations, and an audit trail.
 - Admin-created application forms with short/long text, numeric, single-choice, and checkbox questions. Versioned questions, saved drafts, submission conflict detection, review decisions, revision requests, and society-visible feedback. Approval does not award points.
@@ -33,9 +33,9 @@ npm run db:setup
 npm run dev
 ```
 
-Setup creates `nexus_dev` / `nexus_prod` schemas, separate `nexus_dev_app` / `nexus_prod_app` runtime roles, a `sec` administrator in each environment, and an initial current semester. It generates ignored `.env.dev.local`, `.env.prod.local`, and `.env.local` files. Credentials and one-time links are never committed. Setup links are written to `work/initial-access.md` unless `ACCESS_OUTPUT` specifies another private file. Open the correct app domain followed by the setup path, choose a password, and sign in as `sec`. Links expire after seven days and can be used once.
+Setup creates `nexus_dev` / `nexus_prod` schemas, separate `nexus_dev_app` / `nexus_prod_app` runtime roles, a `sec` administrator in each environment, and an initial point period. It generates ignored `.env.dev.local`, `.env.prod.local`, and `.env.local` files. Credentials and one-time links are never committed. Setup links are written to `work/initial-access.md` unless `ACCESS_OUTPUT` specifies another private file. Open the correct app domain followed by the setup path, choose a password, and sign in as `sec`. Links expire after seven days and can be used once.
 
-Setup is repeatable and checks migration checksums. It does not reset passwords or overwrite a previous access file when no new links are issued. Keep the generated runtime credential files; setup refuses to rotate existing roles if their local credentials are missing. Do not run setup concurrently. The initial semester is a convenience default; SEC should confirm its dates under Settings.
+Setup is repeatable and checks migration checksums. It does not reset passwords or overwrite a previous access file when no new links are issued. Keep the generated runtime credential files; setup refuses to rotate existing roles if their local credentials are missing. Do not run setup concurrently. Existing attendance is backfilled into point periods without changing earned credit. Internal legacy grouping remains for database compatibility; it is not a user setting.
 
 The local app uses development by default. If port 3000 is occupied, Next prints its selected port; use that origin for activation links and QR codes.
 
@@ -47,7 +47,7 @@ Stage the supplied CSV into production without copying contact data into Git:
 npm run roster:stage -- '/absolute/path/to/contacts.csv' --prod
 ```
 
-Omit `--prod` for development. Re-importing identical responses is idempotent. In **SEC → Societies**, inspect responses, select rows belonging to the same ESO, confirm the display name, and choose a unique username. Creating the account retains every selected contact response and issues a private setup link. Do not automatically merge ambiguous society names. Contacts are only returned to SEC and the owning society account.
+Omit `--prod` for development. Re-importing identical responses is idempotent. In **SEC → Societies**, repeated names and known aliases appear as one society entry with a contact-response count. Expand Contacts to inspect original names, dates, and contacts. Selecting a society includes every response in that group; search matches all its aliases and contacts. Confirm the display name and choose a unique username before provisioning. Creating the account retains every selected contact response and issues a private setup link. Do not automatically merge ambiguous society names. Contacts are only returned to SEC and the owning society account.
 
 ## Vercel deployment
 
@@ -62,7 +62,7 @@ Set variables **by Vercel environment**:
 
 Use the pooled Neon endpoints generated by setup. `NEXUS_DATABASE_URL` takes precedence over an integration-managed `DATABASE_URL`; local development can continue using `DATABASE_URL`. Do not upload the database owner URL or `.env.setup.local` to Vercel. Preview builds are blocked from selecting the production schema, production builds require the production schema, and the restricted roles have no access to the opposite schema. Local production access requires explicitly setting `ALLOW_PRODUCTION_DATABASE=true` and using production credentials. Avoid using local production for development.
 
-After deploying, open the **production** SEC setup path on the production domain. Create/reconcile society accounts, set the correct semester, author application forms, and create events. Preview and production use independent accounts and check-in links. Set event times in your device timezone; event displays use America/Chicago. The check-in link grants no account access; officers still sign in before confirming attendance.
+After deploying, open the **production** SEC setup path on the production domain. Create/reconcile society accounts, author application forms, and create events. Preview and production use independent accounts and check-in links. Set event times in your device timezone; event displays use America/Chicago. The check-in link grants no account access; officers still sign in before confirming attendance.
 
 Deployment is deliberately separate from `next build`: builds do not run migrations, provision accounts, or touch live data. Add a new numbered SQL migration for schema changes; run setup rather than editing an applied migration. Keep this environment’s backup and restore plan in Neon.
 
@@ -85,7 +85,7 @@ NEXUS_TEST_BASE_URL=http://localhost:3001 npm run test:e2e
 
 ## Reference and scope
 
-Kraken informed the check-in, application-builder, draft, and access-control workflows. SocietyHub’s requirements are authoritative: credit belongs to an ESO, uses the three fixed funding categories, resets by semester without deleting history, and High Impact awards are manual. Google OAuth, file uploads, event reminders and decision emails, funding disbursement, and institution-managed single sign-on are not implemented.
+Kraken informed the check-in, application-builder, draft, and access-control workflows. SocietyHub’s requirements are authoritative: credit belongs to an ESO, uses the three fixed funding categories, resets manually at the chairs’ discretion without deleting history, and High Impact awards are manual. Google OAuth, file uploads, event reminders and decision emails, funding disbursement, and institution-managed single sign-on are not implemented.
 
 See `docs/architecture.md` for data and authorization details.
 
@@ -100,3 +100,11 @@ The application records confirmation status. SEC can retry a failed, pending, or
 ## Login motion
 
 The left login panel renders flowing maroon silk ribbons using a local WebGL shader. Animation pauses while the page is hidden, is capped at 30fps and a 1.5 pixel ratio, becomes a static frame for reduced-motion preferences, and retains a CSS fallback when WebGL is unavailable. No video, tracking, or external animation service is used.
+
+### Manual point resets and reopening check-in
+
+SEC chairs use **Settings & audit → Reset all society points** and type `RESET POINTS` to confirm. This archives the current point period and starts everyone at zero. Events, applications, QR links, and attendance history remain. Previous records are available under **Attendance & points → Previous attendance records**; CSV export includes an all-history option. A reset never permits a second credit for the same society/event. Reset and point-award transactions share a lock so each new award belongs to exactly one period. Stale reset requests are rejected.
+
+Closed check-in can be reopened from Events. If its window has passed, **Reopen check-in** opens the event editor to choose a window that includes now. The existing QR code remains valid. High Impact events continue to require manual SEC awards.
+
+The interface uses a locally hosted Geist variable font, distinct heading/label/metadata roles, and reduced-motion alternatives for the greeting and point animations. Confirmation emails use table-based inline styling and email-safe sans-serif fallbacks.

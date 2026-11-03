@@ -2,23 +2,25 @@ import { type PoolClient } from "pg";
 import type { Actor } from "./service";
 export async function getData(db: PoolClient, actor: Actor) {
   const admin = actor.role === "admin";
-  const semesters = (
-    await db.query("SELECT * FROM semesters ORDER BY starts_on DESC")
-  ).rows;
+  const {
+    rows: [pointCycle],
+  } = await db.query(
+    "SELECT id,started_at,ended_at,is_current FROM point_cycles WHERE is_current",
+  );
   const events = (
     await db.query(
-      `SELECT id,semester_id,name,description,location,category,starts_at,ends_at,checkin_open${admin ? ",checkin_token" : ""} FROM events ORDER BY starts_at DESC`,
+      `SELECT id,name,description,location,category,starts_at,ends_at,checkin_open${admin ? ",checkin_token" : ""} FROM events ORDER BY starts_at DESC`,
     )
   ).rows;
   const credits = (
     await db.query(
-      `SELECT c.*,e.name event_name,e.semester_id,a.display_name society_name FROM credits c JOIN events e ON e.id=c.event_id JOIN accounts a ON a.id=c.account_id ${admin ? "" : "WHERE c.account_id=$1"} ORDER BY c.created_at DESC`,
+      `SELECT c.*,e.name event_name,a.display_name society_name FROM credits c JOIN events e ON e.id=c.event_id JOIN accounts a ON a.id=c.account_id ${admin ? "" : "WHERE c.account_id=$1"} ORDER BY c.created_at DESC`,
       admin ? [] : [actor.id],
     )
   ).rows;
   const forms = (
     await db.query(
-      `SELECT f.*,v.questions FROM forms f JOIN form_versions v ON v.form_id=f.id AND v.version=f.current_version ${admin ? "" : "WHERE f.published OR EXISTS(SELECT 1 FROM submissions s WHERE s.form_id=f.id AND s.account_id=$1)"} ORDER BY f.created_at DESC`,
+      `SELECT f.id,f.title,f.description,f.kind,f.published,f.deadline,f.current_version,f.created_at,v.questions FROM forms f JOIN form_versions v ON v.form_id=f.id AND v.version=f.current_version ${admin ? "" : "WHERE f.published OR EXISTS(SELECT 1 FROM submissions s WHERE s.form_id=f.id AND s.account_id=$1)"} ORDER BY f.created_at DESC`,
       admin ? [] : [actor.id],
     )
   ).rows;
@@ -53,7 +55,7 @@ export async function getData(db: PoolClient, actor: Actor) {
     : [];
   return {
     actor,
-    semesters,
+    pointCycle,
     events,
     credits,
     forms,

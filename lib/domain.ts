@@ -2,6 +2,7 @@ import { z } from "zod";
 export const MAX_ANSWER_LENGTH = 20000;
 export const MAX_OPTION_LENGTH = 200;
 export const MAX_OPTIONS = 30;
+export const MAX_QUESTIONS = 50;
 const HIGH_IMPACT_POINTS = 2;
 const STANDARD_POINTS = 1;
 export const MAX_EMAIL_ATTEMPTS = 5;
@@ -45,7 +46,7 @@ export const questionSchema = z
 export const questionsSchema = z
   .array(questionSchema)
   .min(1)
-  .max(50)
+  .max(MAX_QUESTIONS)
   .refine((q) => new Set(q.map((x) => x.id)).size === q.length, {
     message: "Question IDs must be unique",
   });

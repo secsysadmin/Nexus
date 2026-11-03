@@ -258,7 +258,7 @@ function databaseErrorResponse(error: unknown) {
   if (!error || typeof error !== "object" || !("code" in error)) return null;
   if (error.code === UNIQUE_VIOLATION)
     return json(
-      { error: "That username, semester, or event credit already exists." },
+      { error: "That username or event credit already exists." },
       409,
     );
   if (error.code === FOREIGN_KEY_VIOLATION)
