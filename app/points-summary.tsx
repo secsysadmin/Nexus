@@ -72,7 +72,7 @@ export default function PointsSummary({
                         {labels[category]}
                         <small>
                           {category === "HIGH_IMPACT"
-                            ? "2 points per event · Awarded by SEC"
+                            ? "2 points per event"
                             : "1 point per event"}
                         </small>
                       </span>

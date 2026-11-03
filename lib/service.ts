@@ -73,7 +73,7 @@ export async function checkIn(db: PoolClient, actor: Actor, input: unknown) {
       "This check-in link is invalid. Ask SEC for the current link.",
     );
   if (event.category === "HIGH_IMPACT")
-    throw new AppError("SEC awards High Impact credit manually.");
+    throw new AppError("QR check-in is unavailable for High Impact events.");
   const existing = await db.query(
     "SELECT id,revoked_at FROM credits WHERE account_id=$1 AND event_id=$2",
     [actor.id, event.id],

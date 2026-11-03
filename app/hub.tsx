@@ -37,6 +37,8 @@ import {
 import QRCode from "qrcode";
 import MaroonRibbons from "./maroon-ribbons";
 import PointsSummary from "./points-summary";
+import LoadingSkeleton from "./loading-skeleton";
+import { checkinStatus } from "../lib/checkin-status";
 import EventCalendar from "./event-calendar";
 import { dashboardItems } from "../lib/dashboard";
 import { groupSocietyRoster, rosterGroupMatches } from "../lib/society-roster";
@@ -491,20 +493,7 @@ export default function Hub() {
     setNotice("");
     window.scrollTo({ top: 0, behavior: "instant" });
   };
-  if (loading)
-    return (
-      <main className="standalone" aria-busy="true">
-        <img
-          src="/sec-logo.png"
-          alt="Student Engineers’ Council"
-          width={48}
-          height={48}
-          className="brand-logo"
-        />
-        <h1>SocietyHub</h1>
-        <p>Opening your workspace…</p>
-      </main>
-    );
+  if (loading) return <LoadingSkeleton />;
   if (route.mode === "activate")
     return (
       <AuthScreen
@@ -1181,12 +1170,8 @@ export default function Hub() {
                               </small>
                               <small>
                                 {event.category === "HIGH_IMPACT"
-                                  ? "High Impact · SEC awards points manually"
-                                  : event.checkin_open
-                                    ? Date.parse(event.starts_at) > Date.now()
-                                      ? "Check-in scheduled for the event window"
-                                      : "Check-in is live"
-                                    : "Check-in disabled"}
+                                  ? "High Impact · 2 points"
+                                  : checkinStatus(event)}
                               </small>
                             </div>
                             <button
@@ -1400,7 +1385,7 @@ export default function Hub() {
                       "admin/events",
                       body,
                       reopenEventId
-                        ? "Check-in reopened within the updated window. Existing QR links still work."
+                        ? "Check-in enabled for the updated dates. Existing QR links still work."
                         : "Event saved.",
                     )
                   ) {
@@ -1476,8 +1461,8 @@ export default function Hub() {
                             </small>
                             <small>
                               {e.category === "HIGH_IMPACT"
-                                ? "2 points · SEC awards manually"
-                                : `1 point · Check-in ${e.checkin_open ? "enabled" : "disabled"}`}
+                                ? "2 points"
+                                : `1 point · ${checkinStatus(e)}`}
                             </small>
                           </div>
                           {admin && (
@@ -1497,7 +1482,7 @@ export default function Hub() {
                                     QR & link
                                   </Button>
                                   <button
-                                    className="event-checkin-toggle"
+                                    className="button secondary event-checkin-toggle"
                                     aria-pressed={
                                       e.checkin_open &&
                                       Date.parse(e.ends_at) > Date.now()
@@ -1510,8 +1495,7 @@ export default function Hub() {
                                         Date.parse(e.ends_at) > now;
                                       if (
                                         !enabled &&
-                                        (Date.parse(e.starts_at) > now ||
-                                          Date.parse(e.ends_at) <= now)
+                                        Date.parse(e.ends_at) <= now
                                       ) {
                                         setReopenEventId(e.id);
                                         setEditingEvent({
@@ -1524,15 +1508,15 @@ export default function Hub() {
                                         "admin/event-checkin",
                                         { id: e.id, open: !enabled },
                                         enabled
-                                          ? "Check-in closed. You can reopen it from this event."
-                                          : "Check-in reopened. Existing QR links still work.",
+                                          ? "Check-in paused. Use Enable check-in on this event to turn it back on."
+                                          : "Check-in enabled. Existing QR links still work.",
                                       );
                                     }}
                                   >
                                     {e.checkin_open &&
                                     Date.parse(e.ends_at) > Date.now()
-                                      ? "Close check-in"
-                                      : "Reopen check-in"}
+                                      ? "Pause check-in"
+                                      : "Enable check-in"}
                                   </button>
                                 </>
                               )}
@@ -1648,7 +1632,7 @@ export default function Hub() {
                           <small>
                             {when(c.created_at)} CT ·{" "}
                             {c.source === "MANUAL"
-                              ? "Manual SEC award"
+                              ? "High Impact credit"
                               : "QR / link check-in"}
                             {c.note && ` · ${c.note}`}
                           </small>
@@ -1682,7 +1666,7 @@ export default function Hub() {
                   </div>
                 ) : (
                   <Empty title="No attendance recorded">
-                    Event attendance and manual awards will appear here with
+                    Event attendance and point awards will appear here with
                     their point values.
                   </Empty>
                 )}
@@ -2430,7 +2414,7 @@ function EventEditor({
     <Panel
       title={
         reopening
-          ? "Reopen event check-in"
+          ? "Enable event check-in"
           : initial
             ? "Edit event"
             : "Create event"
@@ -2438,8 +2422,8 @@ function EventEditor({
     >
       {reopening && (
         <p className="section-intro">
-          Choose a window that includes the current time to reopen check-in.
-          Existing QR links and earned points are preserved.
+          To enable check-in now, set a start time at or before now and an end
+          time in the future. Existing QR links and earned points are preserved.
         </p>
       )}
       {windowError && (
@@ -2491,9 +2475,7 @@ function EventEditor({
             >
               <option value="PRT">PRT · 1 point</option>
               <option value="STANDARD">Standard · 1 point</option>
-              <option value="HIGH_IMPACT">
-                High Impact · 2 points, manual SEC award
-              </option>
+              <option value="HIGH_IMPACT">High Impact · 2 points</option>
             </select>
           </Field>
         </div>
@@ -2548,21 +2530,48 @@ function EventEditor({
           </Field>
         </div>
         {category !== "HIGH_IMPACT" && !reopening && (
-          <label className="check-field">
-            <input
-              type="checkbox"
-              checked={open}
-              onChange={(e) => setOpen(e.target.checked)}
-            />
-            Enable check-in within this window
-          </label>
+          <fieldset className="checkin-settings">
+            <legend>QR and link check-in</legend>
+            <label className="checkin-choice">
+              <input
+                type="radio"
+                name="checkin-status"
+                checked={open}
+                onChange={() => setOpen(true)}
+              />
+              <span>
+                <strong>Enabled</strong>
+                <small>
+                  Societies can check in between the start and end times above.
+                </small>
+              </span>
+            </label>
+            <label className="checkin-choice">
+              <input
+                type="radio"
+                name="checkin-status"
+                checked={!open}
+                onChange={() => setOpen(false)}
+              />
+              <span>
+                <strong>Paused</strong>
+                <small>
+                  The QR code and link will not accept new check-ins.
+                </small>
+              </span>
+            </label>
+            <p>
+              You can change this here at any time, or use Enable check-in in
+              the Events list. Existing attendance is kept.
+            </p>
+          </fieldset>
         )}
         <FormActions
           busy={busy}
           onCancel={cancel}
           label={
             reopening
-              ? "Reopen check-in"
+              ? "Enable check-in"
               : initial
                 ? "Save event"
                 : "Create event"
@@ -2621,7 +2630,7 @@ function QRPanel({
       width: 1024,
       margin: 3,
       errorCorrectionLevel: "M",
-      color: { dark: "#500000", light: "#ffffff" },
+      color: { dark: "#000000", light: "#ffffff" },
     })
       .then((src) => {
         if (active) setQr({ link, src });
@@ -2682,6 +2691,13 @@ function QRPanel({
         }
       >
         <div className="qr-layout">
+          {!src && !error && (
+            <div
+              className="skeleton skeleton-qr"
+              role="status"
+              aria-label="Preparing QR code"
+            />
+          )}
           {src && (
             <img
               src={src}
@@ -2695,10 +2711,12 @@ function QRPanel({
             <p>
               {when(event.starts_at)} – {when(event.ends_at)} CT
             </p>
-            <Pill tone={event.checkin_open ? "green" : "neutral"}>
-              {event.checkin_open
-                ? "Enabled within event window"
-                : "Check-in disabled"}
+            <Pill
+              tone={
+                checkinStatus(event) === "Check-in open" ? "green" : "neutral"
+              }
+            >
+              {checkinStatus(event)}
             </Pill>
             {error && <p role="alert">{error}</p>}
             {replacement && (
@@ -3344,10 +3362,7 @@ function ApplicationView({
           </div>
         )}
         {form.kind === "HIGH_IMPACT" && (
-          <p>
-            Event approval and point awards are separate. SEC records High
-            Impact points manually.
-          </p>
+          <p>Event approval and point awards are separate.</p>
         )}
         {existing &&
         !admin &&

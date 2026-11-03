@@ -3,6 +3,7 @@ import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight, Clock, MapPin } from "lucide-react";
 import type { Event } from "../lib/types";
 import { labels } from "../lib/domain";
+import { checkinStatus } from "../lib/checkin-status";
 import {
   calendarDays,
   centralDay,
@@ -294,16 +295,15 @@ export default function EventCalendar({
                   <span
                     className={
                       "calendar-checkin-status" +
-                      (event.checkin_open && event.category !== "HIGH_IMPACT"
+                      (checkinStatus(event) === "Check-in open" &&
+                      event.category !== "HIGH_IMPACT"
                         ? " enabled"
                         : "")
                     }
                   >
                     {event.category === "HIGH_IMPACT"
-                      ? "Points awarded manually by SEC"
-                      : event.checkin_open
-                        ? "Check-in enabled during this window"
-                        : "Check-in disabled"}
+                      ? "High Impact event"
+                      : checkinStatus(event)}
                   </span>
                 </div>
                 {onEdit && (
