@@ -38,6 +38,7 @@ import {
 } from "./application-management";
 import MaroonRibbons from "./maroon-ribbons";
 import PointsSummary from "./points-summary";
+import AdminInsights from "./admin-insights";
 import ContactEditor from "./contact-editor";
 import LoadingSkeleton from "./loading-skeleton";
 import { confirmDiscard } from "./unsaved-changes";
@@ -1293,6 +1294,13 @@ export default function Hub() {
                 </>
               ) : (
                 <>
+                  <AdminInsights
+                    data={data}
+                    counts={dashboardCounts}
+                    onActivity={() => navigate("activity")}
+                    onSocieties={() => navigate("societies")}
+                    onReviews={() => navigate("reviews")}
+                  />
                   <DashboardSection
                     title="Applications awaiting review"
                     count={dashboardCounts.pendingReviews}
