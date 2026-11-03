@@ -1,5 +1,5 @@
 "use client";
-import { Check, Circle, ArrowUpRight } from "lucide-react";
+import { Check, Circle, ArrowRight } from "lucide-react";
 import { labels } from "../lib/domain";
 import { pointHistory, pointCategories } from "../lib/point-history";
 import type { Credit, Semester } from "../lib/types";
@@ -29,21 +29,17 @@ export default function SemesterPoints({
       <div className="section-head">
         <h2>Semester points</h2>
         <button className="text-button" onClick={onHistory}>
-          Attendance history <ArrowUpRight size={16} />
+          Attendance history <ArrowRight size={16} />
         </button>
       </div>
       <div className="points-summary-layout">
         <div className="points-ledger">
           <div className="points-ledger-heading">
-            <h3>Points by category</h3>
             <strong>
               {total}
-              <span> total points</span>
+              <span> total {total === 1 ? "point" : "points"}</span>
             </strong>
           </div>
-          <p className="points-ledger-note">
-            Bars show each category’s share of your earned points.
-          </p>
           <table className="points-summary-table">
             <thead>
               <tr>
@@ -62,10 +58,17 @@ export default function SemesterPoints({
                         style={{ color: colors[category] }}
                         aria-hidden="true"
                       >
-                        {category === "PRT" && met ? (
-                          <Check size={19} />
+                        {category === "PRT" ? (
+                          met ? (
+                            <Check size={18} />
+                          ) : (
+                            <Circle size={16} />
+                          )
                         ) : (
-                          <Circle size={16} />
+                          <span
+                            className="points-dot"
+                            style={{ background: colors[category] }}
+                          />
                         )}
                       </span>
                       <span>
@@ -139,10 +142,6 @@ export default function SemesterPoints({
               "1 PRT point still needed"
             )}
           </strong>
-          <p>
-            Only PRT has a semester minimum. Standard and High Impact points
-            have no minimum.
-          </p>
         </div>
       </div>
     </section>

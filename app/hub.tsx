@@ -57,6 +57,38 @@ const when = (s: string) =>
     timeZone: "America/Chicago",
   }).format(new Date(s));
 const status = (s: string) => s.toLowerCase().replaceAll("_", " ");
+const sentence = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
+const statusLabel = (s: string) => sentence(status(s));
+const dateOnly = (s: string) =>
+  new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    timeZone: "UTC",
+  }).format(new Date(s.slice(0, 10) + "T00:00:00Z"));
+const rosterDate = (s: string) => {
+  const d = new Date(s);
+  return Number.isNaN(d.getTime())
+    ? s
+    : new Intl.DateTimeFormat("en-US", {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+        hour: "numeric",
+        minute: "2-digit",
+      }).format(d);
+};
+const initials = (name: string) =>
+  name
+    .replace(/\(.*?\)/g, "")
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((w) => w[0])
+    .join("")
+    .toUpperCase() || "?";
+const normalizeName = (n: string) =>
+  n.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
 const localDate = (s: string) => {
   const d = new Date(s);
   return new Date(d.getTime() - d.getTimezoneOffset() * 60000)
@@ -124,6 +156,32 @@ function Pill({
   tone?: string;
 }) {
   return <span className={"pill " + tone}>{children}</span>;
+}
+function TableWrap({ children }: { children: ReactNode }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [overflow, setOverflow] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const check = () => setOverflow(el.scrollWidth > el.clientWidth + 1);
+    check();
+    const observer = new ResizeObserver(check);
+    observer.observe(el);
+    if (el.firstElementChild) observer.observe(el.firstElementChild);
+    return () => observer.disconnect();
+  }, []);
+  return (
+    <div
+      ref={ref}
+      className="table-wrap"
+      data-overflow={overflow}
+      tabIndex={0}
+      role="region"
+      aria-label="Scrollable data table"
+    >
+      {children}
+    </div>
+  );
 }
 function Panel({
   title,
@@ -264,6 +322,11 @@ export default function Hub() {
     eventId: string;
   }>({ mode: "home", token: "", eventId: "" });
   const greetingSeen = useRef(false);
+  useEffect(() => {
+    if (!notice) return;
+    const timer = window.setTimeout(() => setNotice(""), 6000);
+    return () => window.clearTimeout(timer);
+  }, [notice]);
   const [eventsView, setEventsView] = useState<"list" | "calendar">("list");
   const [editingEvent, setEditingEvent] = useState<Event | null | undefined>(),
     [editingForm, setEditingForm] = useState<Form | null | undefined>(),
@@ -272,6 +335,7 @@ export default function Hub() {
     [qrEvent, setQrEvent] = useState<Event | null>(null),
     [provision, setProvision] = useState(false),
     [selectedRoster, setSelectedRoster] = useState<string[]>([]),
+    [rosterQuery, setRosterQuery] = useState(""),
     [activation, setActivation] = useState<{
       username: string;
       activation: string;
@@ -469,6 +533,66 @@ export default function Hub() {
         .reduce((s, c) => s + c.points, 0),
     );
   const dashboard = dashboardItems(data, semester, Date.now());
+  const totalsTable = (
+    <TableWrap>
+                          <table>
+                            <thead>
+                              <tr>
+                                <th>Society</th>
+                                <th>PRT</th>
+                                <th>Standard</th>
+                                <th>High Impact</th>
+                                <th>PRT minimum</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {societies.map((a) => {
+                                const t = totals(a.id);
+                                return (
+                                  <tr key={a.id}>
+                                    <td>
+                                      <strong>{a.display_name}</strong>
+                                      <small>@{a.username}</small>
+                                    </td>
+                                    {t.map((n, i) => (
+                                      <td key={i}>{n}</td>
+                                    ))}
+                                    <td>
+                                      <Pill
+                                        tone={t[0] >= 1 ? "green" : "amber"}
+                                      >
+                                        {t[0] >= 1 ? "Met" : "Not yet met"}
+                                      </Pill>
+                                    </td>
+                                  </tr>
+                                );
+                              })}
+                            </tbody>
+                          </table>
+</TableWrap>
+  );
+  const rosterGroups = (() => {
+    const groups = new Map<
+      string,
+      { key: string; name: string; rows: HubData["roster"] }
+    >();
+    for (const r of data.roster) {
+      const key = normalizeName(r.name);
+      const group = groups.get(key);
+      if (group) group.rows.push(r);
+      else groups.set(key, { key, name: r.name, rows: [r] });
+    }
+    const q = rosterQuery.trim().toLowerCase();
+    return Array.from(groups.values()).filter(
+      (g) => !q || g.rows.some((r) => r.name.toLowerCase().includes(q)),
+    );
+  })();
+  const reviewQueue = data.submissions.filter(
+    (x) => x.status !== "DRAFT" && forms.some((f) => f.id === x.form_id),
+  );
+  const reviewIndex = review
+    ? reviewQueue.findIndex((x) => x.id === review.id)
+    : -1;
   const title: Record<string, string> = {
     overview: admin ? "SEC dashboard" : `Hello, ${data.actor.display_name}`,
     events: "Events & check-in",
@@ -563,7 +687,7 @@ export default function Hub() {
         <div className="sidebar-bottom">
           <div className="identity">
             <div className="avatar">
-              {admin ? "SEC" : data.actor.username.slice(0, 2).toUpperCase()}
+              {admin ? "SEC" : initials(data.actor.display_name)}
             </div>
             <span>
               <strong>{data.actor.display_name}</strong>
@@ -663,6 +787,10 @@ export default function Hub() {
                   if (dashboard.pendingReviews.length) {
                     navigate("reviews");
                     setReview(dashboard.pendingReviews[0]);
+                  } else if (!societies.some((a) => a.enabled)) {
+                    navigate("societies");
+                    setProvision(true);
+                    setSelectedRoster([]);
                   } else {
                     navigate("events");
                     setEditingEvent(dashboard.upcomingEvents[0] ?? null);
@@ -671,9 +799,11 @@ export default function Hub() {
               >
                 {dashboard.pendingReviews.length
                   ? "Review next application"
-                  : dashboard.upcomingEvents.length
-                    ? "Manage next event"
-                    : "Create event"}
+                  : !societies.some((a) => a.enabled)
+                    ? "Add society"
+                    : dashboard.upcomingEvents.length
+                      ? "Manage next event"
+                      : "Create event"}
                 <ArrowRight size={17} />
               </Button>
             )}
@@ -706,6 +836,13 @@ export default function Hub() {
             <div className="alert success" role="status">
               <Check size={18} />
               {notice}
+              <button
+                className="icon-button"
+                aria-label="Dismiss message"
+                onClick={() => setNotice("")}
+              >
+                <X size={16} />
+              </button>
             </div>
           )}
           {activation && (
@@ -904,7 +1041,7 @@ export default function Hub() {
                             <span>
                               <strong>{f.title}</strong>
                               <small>
-                                {status(
+                                {statusLabel(
                                   data.submissions.find(
                                     (s) => s.form_id === f.id,
                                   )?.status ??
@@ -926,6 +1063,10 @@ export default function Hub() {
                 </>
               ) : (
                 <>
+                  {dashboard.pendingReviews.length +
+                    dashboard.upcomingEvents.length +
+                    dashboard.missingPrt.length >
+                    0 && (
                   <dl className="kpi-strip">
                     {[
                       ["Awaiting review", dashboard.pendingReviews.length],
@@ -938,6 +1079,7 @@ export default function Hub() {
                       </div>
                     ))}
                   </dl>
+                  )}
                   <DashboardSection
                     title="Applications awaiting review"
                     count={dashboard.pendingReviews.length}
@@ -1170,47 +1312,7 @@ export default function Hub() {
                       }
                     >
                       {societies.length ? (
-                        <div
-                          className="table-wrap"
-                          tabIndex={0}
-                          role="region"
-                          aria-label="Scrollable data table"
-                        >
-                          <table>
-                            <thead>
-                              <tr>
-                                <th>Society</th>
-                                <th>PRT</th>
-                                <th>Standard</th>
-                                <th>High Impact</th>
-                                <th>PRT minimum</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              {societies.map((a) => {
-                                const t = totals(a.id);
-                                return (
-                                  <tr key={a.id}>
-                                    <td>
-                                      <strong>{a.display_name}</strong>
-                                      <small>@{a.username}</small>
-                                    </td>
-                                    {t.map((n, i) => (
-                                      <td key={i}>{n}</td>
-                                    ))}
-                                    <td>
-                                      <Pill
-                                        tone={t[0] >= 1 ? "green" : "amber"}
-                                      >
-                                        {t[0] >= 1 ? "Met" : "Not yet met"}
-                                      </Pill>
-                                    </td>
-                                  </tr>
-                                );
-                              })}
-                            </tbody>
-                          </table>
-                        </div>
+                        totalsTable
                       ) : (
                         <Empty title="Bring your societies together">
                           Open Societies to review the contact roster and issue
@@ -1239,7 +1341,6 @@ export default function Hub() {
             ) : (
               <>
                 <div className="events-view-toolbar">
-                  <span>View events</span>
                   <div
                     className="view-switch"
                     role="group"
@@ -1340,9 +1441,7 @@ export default function Hub() {
                                       )
                                     }
                                   >
-                                    {e.checkin_open
-                                      ? "Close check-in"
-                                      : "Open check-in"}
+                                    {e.checkin_open ? "Check-in open" : "Check-in closed"}
                                   </button>
                                 </>
                               )}
@@ -1398,6 +1497,9 @@ export default function Hub() {
                     ))
                   }
                 />
+              )}
+              {admin && societies.length > 0 && (
+                <Panel title="Society point totals">{totalsTable}</Panel>
               )}
               <Panel
                 title="Attendance ledger"
@@ -1556,6 +1658,9 @@ export default function Hub() {
                       const closed =
                         !f.published ||
                         !!(f.deadline && Date.parse(f.deadline) < Date.now());
+                      const submittedCount = data.submissions.filter(
+                        (x) => x.form_id === f.id && x.status !== "DRAFT",
+                      ).length;
                       return (
                         <article className="form-row" key={f.id}>
                           <div>
@@ -1575,7 +1680,7 @@ export default function Hub() {
                                     ? "Closed"
                                     : "Published"
                                 : s
-                                  ? status(s.status)
+                                  ? statusLabel(s.status)
                                   : closed
                                     ? "Closed"
                                     : "Open"}
@@ -1596,6 +1701,9 @@ export default function Hub() {
                                 ? "Society funding"
                                 : "Cross-collaboration High Impact event"}
                               {f.deadline && ` · Due ${when(f.deadline)} CT`}
+                              {admin &&
+                                f.published &&
+                                ` · ${submittedCount} ${submittedCount === 1 ? "submission" : "submissions"}`}
                             </small>
                           </div>
                           <div className="actions">
@@ -1663,6 +1771,22 @@ export default function Hub() {
             admin &&
             (review ? (
               <ReviewView
+                key={review.id}
+                position={
+                  reviewIndex >= 0
+                    ? { index: reviewIndex + 1, total: reviewQueue.length }
+                    : undefined
+                }
+                onPrev={
+                  reviewIndex > 0
+                    ? () => setReview(reviewQueue[reviewIndex - 1])
+                    : undefined
+                }
+                onNext={
+                  reviewIndex >= 0 && reviewIndex < reviewQueue.length - 1
+                    ? () => setReview(reviewQueue[reviewIndex + 1])
+                    : undefined
+                }
                 retryEmail={async (id) => {
                   await run(
                     "admin/email-retry",
@@ -1703,9 +1827,15 @@ export default function Hub() {
                             </small>
                           </div>
                           <Pill
-                            tone={s.status === "APPROVED" ? "green" : "neutral"}
+                            tone={
+                              s.status === "APPROVED"
+                                ? "green"
+                                : s.status === "SUBMITTED"
+                                  ? "amber"
+                                  : "neutral"
+                            }
                           >
-                            {status(s.status)}
+                            {statusLabel(s.status)}
                           </Pill>
                           <Button secondary onClick={() => setReview(s)}>
                             Review
@@ -1737,12 +1867,7 @@ export default function Hub() {
                 }
               >
                 {societies.length ? (
-                  <div
-                    className="table-wrap"
-                    tabIndex={0}
-                    role="region"
-                    aria-label="Scrollable data table"
-                  >
+                  <TableWrap>
                     <table>
                       <thead>
                         <tr>
@@ -1808,7 +1933,7 @@ export default function Hub() {
                         ))}
                       </tbody>
                     </table>
-                  </div>
+</TableWrap>
                 ) : (
                   <Empty title="No society accounts yet">
                     Select roster responses below or add a society manually.
@@ -1826,6 +1951,14 @@ export default function Hub() {
                 {data.roster.length ? (
                   <>
                     <div className="roster-toolbar">
+                      <input
+                        type="search"
+                        className="roster-search"
+                        placeholder="Search responses"
+                        aria-label="Search contact responses"
+                        value={rosterQuery}
+                        onChange={(e) => setRosterQuery(e.target.value)}
+                      />
                       <span>{selectedRoster.length} selected</span>
                       <Button
                         disabled={!selectedRoster.length}
@@ -1841,33 +1974,74 @@ export default function Hub() {
                       </button>
                     </div>
                     <div className="roster-list">
-                      {data.roster.map((r) => (
-                        <div className="roster-row" key={r.id}>
-                          <label>
-                            <input
-                              type="checkbox"
-                              checked={selectedRoster.includes(r.id)}
-                              onChange={(e) =>
-                                setSelectedRoster(
-                                  e.target.checked
-                                    ? [...selectedRoster, r.id]
-                                    : selectedRoster.filter(
-                                        (id) => id !== r.id,
-                                      ),
-                                )
-                              }
-                            />
-                            <span>
-                              <strong>{r.name}</strong>
-                              <small>{r.source_timestamp}</small>
-                            </span>
-                          </label>
-                          <details>
-                            <summary>Contacts</summary>
-                            <ContactInfo contacts={r.contacts} />
-                          </details>
-                        </div>
-                      ))}
+                      {!rosterGroups.length && (
+                        <p className="section-intro">
+                          No responses match “{rosterQuery}”.
+                        </p>
+                      )}
+                      {rosterGroups.map((g) => {
+                        const ids = g.rows.map((r) => r.id);
+                        const allSelected = ids.every((id) =>
+                          selectedRoster.includes(id),
+                        );
+                        return (
+                          <div className="roster-group" key={g.key}>
+                            {g.rows.length > 1 && (
+                              <label className="roster-group-head">
+                                <input
+                                  type="checkbox"
+                                  checked={allSelected}
+                                  aria-label={`Select all ${g.rows.length} responses for ${g.name}`}
+                                  onChange={(e) =>
+                                    setSelectedRoster(
+                                      e.target.checked
+                                        ? Array.from(
+                                            new Set([...selectedRoster, ...ids]),
+                                          )
+                                        : selectedRoster.filter(
+                                            (id) => !ids.includes(id),
+                                          ),
+                                    )
+                                  }
+                                />
+                                <strong>{g.name}</strong>
+                                <Pill tone="maroon">
+                                  {g.rows.length} responses
+                                </Pill>
+                              </label>
+                            )}
+                            {g.rows.map((r) => (
+                              <div className="roster-row" key={r.id}>
+                                <label>
+                                  <input
+                                    type="checkbox"
+                                    checked={selectedRoster.includes(r.id)}
+                                    onChange={(e) =>
+                                      setSelectedRoster(
+                                        e.target.checked
+                                          ? [...selectedRoster, r.id]
+                                          : selectedRoster.filter(
+                                              (id) => id !== r.id,
+                                            ),
+                                      )
+                                    }
+                                  />
+                                  <span>
+                                    <strong>{r.name}</strong>
+                                    <small>
+                                      {rosterDate(String(r.source_timestamp))}
+                                    </small>
+                                  </span>
+                                </label>
+                                <details>
+                                  <summary>Contacts</summary>
+                                  <ContactInfo contacts={r.contacts} />
+                                </details>
+                              </div>
+                            ))}
+                          </div>
+                        );
+                      })}
                     </div>
                   </>
                 ) : (
@@ -1902,6 +2076,9 @@ export default function Hub() {
           )}
           {tab === "settings" && (
             <>
+              {admin && (
+                <SemesterManager data={data} busy={busy} run={run} />
+              )}
               <PasswordForm
                 busy={busy}
                 save={async (b) => {
@@ -1914,7 +2091,6 @@ export default function Hub() {
               />
               {admin && (
                 <>
-                  <SemesterManager data={data} busy={busy} run={run} />
                   <Allowlist data={data} busy={busy} run={run} />
                   <details className="panel audit-disclosure">
                     <summary>
@@ -1932,7 +2108,7 @@ export default function Hub() {
                       {data.audit.map((a) => (
                         <div className="record" key={a.id}>
                           <div>
-                            <strong>{status(a.action)}</strong>
+                            <strong>{statusLabel(a.action)}</strong>
                             <small>
                               @{a.actor_name ?? "system"} · {when(a.created_at)}{" "}
                               CT
@@ -2481,7 +2657,11 @@ function ManualAward({
     [account, setAccount] = useState(""),
     [note, setNote] = useState("");
   return (
-    <Panel title="Award High Impact credit">
+    <details className="panel audit-disclosure">
+      <summary>
+        <span>Award High Impact credit</span>
+        <ChevronDown size={18} aria-hidden="true" />
+      </summary>
       <p className="section-intro">
         Record qualifying participation after SEC verification. Each society
         receives two points once per event.
@@ -2539,7 +2719,7 @@ function ManualAward({
           Award 2 points
         </Button>
       </form>
-    </Panel>
+    </details>
   );
 }
 function CreditCorrection({
@@ -3067,7 +3247,7 @@ function ApplicationView({
             {admin
               ? "Admin preview"
               : existing
-                ? status(existing.status)
+                ? statusLabel(existing.status)
                 : closed
                   ? "Closed"
                   : "Not started"}
@@ -3198,8 +3378,14 @@ function ReviewView({
   busy,
   cancel,
   save,
+  position,
+  onPrev,
+  onNext,
 }: {
   submission: Submission;
+  position?: { index: number; total: number };
+  onPrev?: () => void;
+  onNext?: () => void;
   retryEmail: (id: string) => Promise<void>;
   busy: boolean;
   cancel: () => void;
@@ -3210,21 +3396,36 @@ function ReviewView({
         s.status,
       )
         ? s.status
-        : "UNDER_REVIEW",
+        : "",
     ),
     [note, setNote] = useState(s.review_note);
   return (
     <Panel
       title={s.society_name}
       action={
-        <Button secondary onClick={cancel}>
-          Back to queue
-        </Button>
+        <div className="inline">
+          {position && (
+            <small>
+              {position.index} of {position.total}
+            </small>
+          )}
+          <Button secondary disabled={!onPrev} onClick={onPrev}>
+            Previous
+          </Button>
+          <Button secondary disabled={!onNext} onClick={onNext}>
+            Next
+          </Button>
+          <Button secondary onClick={cancel}>
+            Back to queue
+          </Button>
+        </div>
       }
     >
       <h3>{s.form_title}</h3>
       <div className="inline">
-        <Pill>{status(s.status)}</Pill>
+        <Pill tone={s.status === "SUBMITTED" ? "amber" : "neutral"}>
+          {statusLabel(s.status)}
+        </Pill>
         <small>
           Question version {s.form_version} · Submitted{" "}
           {s.submitted_at ? when(s.submitted_at) : "—"}
@@ -3263,9 +3464,13 @@ function ReviewView({
       >
         <Field label="Review status">
           <select
+            required
             value={decision}
             onChange={(e) => setDecision(e.target.value)}
           >
+            <option value="" disabled>
+              Choose a decision…
+            </option>
             <option value="UNDER_REVIEW">Under review</option>
             <option value="CHANGES_REQUESTED">Changes requested</option>
             <option value="APPROVED">Approved</option>
@@ -3362,7 +3567,8 @@ function PasswordForm({
   const [current, setCurrent] = useState(""),
     [password, setPassword] = useState(""),
     [confirm, setConfirm] = useState(""),
-    [err, setErr] = useState("");
+    [err, setErr] = useState(""),
+    [showPw, setShowPw] = useState(false);
   return (
     <Panel title="Change shared password">
       <p className="section-intro">
@@ -3384,7 +3590,7 @@ function PasswordForm({
         <Field label="Current password">
           <input
             required
-            type="password"
+            type={showPw ? "text" : "password"}
             autoComplete="current-password"
             maxLength={128}
             value={current}
@@ -3395,7 +3601,7 @@ function PasswordForm({
           <Field label="New password">
             <input
               required
-              type="password"
+              type={showPw ? "text" : "password"}
               autoComplete="new-password"
               minLength={12}
               maxLength={128}
@@ -3406,7 +3612,7 @@ function PasswordForm({
           <Field label="Confirm new password">
             <input
               required
-              type="password"
+              type={showPw ? "text" : "password"}
               autoComplete="new-password"
               minLength={12}
               maxLength={128}
@@ -3415,6 +3621,14 @@ function PasswordForm({
             />
           </Field>
         </div>
+        <label className="show-password">
+          <input
+            type="checkbox"
+            checked={showPw}
+            onChange={(e) => setShowPw(e.target.checked)}
+          />
+          Show passwords
+        </label>
         {err && <p role="alert">{err}</p>}
         <Button disabled={busy} type="submit">
           Change password
@@ -3445,8 +3659,7 @@ function SemesterManager({
             <div>
               <strong>{s.name}</strong>
               <small>
-                {String(s.starts_on).slice(0, 10)} –{" "}
-                {String(s.ends_on).slice(0, 10)}
+                {dateOnly(String(s.starts_on))} – {dateOnly(String(s.ends_on))}
               </small>
             </div>
             {s.is_current ? (
@@ -3486,7 +3699,7 @@ function SemesterManager({
           }
         }}
       >
-        <h3>Add semester</h3>
+        <h3>New semester</h3>
         <Field label="Semester name">
           <input
             required
@@ -3541,7 +3754,12 @@ function Allowlist({
 }) {
   const [email, setEmail] = useState("");
   return (
-    <Panel title="Future Google admin access">
+    <details className="panel audit-disclosure">
+      <summary>
+        <span>Future Google admin access</span>
+        <small>Not active</small>
+        <ChevronDown size={18} aria-hidden="true" />
+      </summary>
       <p className="section-intro">
         Google OAuth is planned. This whitelist is stored for that integration;
         it does not currently grant sign-in access. The SEC username/password
@@ -3592,7 +3810,7 @@ function Allowlist({
           Add email
         </Button>
       </form>
-    </Panel>
+    </details>
   );
 }
 function exportCredits(credits: HubData["credits"]) {
