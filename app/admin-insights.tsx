@@ -38,7 +38,7 @@ export default function AdminInsights({
         <div className="insight-heading">
           <h2 id="prt-insight-title">Society readiness</h2>
           <button className="text-button" onClick={onSocieties}>
-            Societies <ArrowUpRight size={16} />
+            View societies <ArrowUpRight size={16} />
           </button>
         </div>
         <div className="readiness-value">
