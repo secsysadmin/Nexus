@@ -1,3 +1,4 @@
+import { recordMetric } from "../../../lib/observability";
 import { NextRequest, NextResponse, after } from "next/server";
 import { maintenanceAuthorized } from "../../../lib/maintenance-auth";
 import {
@@ -6,7 +7,7 @@ import {
   outboxHealth,
 } from "../../../lib/email-outbox";
 import { z } from "zod";
-import { transaction, audit } from "../../../lib/db";
+import { transaction } from "../../../lib/db";
 import { digest, sessionCookie } from "../../../lib/security";
 import {
   authenticate,
@@ -15,6 +16,8 @@ import {
   redeemActivation,
   changePassword,
 } from "../../../lib/auth";
+import { getPage, getCalendarPage, collections } from "../../../lib/data-pages";
+import { updateContacts } from "../../../lib/contacts";
 import { idempotentMutation } from "../../../lib/idempotency";
 import {
   adminMutation,
@@ -77,6 +80,69 @@ async function handle(
         );
       }
 
+      if (path.startsWith("accounts/")) {
+        const id = z.uuid().parse(path.split("/")[1]);
+        const account = await transaction(async (db) => {
+          const actor = await authenticate(db, req);
+          return (
+            await db.query(
+              "SELECT id,username,display_name,role,enabled,contacts,contact_revision,(password_hash IS NOT NULL) activated FROM accounts WHERE id=$1 AND ($2 OR id=$3)",
+              [id, actor.role === "admin", actor.id],
+            )
+          ).rows[0];
+        });
+        if (!account) throw new AppError("Not found.", 404);
+        return json(account);
+      }
+      if (path.startsWith("collections/")) {
+        const kind = z.enum(collections).parse(path.split("/")[1]);
+        const offset = z.coerce
+          .number()
+          .int()
+          .min(0)
+          .max(1000000)
+          .parse(req.nextUrl.searchParams.get("offset") ?? 0);
+        const search = z
+          .string()
+          .max(200)
+          .parse(req.nextUrl.searchParams.get("search") ?? "");
+        return json(
+          await transaction(async (db) =>
+            getPage(db, await authenticate(db, req), kind, offset, search),
+          ),
+        );
+      }
+      if (path === "events/calendar") {
+        const month = z
+          .string()
+          .regex(/^\d{4}-(0[1-9]|1[0-2])$/)
+          .parse(req.nextUrl.searchParams.get("month"));
+        const offset = z.coerce
+          .number()
+          .int()
+          .min(0)
+          .max(1000000)
+          .parse(req.nextUrl.searchParams.get("offset") ?? 0);
+        return json(
+          await transaction(async (db) =>
+            getCalendarPage(db, await authenticate(db, req), month, offset),
+          ),
+        );
+      }
+      if (path.startsWith("events/")) {
+        const id = z.uuid().parse(path.split("/")[1]);
+        const event = await transaction(async (db) => {
+          const actor = await authenticate(db, req);
+          return (
+            await db.query(
+              `SELECT id,revision,name,description,location,category,starts_at,ends_at,checkin_starts_at,checkin_ends_at,checkin_open${actor.role === "admin" ? ",checkin_token" : ""} FROM events WHERE id=$1`,
+              [id],
+            )
+          ).rows[0];
+        });
+        if (!event) throw new AppError("Not found.", 404);
+        return json(event);
+      }
       if (path.startsWith("forms/") || path.startsWith("submissions/")) {
         const id = z.string().uuid().parse(path.split("/")[1]);
         const detail = await transaction(async (db) => {
@@ -104,7 +170,20 @@ async function handle(
       if (path !== "data") throw new AppError("Not found.", 404);
       return json(
         await transaction(async (db) =>
-          getData(db, await authenticate(db, req), { compact: true }),
+          getData(db, await authenticate(db, req), {
+            compact: true,
+            view: z
+              .enum([
+                "overview",
+                "events",
+                "applications",
+                "activity",
+                "societies",
+                "reviews",
+                "settings",
+              ])
+              .parse(req.nextUrl.searchParams.get("view") ?? "overview"),
+          }),
         ),
       );
     }
@@ -124,6 +203,8 @@ async function handle(
     } catch {
       throw new AppError("Invalid request.");
     }
+    if (!body || typeof body !== "object" || Array.isArray(body))
+      throw new AppError("Send a JSON object.");
     if (path === "auth/login") {
       const b = z
         .object({
@@ -169,6 +250,30 @@ async function handle(
           .parse(body);
         return changePassword(db, actor, b.currentPassword, b.password);
       }
+      if (path === "telemetry") {
+        const input = z
+          .object({
+            kind: z.enum(["uncaught", "unhandled_rejection", "react_boundary"]),
+          })
+          .parse(body);
+        const key = digest("telemetry:" + actor.id);
+        const count = (
+          await db.query(
+            "INSERT INTO login_attempts(key,attempts) VALUES($1,1) ON CONFLICT(key) DO UPDATE SET attempts=CASE WHEN login_attempts.window_start<now()-interval '15 minutes' THEN 1 ELSE login_attempts.attempts+1 END,window_start=CASE WHEN login_attempts.window_start<now()-interval '15 minutes' THEN now() ELSE login_attempts.window_start END RETURNING attempts",
+            [key],
+          )
+        ).rows[0].attempts;
+        if (count <= 10)
+          await recordMetric(db, {
+            route: "telemetry",
+            status: 200,
+            durationMs: 0,
+            kind: "client_error",
+            fingerprint: input.kind,
+          });
+        return { ok: true };
+      }
+      if (path === "accounts/contacts") return updateContacts(db, actor, body);
       if (path === "checkin") return checkIn(db, actor, body);
       if (path === "submissions/save") return saveSubmission(db, actor, body);
       const perform = () => adminMutation(db, actor, path, body);
@@ -185,7 +290,9 @@ async function handle(
     });
     if (
       result?.confirmation_email_id &&
-      (path === "submissions/save" || path === "admin/email-retry")
+      (path === "submissions/save" ||
+        path === "admin/email-retry" ||
+        path === "admin/review")
     ) {
       const id = result.confirmation_email_id as string;
       after(async () => {
@@ -257,5 +364,37 @@ async function handle(
     );
   }
 }
-export const GET = handle;
-export const POST = handle;
+async function instrumented(
+  req: NextRequest,
+  ctx: Parameters<typeof handle>[1],
+) {
+  const started = performance.now();
+  const response = await handle(req, ctx);
+  const durationMs = performance.now() - started;
+  const path = (await ctx.params).path.join("/");
+  const expectedHealthFailure =
+    ["readiness", "cron/maintenance"].includes(path) && response.status === 503;
+  if (
+    !expectedHealthFailure &&
+    (response.status >= 500 || Math.random() < 0.1)
+  ) {
+    after(async () => {
+      try {
+        await transaction((db) =>
+          recordMetric(db, {
+            route: path,
+            status: response.status,
+            durationMs,
+            kind: response.status >= 500 ? "server_error" : "request",
+          }),
+        );
+      } catch {
+        console.error("Operational metric persistence unavailable.");
+      }
+    });
+  }
+  response.headers.set("Server-Timing", `app;dur=${Math.round(durationMs)}`);
+  return response;
+}
+export const GET = instrumented;
+export const POST = instrumented;

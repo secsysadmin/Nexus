@@ -1,5 +1,8 @@
 "use client";
+import { useEffect } from "react";
+import { reportClientError } from "./client-monitoring";
 export default function ErrorPage({ reset }: { reset: () => void }) {
+  useEffect(() => reportClientError("react_boundary"), []);
   return (
     <main className="standalone">
       <img

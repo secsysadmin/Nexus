@@ -32,24 +32,32 @@ export default function EventCalendar({
   events,
   onEdit,
   onQr,
+  onMonthChange,
+  loading = false,
 }: {
   events: Event[];
   onEdit?: (event: Event) => void;
   onQr?: (event: Event) => void;
+  onMonthChange?: (month: string) => void;
+  loading?: boolean;
 }) {
   const today = centralDay(Date.now()),
     id = useId(),
     focusDay = useRef(false);
-  const min = [
-    today.slice(0, 7),
-    ...events.map((e) => centralDay(e.starts_at).slice(0, 7)),
-  ].sort()[0];
-  const max = [
-    today.slice(0, 7),
-    ...events.map((e) => centralDay(e.ends_at).slice(0, 7)),
-  ]
-    .sort()
-    .at(-1)!;
+  const min = onMonthChange
+    ? "2000-01"
+    : [
+        today.slice(0, 7),
+        ...events.map((e) => centralDay(e.starts_at).slice(0, 7)),
+      ].sort()[0];
+  const max = onMonthChange
+    ? "2100-12"
+    : [
+        today.slice(0, 7),
+        ...events.map((e) => centralDay(e.ends_at).slice(0, 7)),
+      ]
+        .sort()
+        .at(-1)!;
   const initial =
     today.slice(0, 7) < min
       ? min
@@ -60,6 +68,9 @@ export default function EventCalendar({
     [selected, setSelected] = useState(
       initial === today.slice(0, 7) ? today : initial + "-01",
     );
+  useEffect(() => {
+    onMonthChange?.(month);
+  }, [month, onMonthChange]);
   const onDay = useMemo(() => calendarEvents(events), [events]);
   const days = calendarDays(month),
     dayEvents = onDay(selected);
@@ -76,7 +87,8 @@ export default function EventCalendar({
     setMonth(next.slice(0, 7));
   };
   return (
-    <div className="event-calendar">
+    <div className="event-calendar" aria-busy={loading}>
+      {loading && <p role="status">Loading events for this month…</p>}
       <div className="calendar-toolbar">
         <h3>
           {new Intl.DateTimeFormat("en-US", {
@@ -112,8 +124,8 @@ export default function EventCalendar({
         </div>
       </div>
       <p className="section-intro">
-        Bars span each event’s check-in window. Select any day for details.
-        Dates and times use Central time.
+        Bars show when events take place. Select a day for event and check-in
+        details. Dates and times use Central time.
       </p>
       <div
         className="calendar-grid"
@@ -249,7 +261,7 @@ export default function EventCalendar({
             <h3>{fullDate(selected)}</h3>
             <p>
               {dayEvents.length
-                ? `${dayEvents.length} ${dayEvents.length === 1 ? "event" : "events"} with a window on this day`
+                ? `${dayEvents.length} ${dayEvents.length === 1 ? "event" : "events"} on this day`
                 : "No events scheduled for this day"}
             </p>
           </div>
@@ -291,6 +303,13 @@ export default function EventCalendar({
                       </span>
                     )}
                   </div>
+                  {event.category !== "HIGH_IMPACT" && (
+                    <p>
+                      Check-in window:{" "}
+                      {when(event.checkin_starts_at ?? event.starts_at)} –{" "}
+                      {when(event.checkin_ends_at ?? event.ends_at)} CT
+                    </p>
+                  )}
                   {event.description && <p>{event.description}</p>}
                   <span
                     className={

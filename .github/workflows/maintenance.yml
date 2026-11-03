@@ -19,6 +19,8 @@ jobs:
           APP_URL: https://nexus-beryl-one-60.vercel.app
         run: |
           set -euo pipefail
+          curl --fail --silent --show-error --max-time 15 "$APP_URL/" -o /dev/null
+          curl --fail --silent --show-error --max-time 15 "$APP_URL/api/health"
           OIDC_RESPONSE=$(curl --fail --silent --show-error --max-time 15 -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=${APP_URL}")
           OIDC_TOKEN=$(printf '%s' "$OIDC_RESPONSE" | node -e "let s='';process.stdin.on('data',c=>s+=c).on('end',()=>process.stdout.write(JSON.parse(s).value))")
           echo "::add-mask::$OIDC_TOKEN"

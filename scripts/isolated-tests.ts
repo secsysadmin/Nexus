@@ -99,6 +99,8 @@ try {
       "tsconfig.json",
       "next-env.d.ts",
       "package.json",
+      "instrumentation.ts",
+      "instrumentation-client.ts",
     ])
       await cp(f, testApp + "/" + f, { recursive: true });
     await symlink(

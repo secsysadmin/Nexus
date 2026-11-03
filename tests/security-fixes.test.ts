@@ -2,13 +2,12 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { PGlite } from "@electric-sql/pglite";
 import { readFile, readdir } from "node:fs/promises";
-import { randomUUID, scryptSync } from "node:crypto";
+import { scryptSync } from "node:crypto";
 import { adminMutation, saveSubmission, issueActivation } from "../lib/service";
 import {
   hashPassword,
   verifyPassword,
   passwordNeedsUpgrade,
-  digest,
 } from "../lib/security";
 import {
   login,
@@ -450,6 +449,246 @@ test("persistent acknowledgement outage retains provider acceptance for reconcil
         .status,
       "SENT",
     );
+  } finally {
+    await f.db.close();
+  }
+});
+
+test("review decisions atomically queue one notification, preserve decisions on provider failure, and never award points", async () => {
+  const f = await fixture();
+  try {
+    const saved = await saveSubmission(f.db as any, f.society, {
+      formId: f.form.id,
+      answers: { q: "A" },
+      submit: true,
+      revision: 0,
+      confirmationEmail: "officer@example.invalid",
+    });
+    const review: any = await adminMutation(
+      f.db as any,
+      f.admin,
+      "admin/review",
+      {
+        id: saved.id,
+        revision: saved.revision,
+        status: "CHANGES_REQUESTED",
+        note: "Please revise",
+      },
+    );
+    const mail: any = (
+      await f.db.query("SELECT * FROM application_emails WHERE id=$1", [
+        review.confirmation_email_id,
+      ])
+    ).rows[0];
+    const unchanged: any = await adminMutation(
+      f.db as any,
+      f.admin,
+      "admin/review",
+      {
+        id: saved.id,
+        revision: saved.revision + 1,
+        status: "CHANGES_REQUESTED",
+        note: "Please revise",
+      },
+    );
+    assert(!unchanged.confirmation_email_id);
+    assert.equal(mail.kind, "DECISION");
+    assert.equal(mail.recipient, "officer@example.invalid");
+    assert.match(mail.subject, /Changes requested/);
+    assert(!mail.html.includes("Please revise"));
+    await assert.rejects(() =>
+      adminMutation(f.db as any, f.admin, "admin/review", {
+        id: saved.id,
+        revision: saved.revision,
+        status: "APPROVED",
+        note: "",
+      }),
+    );
+    assert.equal(
+      (
+        await f.db.query(
+          "SELECT * FROM application_emails WHERE kind='DECISION'",
+        )
+      ).rows.length,
+      1,
+    );
+    const sent = await deliverApplicationEmail(mail.id, {
+      transact: f.transact,
+      enabled: true,
+      send: async () => {
+        throw Error("rejected");
+      },
+    });
+    assert.equal(sent.status, "FAILED");
+    assert.equal(
+      (await f.db.query<any>("SELECT status FROM submissions")).rows[0].status,
+      "CHANGES_REQUESTED",
+    );
+    assert.equal((await f.db.query("SELECT * FROM credits")).rows.length, 0);
+  } finally {
+    await f.db.close();
+  }
+});
+test("event schedule and check-in window are independent; invalid windows are rejected", async () => {
+  const f = await fixture();
+  try {
+    const event: any = await adminMutation(
+      f.db as any,
+      f.admin,
+      "admin/events",
+      {
+        name: "Earlier event",
+        description: "",
+        location: "",
+        category: "PRT",
+        startsAt: new Date(Date.now() - 7200000).toISOString(),
+        endsAt: new Date(Date.now() - 3600000).toISOString(),
+        checkinStartsAt: new Date(Date.now() - 60000).toISOString(),
+        checkinEndsAt: new Date(Date.now() + 60000).toISOString(),
+        checkinOpen: true,
+      },
+    );
+    const { checkIn } = await import("../lib/service");
+    await checkIn(f.db as any, f.society, {
+      eventId: event.id,
+      token: event.checkin_token,
+    });
+    const realNow = Date.now;
+    try {
+      Date.now = () => new Date(event.checkin_ends_at).getTime();
+      await assert.rejects(() =>
+        checkIn(f.db as any, f.other, {
+          eventId: event.id,
+          token: event.checkin_token,
+        }),
+      );
+    } finally {
+      Date.now = realNow;
+    }
+    assert.equal((await f.db.query("SELECT * FROM credits")).rows.length, 1);
+    await assert.rejects(() =>
+      adminMutation(f.db as any, f.admin, "admin/events", {
+        name: "Bad",
+        description: "",
+        location: "",
+        category: "PRT",
+        startsAt: new Date(Date.now()).toISOString(),
+        endsAt: new Date(Date.now() + 60000).toISOString(),
+        checkinStartsAt: new Date(Date.now()).toISOString(),
+        checkinEndsAt: new Date(Date.now() - 60000).toISOString(),
+        checkinOpen: true,
+      }),
+    );
+  } finally {
+    await f.db.close();
+  }
+});
+test("contact updates preserve imported evidence, enforce ownership and reject stale saves", async () => {
+  const f = await fixture();
+  try {
+    const { updateContacts } = await import("../lib/contacts");
+    const { defaultConfirmationEmail } = await import(
+      "../lib/application-email"
+    );
+    const original = {
+      responses: [{ president: { email: "old@example.invalid" } }],
+    };
+    await f.db.query("UPDATE accounts SET contacts=$1 WHERE id=$2", [
+      JSON.stringify(original),
+      f.society.id,
+    ]);
+    const profile = {
+      president: {
+        name: "New president",
+        email: "new@example.invalid",
+        phone: "",
+      },
+      representative: { name: "Representative", email: "", phone: "" },
+      notificationEmail: "preferred@example.invalid",
+    };
+    const result = await updateContacts(f.db as any, f.society, {
+      revision: 1,
+      profile,
+    });
+    assert.deepEqual(result.contacts.responses, original.responses);
+    assert.equal(
+      defaultConfirmationEmail(result.contacts),
+      "preferred@example.invalid",
+    );
+    await assert.rejects(() =>
+      updateContacts(f.db as any, f.other, {
+        accountId: f.society.id,
+        revision: 2,
+        profile,
+      }),
+    );
+    await assert.rejects(() =>
+      updateContacts(f.db as any, f.society, { revision: 1, profile }),
+    );
+    assert.equal(
+      (
+        await f.db.query<any>(
+          "SELECT contact_revision FROM accounts WHERE id=$1",
+          [f.society.id],
+        )
+      ).rows[0].contact_revision,
+      2,
+    );
+  } finally {
+    await f.db.close();
+  }
+});
+test("metadata pages preserve global dashboard counts and calendar ignores check-in-only dates", async () => {
+  const f = await fixture();
+  try {
+    const { getPage, getCalendarPage } = await import("../lib/data-pages");
+    await f.db.query(
+      "INSERT INTO accounts(username,display_name,role) SELECT 'many-'||g,'Many '||g,'society' FROM generate_series(1,60)g",
+    );
+    await f.db.query(
+      "INSERT INTO forms(semester_id,title,description,kind,published,created_by) SELECT (SELECT id FROM semesters LIMIT 1),'Form '||g,'','FUNDING',true,$1 FROM generate_series(1,60)g",
+      [f.admin.id],
+    );
+    const data = await getData(f.db as any, f.admin, {
+      compact: true,
+      view: "overview",
+    });
+    assert.equal(data.accounts.length, 50);
+    assert(data.pagination?.accounts.hasMore);
+    assert.equal(data.dashboardCounts?.activeSocieties, 62);
+    assert.equal(data.dashboardCounts?.missingPrt, 62);
+    assert.equal(data.dashboardPreview?.missingPrt.length, 5);
+    const next = await getPage(f.db as any, f.admin, "accounts", 50);
+    assert.equal(next.items.length, 13);
+    assert(!next.hasMore);
+    const event: any = await adminMutation(
+      f.db as any,
+      f.admin,
+      "admin/events",
+      {
+        name: "Calendar independence",
+        description: "",
+        location: "",
+        category: "PRT",
+        startsAt: "2026-01-10T18:00:00Z",
+        endsAt: "2026-01-10T19:00:00Z",
+        checkinStartsAt: "2026-02-10T18:00:00Z",
+        checkinEndsAt: "2026-02-10T19:00:00Z",
+        checkinOpen: true,
+      },
+    );
+    assert(
+      (await getCalendarPage(f.db as any, f.society, "2026-01", 0)).items.some(
+        (e) => e.id === event.id,
+      ),
+    );
+    assert(
+      !(await getCalendarPage(f.db as any, f.society, "2026-02", 0)).items.some(
+        (e) => e.id === event.id,
+      ),
+    );
+    const other = await getPage(f.db as any, f.other, "submissions");
+    assert.equal(other.items.length, 0);
   } finally {
     await f.db.close();
   }

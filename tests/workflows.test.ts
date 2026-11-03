@@ -119,14 +119,14 @@ test("closed, outside-window and revoked attendance cannot create credit", async
       checkIn(f.client, f.society, { eventId: e.id, token: e.checkin_token }),
     );
     await f.db.query(
-      "UPDATE events SET checkin_open=true,ends_at=now()-interval '1 second' WHERE id=$1",
+      "UPDATE events SET checkin_open=true,checkin_ends_at=now()-interval '1 second' WHERE id=$1",
       [e.id],
     );
     await assert.rejects(() =>
       checkIn(f.client, f.society, { eventId: e.id, token: e.checkin_token }),
     );
     await f.db.query(
-      "UPDATE events SET ends_at=now()+interval '1 hour' WHERE id=$1",
+      "UPDATE events SET checkin_ends_at=now()+interval '1 hour' WHERE id=$1",
       [e.id],
     );
     await checkIn(f.client, f.society, {

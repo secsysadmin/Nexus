@@ -1,14 +1,5 @@
 "use client";
-import {
-  useCallback,
-  useId,
-  cloneElement,
-  isValidElement,
-  useEffect,
-  useState,
-  useRef,
-  type ReactNode,
-} from "react";
+import { useCallback, useEffect, useState, useRef } from "react";
 import {
   LayoutDashboard,
   CalendarDays,
@@ -21,24 +12,35 @@ import {
   ArrowRight,
   Check,
   Plus,
-  Copy,
-  ExternalLink,
   ChevronDown,
-  ChevronUp,
-  Trash2,
   ClipboardCheck,
   RefreshCw,
   Menu,
   X,
   ShieldCheck,
   KeyRound,
-  Download,
 } from "lucide-react";
-import QRCode from "qrcode";
+import {
+  Button,
+  Panel,
+  Field,
+  FormActions,
+  Pill,
+  Empty,
+  DashboardSection,
+} from "./ui";
+import { when, status } from "./format";
+import { CopyLink, EventEditor, QRPanel } from "./event-management";
+import {
+  FormEditor,
+  ApplicationView,
+  ReviewView,
+} from "./application-management";
 import MaroonRibbons from "./maroon-ribbons";
 import PointsSummary from "./points-summary";
+import ContactEditor from "./contact-editor";
 import LoadingSkeleton from "./loading-skeleton";
-import { useUnsavedChanges, confirmDiscard } from "./unsaved-changes";
+import { confirmDiscard } from "./unsaved-changes";
 import { checkinStatus } from "../lib/checkin-status";
 import EventCalendar from "./event-calendar";
 import { dashboardItems } from "../lib/dashboard";
@@ -52,22 +54,7 @@ import type {
   Candidate,
   Account,
 } from "../lib/types";
-import { labels, type Question, type Answers } from "../lib/domain";
-const when = (s: string) =>
-  new Intl.DateTimeFormat("en-US", {
-    month: "short",
-    day: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-    timeZone: "America/Chicago",
-  }).format(new Date(s));
-const status = (s: string) => s.toLowerCase().replaceAll("_", " ");
-const localDate = (s: string) => {
-  const d = new Date(s);
-  return new Date(d.getTime() - d.getTimezoneOffset() * 60000)
-    .toISOString()
-    .slice(0, 16);
-};
+import { labels } from "../lib/domain";
 const pendingRequestKeys = new Map<string, string>();
 async function api<T = Record<string, unknown>>(
   path: string,
@@ -146,179 +133,6 @@ async function api<T = Record<string, unknown>>(
     clearTimeout(timer);
   }
 }
-function Field({
-  label,
-  children,
-  hint,
-}: {
-  label: string;
-  children: ReactNode;
-  hint?: string;
-}) {
-  const generatedId = useId();
-  const control = isValidElement<{
-    id?: string;
-    required?: boolean;
-    "aria-describedby"?: string;
-  }>(children)
-    ? children
-    : null;
-  const id = control?.props.id ?? generatedId;
-  const hintId = hint ? `${id}-hint` : undefined;
-  return (
-    <div className="field">
-      <div className="field-label">
-        <label htmlFor={id}>{label}</label>
-        {control?.props.required && !label.endsWith("*") && (
-          <span className="required-mark" aria-hidden="true">
-            {" "}
-            *
-          </span>
-        )}
-      </div>
-      {control
-        ? cloneElement(control, {
-            id,
-            "aria-describedby":
-              [control.props["aria-describedby"], hintId]
-                .filter(Boolean)
-                .join(" ") || undefined,
-          })
-        : children}
-      {hint && <small id={hintId}>{hint}</small>}
-    </div>
-  );
-}
-function Empty({ title, children }: { title: string; children: ReactNode }) {
-  return (
-    <div className="empty">
-      <h3>{title}</h3>
-      <p>{children}</p>
-    </div>
-  );
-}
-function Pill({
-  children,
-  tone = "neutral",
-}: {
-  children: ReactNode;
-  tone?: string;
-}) {
-  return <span className={"pill " + tone}>{children}</span>;
-}
-function Panel({
-  title,
-  children,
-  action,
-}: {
-  title: string;
-  children: ReactNode;
-  action?: ReactNode;
-}) {
-  return (
-    <section className="panel">
-      <div className="section-head">
-        <h2>{title}</h2>
-        {action}
-      </div>
-      {children}
-    </section>
-  );
-}
-function DashboardSection({
-  title,
-  count,
-  emptyText,
-  action,
-  children,
-}: {
-  title: string;
-  count: number;
-  emptyText: string;
-  action?: ReactNode;
-  children: ReactNode;
-}) {
-  return (
-    <section
-      className={count ? "dashboard-section" : "dashboard-clear"}
-      aria-label={title}
-      data-count={count}
-    >
-      {count ? (
-        <>
-          <div className="section-head">
-            <div className="dashboard-section-title">
-              <h2>{title}</h2>
-              <span className="dashboard-count" aria-label={`${count} items`}>
-                {count}
-              </span>
-            </div>
-            {action}
-          </div>
-          {children}
-        </>
-      ) : (
-        <>
-          <p>
-            <Check size={16} aria-hidden="true" />
-            {emptyText}
-          </p>
-          {action}
-        </>
-      )}
-    </section>
-  );
-}
-function Button({
-  children,
-  onClick,
-  secondary = false,
-  disabled = false,
-  type = "button",
-  value,
-  "aria-label": ariaLabel,
-}: {
-  children: ReactNode;
-  onClick?: () => void;
-  secondary?: boolean;
-  disabled?: boolean;
-  type?: "button" | "submit";
-  value?: string;
-  "aria-label"?: string;
-}) {
-  return (
-    <button
-      type={type}
-      value={value}
-      className={secondary ? "button secondary" : "button"}
-      onClick={onClick}
-      disabled={disabled}
-      aria-label={ariaLabel}
-    >
-      {children}
-    </button>
-  );
-}
-function FormActions({
-  busy,
-  onCancel,
-  label = "Save changes",
-}: {
-  busy: boolean;
-  onCancel: () => void;
-  label?: string;
-}) {
-  return (
-    <div className="actions">
-      <Button type="submit" disabled={busy}>
-        {busy ? "Saving…" : label}
-      </Button>
-      <Button secondary onClick={onCancel} disabled={busy}>
-        Cancel
-      </Button>
-    </div>
-  );
-}
 function ContactInfo({ contacts }: { contacts: Record<string, unknown> }) {
   const readable = (key: string) =>
     key.replaceAll("_", " ").replace(/\b\w/g, (c) => c.toUpperCase());
@@ -334,7 +148,10 @@ function ContactInfo({ contacts }: { contacts: Record<string, unknown> }) {
       : [[path.join(" · "), String(value)]];
   };
   const responses = Array.isArray(contacts.responses)
-    ? contacts.responses
+    ? [
+        ...(contacts.current ? [{ current: contacts.current }] : []),
+        ...contacts.responses,
+      ]
     : [contacts];
   const groups = responses
     .map((response) => flatten(response))
@@ -382,6 +199,18 @@ export default function Hub() {
     eventId: string;
   }>({ mode: "home", token: "", eventId: "" });
   const greetingSeen = useRef(false);
+  const deepLinkOpened = useRef(false);
+  const currentView = useRef("overview");
+  currentView.current = tab;
+  const refreshVersion = useRef(0);
+  const collectionQueries = useRef<
+    Record<string, { search: string; nextOffset: number }>
+  >({});
+  const calendarRequest = useRef(0),
+    calendarMonth = useRef("");
+  const [calendarLoading, setCalendarLoading] = useState(false);
+  const [calendarEvents, setCalendarEvents] = useState<Event[] | null>(null);
+  const [contactAccount, setContactAccount] = useState<Account | null>(null);
   const [directorySearch, setDirectorySearch] = useState("");
   const [rosterSearch, setRosterSearch] = useState("");
   const [refreshing, setRefreshing] = useState(false);
@@ -415,6 +244,14 @@ export default function Hub() {
     [],
   );
   const [historyMore, setHistoryMore] = useState(true);
+  const selectedContacts = useRef(new Map<string, Candidate>());
+  useEffect(() => {
+    for (const candidate of data?.roster ?? [])
+      if (selectedRoster.includes(candidate.id))
+        selectedContacts.current.set(candidate.id, candidate);
+    for (const id of selectedContacts.current.keys())
+      if (!selectedRoster.includes(id)) selectedContacts.current.delete(id);
+  }, [selectedRoster, data?.roster]);
   useEffect(() => {
     setArchivedCredits([]);
     setHistoryMore(true);
@@ -493,11 +330,115 @@ export default function Hub() {
     }
   };
 
+  const loadCollection = async (
+    kind: "events" | "forms" | "submissions" | "accounts" | "roster",
+    search = "",
+    replace = false,
+  ) => {
+    setBusy(true);
+    setError("");
+    try {
+      const offset = replace ? 0 : (data?.pagination?.[kind]?.nextOffset ?? 0);
+      const page = await api<{
+        items: any[];
+        hasMore: boolean;
+        nextOffset: number;
+      }>(
+        `collections/${kind}?offset=${offset}&search=${encodeURIComponent(search)}`,
+      );
+      collectionQueries.current[kind] = { search, nextOffset: page.nextOffset };
+      setData((old) =>
+        old
+          ? {
+              ...old,
+              [kind]: replace
+                ? page.items
+                : [...old[kind], ...page.items].filter(
+                    (item, i, all) =>
+                      all.findIndex((v) => v.id === item.id) === i,
+                  ),
+              pagination: {
+                ...old.pagination,
+                [kind]: { hasMore: page.hasMore, nextOffset: page.nextOffset },
+              },
+            }
+          : old,
+      );
+    } catch (e) {
+      setError((e as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  };
+  const loadCalendar = useCallback(async (month: string) => {
+    const request = ++calendarRequest.current;
+    calendarMonth.current = month;
+    setCalendarLoading(true);
+    try {
+      let offset = 0,
+        items: Event[] = [];
+      for (let n = 0; n < 100; n++) {
+        const page = await api<{
+          items: Event[];
+          hasMore: boolean;
+          nextOffset: number;
+        }>(`events/calendar?month=${month}&offset=${offset}`);
+        items.push(...page.items);
+        if (!page.hasMore) {
+          if (request === calendarRequest.current) setCalendarEvents(items);
+          return;
+        }
+        offset = page.nextOffset;
+      }
+      throw Error("Too many events for this month. Use the event list.");
+    } catch (e) {
+      if (request === calendarRequest.current) setError((e as Error).message);
+    } finally {
+      if (request === calendarRequest.current) setCalendarLoading(false);
+    }
+  }, []);
   const refresh = useCallback(async () => {
     setRefreshing(true);
+    const version = ++refreshVersion.current;
     try {
-      const d = await api<HubData>("data");
+      const view = currentView.current;
+      const d = await api<HubData>("data?view=" + view);
+      for (const [kind, query] of Object.entries(collectionQueries.current)) {
+        if (
+          !(
+            (view === "societies" && ["accounts", "roster"].includes(kind)) ||
+            (view === "events" && kind === "events") ||
+            (view === "applications" && kind === "forms") ||
+            (view === "reviews" && kind === "submissions") ||
+            (view === "overview" && kind === "accounts") ||
+            (view === "activity" && ["accounts", "events"].includes(kind))
+          )
+        )
+          continue;
+        let offset = 0,
+          items: any[] = [];
+        while (offset < Math.max(query.nextOffset, 1)) {
+          const page = await api<{
+            items: any[];
+            hasMore: boolean;
+            nextOffset: number;
+          }>(
+            `collections/${kind}?offset=${offset}&search=${encodeURIComponent(query.search)}`,
+          );
+          items.push(...page.items);
+          d.pagination = {
+            ...d.pagination,
+            [kind]: { hasMore: page.hasMore, nextOffset: page.nextOffset },
+          };
+          if (!page.hasMore || page.nextOffset <= offset) break;
+          offset = page.nextOffset;
+        }
+        (d as any)[kind] = items;
+      }
+      if (version !== refreshVersion.current) return;
       setData(d);
+      if (view === "events" && calendarMonth.current)
+        void loadCalendar(calendarMonth.current);
       setAuthNeeded(false);
     } catch (e) {
       if ((e as Error & { status?: number }).status === 401) {
@@ -510,6 +451,32 @@ export default function Hub() {
       setRefreshing(false);
     }
   }, []);
+  useEffect(() => {
+    if (data) void refresh();
+  }, [tab]);
+  useEffect(() => {
+    if (!data || deepLinkOpened.current) return;
+    const id = new URLSearchParams(window.location.search).get("submission");
+    if (!id || !/^[a-f\d]{8}-(?:[a-f\d]{4}-){3}[a-f\d]{12}$/i.test(id)) return;
+    deepLinkOpened.current = true;
+    setBusy(true);
+    void api<Submission>("submissions/" + id)
+      .then(async (submission) => {
+        if (data.actor.role === "admin") {
+          setTab("reviews");
+          setReview(submission);
+        } else {
+          const detail = await api<{ form: Form; submission?: Submission }>(
+            "forms/" + submission.form_id,
+          );
+          setTab("applications");
+          setApplication(detail.form);
+          setApplicationSubmission(detail.submission);
+        }
+      })
+      .catch((e) => setError((e as Error).message))
+      .finally(() => setBusy(false));
+  }, [data?.actor.id]);
   useEffect(() => {
     const escape = (e: KeyboardEvent) => {
       if (e.key === "Escape" && mobile) {
@@ -582,12 +549,18 @@ export default function Hub() {
         !editingEvent &&
         !editingForm &&
         !application &&
-        !review
+        !review &&
+        !contactAccount &&
+        !document.querySelector('[data-unsaved-changes="true"]')
       )
         void refresh();
     }, 30000);
     const visible = () => {
-      if (document.visibilityState === "visible") void refresh();
+      if (
+        document.visibilityState === "visible" &&
+        !document.querySelector('[data-unsaved-changes="true"]')
+      )
+        void refresh();
     };
     document.addEventListener("visibilitychange", visible);
     return () => {
@@ -631,11 +604,10 @@ export default function Hub() {
     try {
       const fresh = await api<HubData>("data");
       setData(fresh);
-      if (editingEvent?.id) {
-        const latest = fresh.events.find((e) => e.id === editingEvent.id);
-        if (!latest) throw Error("This event is no longer available.");
-        setEditingEvent(latest);
-      }
+      if (editingEvent?.id)
+        setEditingEvent(await api<Event>("events/" + editingEvent.id));
+      if (contactAccount)
+        setContactAccount(await api<Account>("accounts/" + contactAccount.id));
       if (editingForm?.id)
         setEditingForm(
           (await api<{ form: Form }>("forms/" + editingForm.id)).form,
@@ -660,6 +632,7 @@ export default function Hub() {
   };
   const navigate = (next: string) => {
     if (busy || !confirmDiscard()) return;
+    setContactAccount(null);
     setTab(next);
     if (mobile) menuButtonRef.current?.focus();
     setMobile(false);
@@ -738,6 +711,17 @@ export default function Hub() {
     <div className="actions society-actions">
       <Button
         secondary
+        disabled={busy}
+        onClick={() => {
+          if (!confirmDiscard()) return;
+          setContactAccount(a);
+          window.scrollTo({ top: 0, behavior: "instant" });
+        }}
+      >
+        Edit contacts
+      </Button>
+      <Button
+        secondary
         disabled={busy || !a.enabled}
         aria-label={`Issue setup or reset link for ${a.display_name}`}
         onClick={async () => {
@@ -774,6 +758,13 @@ export default function Hub() {
         .reduce((s, c) => s + c.points, 0),
     );
   const dashboard = dashboardItems(data, Date.now());
+  const dashboardCounts = data.dashboardCounts ?? {
+    pendingReviews: dashboard.pendingReviews.length,
+    upcomingEvents: dashboard.upcomingEvents.length,
+    missingPrt: dashboard.missingPrt.length,
+    awaitingSetup: dashboard.awaitingSetup.length,
+    activeSocieties: societies.filter((a) => a.enabled).length,
+  };
   const title: Record<string, string> = {
     overview: admin ? "SEC dashboard" : `Hello, ${data.actor.display_name}`,
     events: "Events & check-in",
@@ -982,7 +973,8 @@ export default function Hub() {
                             "Complete funding and collaboration applications.",
                           activity:
                             "Your society’s attendance and earned points.",
-                          settings: "Manage your society’s shared password.",
+                          settings:
+                            "Manage your society’s contacts and shared password.",
                         } as Record<string, string>
                       )[tab]}
                 </p>
@@ -991,7 +983,7 @@ export default function Hub() {
             {tab === "overview" && admin && (
               <Button
                 onClick={() => {
-                  if (dashboard.pendingReviews.length) {
+                  if (dashboardCounts.pendingReviews) {
                     navigate("reviews");
                     void openReview(dashboard.pendingReviews[0]);
                   } else {
@@ -1000,9 +992,9 @@ export default function Hub() {
                   }
                 }}
               >
-                {dashboard.pendingReviews.length
+                {dashboardCounts.pendingReviews
                   ? "Review next application"
-                  : dashboard.upcomingEvents.length
+                  : dashboardCounts.upcomingEvents
                     ? "Manage next event"
                     : "Create event"}
                 <ArrowRight size={17} />
@@ -1055,7 +1047,7 @@ export default function Hub() {
               0 && (
               <div className="alert error" role="status">
                 <span className="alert-message">
-                  Some application receipts need attention. Applications are
+                  Some application emails need attention. Applications are
                   saved; review delivery status before resending.
                 </span>
                 <Button
@@ -1161,7 +1153,7 @@ export default function Hub() {
                 <p>
                   {`Points since ${when(current.started_at)} CT`} ·{" "}
                   {admin
-                    ? `${societies.filter((s) => s.enabled).length} active societies`
+                    ? `${dashboardCounts.activeSocieties} active societies`
                     : "Points update automatically after check-in."}
                 </p>
                 <span>Current points</span>
@@ -1179,7 +1171,7 @@ export default function Hub() {
                   )}
                   <DashboardSection
                     title="Upcoming & ongoing events"
-                    count={dashboard.upcomingEvents.length}
+                    count={dashboardCounts.upcomingEvents}
                     emptyText="No upcoming events"
                     action={
                       <button
@@ -1190,7 +1182,7 @@ export default function Hub() {
                       </button>
                     }
                   >
-                    {dashboard.upcomingEvents.length ? (
+                    {dashboardCounts.upcomingEvents ? (
                       dashboard.upcomingEvents.slice(0, 3).map((event) => (
                         <div className="record" key={event.id}>
                           <div>
@@ -1303,7 +1295,7 @@ export default function Hub() {
                 <>
                   <DashboardSection
                     title="Applications awaiting review"
-                    count={dashboard.pendingReviews.length}
+                    count={dashboardCounts.pendingReviews}
                     emptyText="Review queue clear"
                     action={
                       <button
@@ -1317,7 +1309,7 @@ export default function Hub() {
                     <p className="section-intro">
                       Oldest submissions appear first.
                     </p>
-                    {dashboard.pendingReviews.length ? (
+                    {dashboardCounts.pendingReviews ? (
                       dashboard.pendingReviews.slice(0, 5).map((item) => (
                         <div className="record dashboard-record" key={item.id}>
                           <div>
@@ -1345,9 +1337,9 @@ export default function Hub() {
                         point period.
                       </Empty>
                     )}
-                    {dashboard.pendingReviews.length > 5 && (
+                    {dashboardCounts.pendingReviews > 5 && (
                       <small>
-                        Showing 5 of {dashboard.pendingReviews.length}. Open the
+                        Showing 5 of {dashboardCounts.pendingReviews}. Open the
                         review queue for all submissions.
                       </small>
                     )}
@@ -1355,7 +1347,7 @@ export default function Hub() {
                   <div className="dashboard-grid">
                     <DashboardSection
                       title="Upcoming & ongoing events"
-                      count={dashboard.upcomingEvents.length}
+                      count={dashboardCounts.upcomingEvents}
                       emptyText="No upcoming events"
                       action={
                         <button
@@ -1366,7 +1358,7 @@ export default function Hub() {
                         </button>
                       }
                     >
-                      {dashboard.upcomingEvents.length ? (
+                      {dashboardCounts.upcomingEvents ? (
                         dashboard.upcomingEvents.slice(0, 5).map((event) => (
                           <div
                             className="record dashboard-record"
@@ -1402,7 +1394,7 @@ export default function Hub() {
                           period. Add or manage events from the Events tab.
                         </Empty>
                       )}
-                      {dashboard.upcomingEvents.length > 5 && (
+                      {dashboardCounts.upcomingEvents > 5 && (
                         <small>
                           Showing the next 5 events. Open All events for the
                           full schedule.
@@ -1411,7 +1403,7 @@ export default function Hub() {
                     </DashboardSection>
                     <DashboardSection
                       title="PRT minimum not yet met"
-                      count={dashboard.missingPrt.length}
+                      count={dashboardCounts.missingPrt}
                       emptyText="No societies need PRT follow-up"
                       action={
                         <button
@@ -1426,7 +1418,7 @@ export default function Hub() {
                         Enabled societies with less than 1 PRT point. Each
                         society needs 1 PRT point per point period.
                       </p>
-                      {dashboard.missingPrt.length ? (
+                      {dashboardCounts.missingPrt ? (
                         dashboard.missingPrt.slice(0, 5).map((account) => (
                           <div className="record" key={account.id}>
                             <div>
@@ -1442,9 +1434,9 @@ export default function Hub() {
                           enabled societies have been added.
                         </Empty>
                       )}
-                      {dashboard.missingPrt.length > 5 && (
+                      {dashboardCounts.missingPrt > 5 && (
                         <small>
-                          Showing 5 of {dashboard.missingPrt.length}. Expand All
+                          Showing 5 of {dashboardCounts.missingPrt}. Expand All
                           society point totals below for every society.
                         </small>
                       )}
@@ -1452,7 +1444,7 @@ export default function Hub() {
                   </div>
                   <DashboardSection
                     title="Accounts awaiting setup"
-                    count={dashboard.awaitingSetup.length}
+                    count={dashboardCounts.awaitingSetup}
                     emptyText="No accounts awaiting setup"
                     action={
                       <button
@@ -1467,7 +1459,7 @@ export default function Hub() {
                       Across all records. These enabled society accounts have
                       not set their password.
                     </p>
-                    {dashboard.awaitingSetup.length ? (
+                    {dashboardCounts.awaitingSetup ? (
                       dashboard.awaitingSetup.slice(0, 5).map((account) => (
                         <div
                           className="record dashboard-record"
@@ -1505,9 +1497,9 @@ export default function Hub() {
                         password.
                       </Empty>
                     )}
-                    {dashboard.awaitingSetup.length > 5 && (
+                    {dashboardCounts.awaitingSetup > 5 && (
                       <small>
-                        Showing 5 of {dashboard.awaitingSetup.length}. Manage
+                        Showing 5 of {dashboardCounts.awaitingSetup}. Manage
                         societies to view all accounts.
                       </small>
                     )}
@@ -1525,6 +1517,12 @@ export default function Hub() {
                         </button>
                       }
                     >
+                      {data.pagination?.accounts.hasMore && (
+                        <p className="section-intro">
+                          Showing loaded societies. Use “Load more societies”
+                          below to see the next page.
+                        </p>
+                      )}
                       {societies.length ? (
                         <div
                           className="table-wrap"
@@ -1632,7 +1630,9 @@ export default function Hub() {
                   {eventsView === "calendar" && current ? (
                     <EventCalendar
                       key={current.id}
-                      events={events}
+                      events={calendarEvents ?? events}
+                      onMonthChange={data.pagination ? loadCalendar : undefined}
+                      loading={calendarLoading}
                       onEdit={admin ? setEditingEvent : undefined}
                       onQr={admin ? setQrEvent : undefined}
                     />
@@ -1696,17 +1696,23 @@ export default function Hub() {
                                     className="button secondary event-checkin-toggle"
                                     aria-pressed={
                                       e.checkin_open &&
-                                      Date.parse(e.ends_at) > Date.now()
+                                      Date.parse(
+                                        e.checkin_ends_at ?? e.ends_at,
+                                      ) > Date.now()
                                     }
                                     disabled={busy}
                                     onClick={() => {
                                       const now = Date.now();
                                       const enabled =
                                         e.checkin_open &&
-                                        Date.parse(e.ends_at) > now;
+                                        Date.parse(
+                                          e.checkin_ends_at ?? e.ends_at,
+                                        ) > now;
                                       if (
                                         !enabled &&
-                                        Date.parse(e.ends_at) <= now
+                                        Date.parse(
+                                          e.checkin_ends_at ?? e.ends_at,
+                                        ) <= now
                                       ) {
                                         setReopenEventId(e.id);
                                         setEditingEvent({
@@ -1729,7 +1735,8 @@ export default function Hub() {
                                     }}
                                   >
                                     {e.checkin_open &&
-                                    Date.parse(e.ends_at) > Date.now()
+                                    Date.parse(e.checkin_ends_at ?? e.ends_at) >
+                                      Date.now()
                                       ? "Pause check-in"
                                       : "Enable check-in"}
                                   </button>
@@ -2106,9 +2113,7 @@ export default function Hub() {
               <ReviewView
                 key={review.id + ":" + editorGeneration}
                 retryEmail={async (id) => {
-                  const uncertain =
-                    data.submissions.find((s) => s.confirmation_email_id === id)
-                      ?.confirmation_status === "UNCERTAIN";
+                  const uncertain = review.confirmation_status === "UNCERTAIN";
                   if (
                     uncertain &&
                     !window.confirm(
@@ -2119,7 +2124,7 @@ export default function Hub() {
                   const result = await run(
                     "admin/email-retry",
                     { id, acknowledgeDuplicate: uncertain },
-                    "Confirmation email queued for retry.",
+                    "Application email queued for retry.",
                   );
                   if (result && review) await openReview(review);
                 }}
@@ -2133,18 +2138,10 @@ export default function Hub() {
               />
             ) : (
               <Panel title="Submitted applications">
-                {data.submissions.filter(
-                  (s) =>
-                    s.status !== "DRAFT" &&
-                    forms.some((f) => f.id === s.form_id),
-                ).length ? (
+                {data.submissions.filter((s) => s.status !== "DRAFT").length ? (
                   <div className="record-list">
                     {data.submissions
-                      .filter(
-                        (s) =>
-                          s.status !== "DRAFT" &&
-                          forms.some((f) => f.id === s.form_id),
-                      )
+                      .filter((s) => s.status !== "DRAFT")
                       .map((s) => (
                         <div className="record" key={s.id}>
                           <div>
@@ -2173,6 +2170,27 @@ export default function Hub() {
             ))}
           {tab === "societies" && admin && (
             <>
+              {contactAccount && (
+                <ContactEditor
+                  key={
+                    contactAccount.id +
+                    ":" +
+                    (contactAccount.contact_revision ?? 1)
+                  }
+                  account={contactAccount}
+                  busy={busy}
+                  cancel={() => setContactAccount(null)}
+                  save={async (body) => {
+                    const r = await run(
+                      "accounts/contacts",
+                      body,
+                      "Society contacts updated.",
+                    );
+                    if (r) setContactAccount(null);
+                    return !!r;
+                  }}
+                />
+              )}
               <Panel
                 title="Society directory"
                 action={
@@ -2187,15 +2205,29 @@ export default function Hub() {
                   </Button>
                 }
               >
-                {societies.length > 0 && (
-                  <Field label="Search society accounts">
-                    <input
-                      type="search"
-                      value={directorySearch}
-                      onChange={(e) => setDirectorySearch(e.target.value)}
-                      placeholder="Search name or username"
-                    />
-                  </Field>
+                <Field label="Search society accounts">
+                  <input
+                    type="search"
+                    value={directorySearch}
+                    onChange={(e) => setDirectorySearch(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter")
+                        void loadCollection("accounts", directorySearch, true);
+                    }}
+                    placeholder="Search name or username"
+                    aria-description="Press Enter to search all society accounts."
+                  />
+                </Field>
+                {data.pagination && (
+                  <Button
+                    secondary
+                    disabled={busy}
+                    onClick={() =>
+                      void loadCollection("accounts", directorySearch, true)
+                    }
+                  >
+                    Search all societies
+                  </Button>
                 )}
                 {visibleSocieties.length ? (
                   <>
@@ -2277,23 +2309,40 @@ export default function Hub() {
                 )}
               </Panel>
               <Panel
-                title={`Contact roster review · ${rosterGroups.length} societies`}
+                title={`Contact roster review · ${rosterGroups.length} loaded societies`}
               >
                 <p className="section-intro">
                   Repeated names and known aliases are grouped into one society.
                   Select a society to include all its contact responses, then
                   create one account. Expand Contacts to review the originals.
                 </p>
-                {data.roster.length ? (
+                <Field label="Search contact roster">
+                  <input
+                    type="search"
+                    value={rosterSearch}
+                    onChange={(e) => setRosterSearch(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter")
+                        void loadCollection("roster", rosterSearch, true);
+                    }}
+                    placeholder="Search society name or contact"
+                  />
+                </Field>
+                {data.pagination && (
+                  <Button
+                    secondary
+                    disabled={busy}
+                    onClick={() =>
+                      void loadCollection("roster", rosterSearch, true)
+                    }
+                  >
+                    Search all contact groups
+                  </Button>
+                )}
+                {refreshing && !data.pagination?.roster ? (
+                  <p role="status">Loading contact roster…</p>
+                ) : data.roster.length ? (
                   <>
-                    <Field label="Search contact roster">
-                      <input
-                        type="search"
-                        value={rosterSearch}
-                        onChange={(e) => setRosterSearch(e.target.value)}
-                        placeholder="Search society name or contact"
-                      />
-                    </Field>
                     <div className="roster-toolbar">
                       <span aria-live="polite">
                         {selectedRoster.length} responses selected ·{" "}
@@ -2390,9 +2439,9 @@ export default function Hub() {
               </Panel>
               {provision && (
                 <ProvisionForm
-                  selected={data.roster.filter((r) =>
-                    selectedRoster.includes(r.id),
-                  )}
+                  selected={selectedRoster
+                    .map((id) => selectedContacts.current.get(id))
+                    .filter((r): r is Candidate => !!r)}
                   busy={busy}
                   cancel={() => setProvision(false)}
                   save={async (b) => {
@@ -2412,6 +2461,48 @@ export default function Hub() {
           )}
           {tab === "settings" && (
             <>
+              {admin && data.operations && (
+                <Panel title="Operational health">
+                  <p className="section-intro">
+                    Last hour · Request timings are sampled. No application
+                    answers, contact details, or exception messages are
+                    collected.
+                  </p>
+                  <dl className="operations-summary">
+                    <div>
+                      <dt>Server failures</dt>
+                      <dd>{data.operations.errors}</dd>
+                    </div>
+                    <div>
+                      <dt>Browser errors</dt>
+                      <dd>{data.operations.client_errors}</dd>
+                    </div>
+                    <div>
+                      <dt>API response time (p95)</dt>
+                      <dd>{data.operations.p95_ms} ms</dd>
+                    </div>
+                    <div>
+                      <dt>Sampled requests</dt>
+                      <dd>{data.operations.sampled_requests}</dd>
+                    </div>
+                  </dl>
+                </Panel>
+              )}
+
+              {!admin && data.accounts.find((a) => a.id === data.actor.id) && (
+                <ContactEditor
+                  key={data.actor.id + ":" + editorGeneration}
+                  account={data.accounts.find((a) => a.id === data.actor.id)!}
+                  busy={busy}
+                  save={async (body) =>
+                    !!(await run(
+                      "accounts/contacts",
+                      body,
+                      "Society contacts updated.",
+                    ))
+                  }
+                />
+              )}
               <PasswordForm
                 busy={busy}
                 save={async (b) => {
@@ -2460,6 +2551,43 @@ export default function Hub() {
                 </>
               )}
             </>
+          )}
+          {data.pagination && (
+            <div className="collection-pages" aria-label="More records">
+              {(tab === "events"
+                ? ["events"]
+                : tab === "applications"
+                  ? ["forms"]
+                  : tab === "reviews"
+                    ? ["submissions"]
+                    : tab === "societies"
+                      ? ["accounts", "roster"]
+                      : tab === "activity" && admin
+                        ? ["accounts", "events"]
+                        : tab === "overview" && admin
+                          ? ["accounts"]
+                          : []
+              ).map(
+                (kind) =>
+                  data.pagination?.[kind]?.hasMore && (
+                    <Button
+                      key={kind}
+                      secondary
+                      disabled={busy}
+                      onClick={() =>
+                        void loadCollection(
+                          kind as any,
+                          collectionQueries.current[kind]?.search ?? "",
+                        )
+                      }
+                    >
+                      {busy
+                        ? "Loading…"
+                        : `Load more ${kind === "accounts" ? "societies" : kind === "roster" ? "contact groups" : kind}`}
+                    </Button>
+                  ),
+              )}
+            </div>
           )}
           <footer className="footer">
             <span>SocietyHub</span>
@@ -2612,420 +2740,6 @@ function AuthScreen({
     </main>
   );
 }
-function CopyLink({ value }: { value: string }) {
-  const [copied, setCopied] = useState(false),
-    [err, setErr] = useState(false);
-  return (
-    <div className="copy-link">
-      <input
-        readOnly
-        aria-label="Shareable link"
-        value={value}
-        onFocus={(e) => e.target.select()}
-      />
-      <Button
-        secondary
-        onClick={async () => {
-          try {
-            await navigator.clipboard.writeText(value);
-            setCopied(true);
-            setErr(false);
-          } catch {
-            setErr(true);
-          }
-        }}
-      >
-        {copied ? <Check size={16} /> : <Copy size={16} />}{" "}
-        {copied ? "Copied" : "Copy"}
-      </Button>
-      {err && <small role="status">Select and copy the link manually.</small>}
-    </div>
-  );
-}
-function EventEditor({
-  initial,
-  reopening = false,
-  busy,
-  cancel,
-  save,
-}: {
-  initial: Event | null;
-  reopening?: boolean;
-  busy: boolean;
-  cancel: () => void;
-  save: (b: unknown) => Promise<void>;
-}) {
-  const [name, setName] = useState(initial?.name ?? ""),
-    [description, setDescription] = useState(initial?.description ?? ""),
-    [location, setLocation] = useState(initial?.location ?? ""),
-    [category, setCategory] = useState(initial?.category ?? "PRT"),
-    [start, setStart] = useState(initial ? localDate(initial.starts_at) : ""),
-    [end, setEnd] = useState(initial ? localDate(initial.ends_at) : ""),
-    [open, setOpen] = useState(initial?.checkin_open ?? false);
-  const [windowError, setWindowError] = useState("");
-  const { dirty } = useUnsavedChanges(
-    JSON.stringify({ name, description, location, category, start, end, open }),
-  );
-  return (
-    <Panel
-      title={
-        reopening
-          ? "Enable event check-in"
-          : initial
-            ? "Edit event"
-            : "Create event"
-      }
-    >
-      {reopening && (
-        <p className="section-intro">
-          To enable check-in now, set a start time at or before now and an end
-          time in the future. Existing QR links and earned points are preserved.
-        </p>
-      )}
-      {windowError && (
-        <p className="alert error" role="alert">
-          {windowError}
-        </p>
-      )}
-      <form
-        className="editor-form"
-        data-unsaved-changes={dirty ? "true" : undefined}
-        onSubmit={(e) => {
-          e.preventDefault();
-          setWindowError("");
-          if (
-            reopening &&
-            (Date.parse(start) > Date.now() || Date.parse(end) <= Date.now())
-          ) {
-            setWindowError(
-              "To reopen now, choose a start time at or before now and an end time in the future.",
-            );
-            return;
-          }
-          void save({
-            id: initial?.id,
-            expectedVersion: initial?.revision,
-            name,
-            description,
-            location,
-            category,
-            startsAt: new Date(start).toISOString(),
-            endsAt: new Date(end).toISOString(),
-            checkinOpen: reopening || open,
-          });
-        }}
-      >
-        <Field label="Event name">
-          <input
-            autoFocus={!reopening}
-            required
-            maxLength={200}
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
-        </Field>
-        <div className="form-grid">
-          <Field label="Event category">
-            <select
-              disabled={!!initial}
-              value={category}
-              onChange={(e) => setCategory(e.target.value as Event["category"])}
-            >
-              <option value="PRT">PRT · 1 point</option>
-              <option value="STANDARD">Standard · 1 point</option>
-              <option value="HIGH_IMPACT">High Impact · 2 points</option>
-            </select>
-          </Field>
-        </div>
-        <Field label="Description">
-          <textarea
-            rows={3}
-            maxLength={5000}
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-          />
-        </Field>
-        <Field label="Location">
-          <input
-            maxLength={300}
-            value={location}
-            onChange={(e) => setLocation(e.target.value)}
-          />
-        </Field>
-        <div className="form-grid">
-          <Field
-            label="Check-in window starts"
-            hint="Enter times in your device’s local timezone."
-          >
-            <input
-              required
-              type="datetime-local"
-              max={reopening ? localDate(new Date().toISOString()) : undefined}
-              value={start}
-              onChange={(e) => setStart(e.target.value)}
-            />
-          </Field>
-          <Field
-            label="Check-in window ends"
-            hint={reopening ? "Choose an end time in the future." : undefined}
-          >
-            <input
-              required
-              type="datetime-local"
-              autoFocus={reopening}
-              min={
-                reopening
-                  ? localDate(
-                      new Date(
-                        Math.max(Date.parse(start) || 0, Date.now()),
-                      ).toISOString(),
-                    )
-                  : start
-              }
-              value={end}
-              onChange={(e) => setEnd(e.target.value)}
-            />
-          </Field>
-        </div>
-        {category !== "HIGH_IMPACT" && !reopening && (
-          <fieldset className="checkin-settings">
-            <legend>QR and link check-in</legend>
-            <label className="checkin-choice">
-              <input
-                type="radio"
-                name="checkin-status"
-                checked={open}
-                onChange={() => setOpen(true)}
-              />
-              <span>
-                <strong>Enabled</strong>
-                <small>
-                  Societies can check in between the start and end times above.
-                </small>
-              </span>
-            </label>
-            <label className="checkin-choice">
-              <input
-                type="radio"
-                name="checkin-status"
-                checked={!open}
-                onChange={() => setOpen(false)}
-              />
-              <span>
-                <strong>Paused</strong>
-                <small>
-                  The QR code and link will not accept new check-ins.
-                </small>
-              </span>
-            </label>
-            <p>
-              You can change this here at any time, or use Enable check-in in
-              the Events list. Existing attendance is kept.
-            </p>
-          </fieldset>
-        )}
-        <FormActions
-          busy={busy}
-          onCancel={() => {
-            if (confirmDiscard()) cancel();
-          }}
-          label={
-            reopening
-              ? "Enable check-in"
-              : initial
-                ? "Save event"
-                : "Create event"
-          }
-        />
-      </form>
-    </Panel>
-  );
-}
-function QRPanel({
-  event,
-  close,
-  rotate,
-  busy,
-}: {
-  event: Event;
-  close: () => void;
-  rotate: () => Promise<boolean>;
-  busy: boolean;
-}) {
-  const dialog = useRef<HTMLDialogElement>(null);
-  useEffect(() => {
-    const opener = document.activeElement as HTMLElement | null;
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    const modal = dialog.current;
-    modal?.showModal();
-    return () => {
-      modal?.close();
-      document.body.style.overflow = previousOverflow;
-      if (opener?.isConnected) opener.focus({ preventScroll: true });
-    };
-  }, []);
-  const [qr, setQr] = useState<{ link: string; src: string } | null>(null),
-    [error, setError] = useState(""),
-    [replacement, setReplacement] = useState<{
-      ok: boolean;
-      message: string;
-    } | null>(null);
-  const link = `${window.location.origin}/checkin/${event.id}?token=${event.checkin_token}`;
-  const src = qr?.link === link ? qr.src : "";
-  const filename = `${
-    event.name
-      .toLowerCase()
-      .normalize("NFKD")
-      .replace(/[\u0300-\u036f]/g, "")
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/^-|-$/g, "")
-      .slice(0, 70) || "event"
-  }-check-in.png`;
-  useEffect(() => {
-    let active = true;
-    setError("");
-    void QRCode.toDataURL(link, {
-      type: "image/png",
-      width: 1024,
-      margin: 3,
-      errorCorrectionLevel: "M",
-      color: { dark: "#000000", light: "#ffffff" },
-    })
-      .then((src) => {
-        if (active) setQr({ link, src });
-      })
-      .catch(() => {
-        if (active)
-          setError("Unable to generate QR code. Use the sign-in link below.");
-      });
-    return () => {
-      active = false;
-    };
-  }, [link]);
-  return (
-    <dialog
-      ref={dialog}
-      className="qr-modal"
-      onKeyDown={(e) => {
-        if (e.key !== "Tab") return;
-        const controls = Array.from(
-          e.currentTarget.querySelectorAll<HTMLElement>(
-            'button:not(:disabled), a[href], input:not(:disabled), [tabindex="0"]',
-          ),
-        ).filter((n) => n.getClientRects().length);
-        const first = controls[0],
-          last = controls.at(-1);
-        if (e.shiftKey && document.activeElement === first) {
-          e.preventDefault();
-          last?.focus();
-        } else if (!e.shiftKey && document.activeElement === last) {
-          e.preventDefault();
-          first?.focus();
-        }
-      }}
-      aria-label={`Check-in · ${event.name}`}
-      onCancel={close}
-      onClick={(e) => {
-        if (e.target !== e.currentTarget) return;
-        const rect = e.currentTarget.getBoundingClientRect();
-        if (
-          e.clientX < rect.left ||
-          e.clientX > rect.right ||
-          e.clientY < rect.top ||
-          e.clientY > rect.bottom
-        )
-          close();
-      }}
-    >
-      <Panel
-        title={`Check-in · ${event.name}`}
-        action={
-          <button
-            className="icon-button"
-            onClick={close}
-            aria-label="Close QR panel"
-          >
-            <X />
-          </button>
-        }
-      >
-        <div className="qr-layout">
-          {!src && !error && (
-            <div
-              className="skeleton skeleton-qr"
-              role="status"
-              aria-label="Preparing QR code"
-            />
-          )}
-          {src && (
-            <img
-              src={src}
-              width={260}
-              height={260}
-              alt={`Check-in QR code for ${event.name}`}
-            />
-          )}
-          <div>
-            <p>Display this QR code at the event or share the sign-in link.</p>
-            <p>
-              {when(event.starts_at)} – {when(event.ends_at)} CT
-            </p>
-            <Pill
-              tone={
-                checkinStatus(event) === "Check-in open" ? "green" : "neutral"
-              }
-            >
-              {checkinStatus(event)}
-            </Pill>
-            {error && <p role="alert">{error}</p>}
-            {replacement && (
-              <p
-                className="qr-feedback"
-                role={replacement.ok ? "status" : "alert"}
-              >
-                {replacement.message}
-              </p>
-            )}
-            <CopyLink value={link} />
-            <div className="actions">
-              {src && (
-                <a className="button" href={src} download={filename}>
-                  <Download size={16} aria-hidden="true" />
-                  Download PNG
-                </a>
-              )}
-              <a
-                className="button secondary"
-                href={link}
-                target="_blank"
-                rel="noreferrer"
-              >
-                Open sign-in link <ExternalLink size={15} />
-              </a>
-              <Button
-                secondary
-                disabled={busy}
-                onClick={async () => {
-                  setReplacement(null);
-                  const ok = await rotate();
-                  setReplacement({
-                    ok,
-                    message: ok
-                      ? "New link created. Previous links and QR codes no longer work."
-                      : "Couldn’t confirm the replacement. Reload the workspace before sharing this QR code.",
-                  });
-                }}
-              >
-                Replace link & QR
-              </Button>
-            </div>
-          </div>
-        </div>
-      </Panel>
-    </dialog>
-  );
-}
 function ManualAward({
   events,
   societies,
@@ -3150,701 +2864,6 @@ function CreditCorrection({
         </Button>
       )}
     </div>
-  );
-}
-function FormEditor({
-  initial,
-  busy,
-  cancel,
-  save,
-}: {
-  initial: Form | null;
-  busy: boolean;
-  cancel: () => void;
-  save: (b: unknown) => Promise<void>;
-}) {
-  const [title, setTitle] = useState(initial?.title ?? ""),
-    [description, setDescription] = useState(initial?.description ?? ""),
-    [kind, setKind] = useState(initial?.kind ?? "FUNDING"),
-    [deadline, setDeadline] = useState(
-      initial?.deadline ? localDate(initial.deadline) : "",
-    ),
-    [questions, setQuestions] = useState<Question[]>(
-      initial?.questions ?? [
-        {
-          id: crypto.randomUUID(),
-          label: "",
-          type: "short",
-          required: true,
-          options: [],
-        },
-      ],
-    );
-  const update = (i: number, patch: Partial<Question>) =>
-    setQuestions((q) => q.map((x, j) => (j === i ? { ...x, ...patch } : x)));
-  const move = (i: number, offset: number) => {
-    setQuestions((q) => {
-      const result = [...q];
-      [result[i], result[i + offset]] = [result[i + offset], result[i]];
-      return result;
-    });
-  };
-  const { dirty } = useUnsavedChanges(
-    JSON.stringify({ title, description, kind, deadline, questions }),
-  );
-  return (
-    <Panel
-      title={initial ? "Edit application form" : "Create application form"}
-    >
-      <form
-        className="editor-form"
-        data-unsaved-changes={dirty ? "true" : undefined}
-        onSubmit={(e) => {
-          e.preventDefault();
-          const submitter = (e.nativeEvent as SubmitEvent)
-            .submitter as HTMLButtonElement | null;
-          const publish = submitter
-            ? submitter.value === "publish"
-            : !!initial?.published;
-          void save({
-            id: initial?.id,
-            expectedVersion: initial?.current_version,
-            title,
-            description,
-            kind,
-            published: publish,
-            deadline: deadline ? new Date(deadline).toISOString() : null,
-            questions: questions.map((q) => ({
-              ...q,
-              options: ["select", "checkbox"].includes(q.type) ? q.options : [],
-            })),
-          });
-        }}
-      >
-        <Field label="Application title">
-          <input
-            required
-            autoFocus
-            value={title}
-            maxLength={200}
-            onChange={(e) => setTitle(e.target.value)}
-          />
-        </Field>
-        <div className="form-grid">
-          <Field label="Application type">
-            <select
-              disabled={!!initial}
-              value={kind}
-              onChange={(e) => setKind(e.target.value as Form["kind"])}
-            >
-              <option value="FUNDING">Society Funding</option>
-              <option value="HIGH_IMPACT">
-                Cross-collaboration High Impact event approval
-              </option>
-            </select>
-          </Field>
-        </div>
-        <Field label="Instructions">
-          <textarea
-            rows={3}
-            value={description}
-            maxLength={5000}
-            onChange={(e) => setDescription(e.target.value)}
-          />
-        </Field>
-        <Field
-          label="Deadline (optional)"
-          hint="Enter in your device’s local timezone."
-        >
-          <input
-            type="datetime-local"
-            value={deadline}
-            onChange={(e) => setDeadline(e.target.value)}
-          />
-        </Field>
-        <h3>Questions</h3>
-        <p>
-          Existing drafts and submissions keep their question version. New
-          applications use your latest published version.
-        </p>
-        <div className="question-editor">
-          {questions.map((q, i) => (
-            <fieldset key={q.id}>
-              <legend>Question {i + 1}</legend>
-              <Field label="Question text">
-                <input
-                  required
-                  value={q.label}
-                  maxLength={500}
-                  onChange={(e) => update(i, { label: e.target.value })}
-                />
-              </Field>
-              <div className="form-grid">
-                <Field label="Answer type">
-                  <select
-                    value={q.type}
-                    onChange={(e) =>
-                      update(i, { type: e.target.value as Question["type"] })
-                    }
-                  >
-                    <option value="short">Short answer</option>
-                    <option value="long">Long answer</option>
-                    <option value="select">Single choice</option>
-                    <option value="checkbox">Multiple choices</option>
-                    <option value="number">Number</option>
-                  </select>
-                </Field>
-                <label className="check-field">
-                  <input
-                    type="checkbox"
-                    checked={q.required}
-                    onChange={(e) => update(i, { required: e.target.checked })}
-                  />
-                  Required
-                </label>
-              </div>
-              {["select", "checkbox"].includes(q.type) && (
-                <div
-                  className="choice-options"
-                  role="group"
-                  aria-label={`Choices for question ${i + 1}`}
-                >
-                  {(q.options.length ? q.options : [""]).map(
-                    (option, optionIndex, options) => (
-                      <div className="choice-option-row" key={optionIndex}>
-                        <Field label={`Choice ${optionIndex + 1}`}>
-                          <input
-                            id={`choice-${q.id}-${optionIndex}`}
-                            required
-                            maxLength={200}
-                            value={option}
-                            onChange={(e) =>
-                              update(i, {
-                                options: options.map((value, index) =>
-                                  index === optionIndex
-                                    ? e.target.value
-                                    : value,
-                                ),
-                              })
-                            }
-                          />
-                        </Field>
-                        <button
-                          type="button"
-                          className="icon-button"
-                          disabled={options.length === 1}
-                          aria-label={`Remove choice ${optionIndex + 1} from question ${i + 1}`}
-                          onClick={() => {
-                            update(i, {
-                              options: options.filter(
-                                (_, index) => index !== optionIndex,
-                              ),
-                            });
-                            requestAnimationFrame(() =>
-                              document
-                                .getElementById(
-                                  `choice-${q.id}-${Math.max(0, optionIndex - 1)}`,
-                                )
-                                ?.focus(),
-                            );
-                          }}
-                        >
-                          <Trash2 size={17} />
-                        </button>
-                      </div>
-                    ),
-                  )}
-                  <Button
-                    secondary
-                    disabled={q.options.length >= 30}
-                    onClick={() => {
-                      const options = q.options.length ? q.options : [""];
-                      update(i, { options: [...options, ""] });
-                      requestAnimationFrame(() =>
-                        document
-                          .getElementById(`choice-${q.id}-${options.length}`)
-                          ?.focus(),
-                      );
-                    }}
-                  >
-                    <Plus size={15} /> Add choice
-                  </Button>
-                  <small>Up to 30 choices, 200 characters each.</small>
-                </div>
-              )}
-              <div className="actions">
-                <button
-                  type="button"
-                  className="icon-button"
-                  aria-label={`Move question ${i + 1} up`}
-                  disabled={i === 0}
-                  onClick={() => move(i, -1)}
-                >
-                  <ChevronUp size={17} />
-                </button>
-                <button
-                  type="button"
-                  className="icon-button"
-                  aria-label={`Move question ${i + 1} down`}
-                  disabled={i === questions.length - 1}
-                  onClick={() => move(i, 1)}
-                >
-                  <ChevronDown size={17} />
-                </button>
-                <button
-                  type="button"
-                  className="text-button danger"
-                  disabled={questions.length === 1}
-                  onClick={() =>
-                    setQuestions(questions.filter((_, j) => j !== i))
-                  }
-                >
-                  <Trash2 size={15} />
-                  Remove question
-                </button>
-              </div>
-            </fieldset>
-          ))}
-        </div>
-        <Button
-          secondary
-          disabled={questions.length >= 50}
-          onClick={() =>
-            setQuestions([
-              ...questions,
-              {
-                id: crypto.randomUUID(),
-                label: "",
-                type: "short",
-                required: true,
-                options: [],
-              },
-            ])
-          }
-        >
-          <Plus size={16} />
-          Add question
-        </Button>
-        <div className="publication-actions">
-          <p>
-            {initial?.published
-              ? "Save changes to the published form, or unpublish it to return to a draft."
-              : "Save a draft to keep a new application private, then publish it here or from the application list."}
-          </p>
-          <div className="actions">
-            {initial?.published ? (
-              <>
-                <Button type="submit" value="publish" disabled={busy}>
-                  Save published changes
-                </Button>
-                <Button secondary type="submit" value="draft" disabled={busy}>
-                  Unpublish and save draft
-                </Button>
-              </>
-            ) : (
-              <>
-                <Button secondary type="submit" value="draft" disabled={busy}>
-                  Save draft
-                </Button>
-                <Button type="submit" value="publish" disabled={busy}>
-                  Publish application
-                </Button>
-              </>
-            )}
-            <Button
-              secondary
-              onClick={() => {
-                if (confirmDiscard()) cancel();
-              }}
-              disabled={busy}
-            >
-              Cancel
-            </Button>
-          </div>
-        </div>
-      </form>
-    </Panel>
-  );
-}
-function AnswerFields({
-  questions,
-  answers,
-  setAnswers,
-  disabled,
-}: {
-  questions: Question[];
-  answers: Answers;
-  setAnswers: (a: Answers) => void;
-  disabled: boolean;
-}) {
-  return (
-    <div className="answer-fields">
-      {questions.map((q) => {
-        const value = answers[q.id] ?? (q.type === "checkbox" ? [] : "");
-        const set = (v: string | string[]) =>
-          setAnswers({ ...answers, [q.id]: v });
-        if (q.type === "checkbox")
-          return (
-            <fieldset className="choice-field" key={q.id}>
-              <legend>
-                {q.label}
-                {q.required ? " *" : ""}
-              </legend>
-              {q.options.map((option, i) => (
-                <label className="check-field" key={i}>
-                  <input
-                    disabled={disabled}
-                    type="checkbox"
-                    checked={Array.isArray(value) && value.includes(option)}
-                    onChange={(e) => {
-                      const v = Array.isArray(value) ? value : [];
-                      set(
-                        e.target.checked
-                          ? [...v, option]
-                          : v.filter((x) => x !== option),
-                      );
-                    }}
-                  />
-                  {option}
-                </label>
-              ))}
-            </fieldset>
-          );
-        return (
-          <Field key={q.id} label={q.label + (q.required ? " *" : "")}>
-            {q.type === "long" ? (
-              <textarea
-                disabled={disabled}
-                rows={5}
-                maxLength={20000}
-                value={String(value)}
-                onChange={(e) => set(e.target.value)}
-              />
-            ) : q.type === "select" ? (
-              <select
-                disabled={disabled}
-                value={String(value)}
-                onChange={(e) => set(e.target.value)}
-              >
-                <option value="">Select an option</option>
-                {q.options.map((o, i) => (
-                  <option key={i}>{o}</option>
-                ))}
-              </select>
-            ) : (
-              <input
-                disabled={disabled}
-                type={q.type === "number" ? "number" : "text"}
-                step="any"
-                maxLength={20000}
-                value={String(value)}
-                onChange={(e) => set(e.target.value)}
-              />
-            )}
-          </Field>
-        );
-      })}
-    </div>
-  );
-}
-function ApplicationView({
-  form,
-  defaultEmail,
-  existing,
-  admin,
-  busy,
-  cancel,
-  save,
-}: {
-  form: Form;
-  defaultEmail: string;
-  existing?: Submission;
-  admin: boolean;
-  busy: boolean;
-  cancel: () => void;
-  save: (b: unknown) => Promise<Submission | undefined>;
-}) {
-  const [confirmationEmail, setConfirmationEmail] = useState(
-    existing?.confirmation_email || defaultEmail,
-  );
-  const [answers, setAnswers] = useState<Answers>(existing?.answers ?? {}),
-    [revision, setRevision] = useState(existing?.revision ?? 0),
-    [savedAt, setSavedAt] = useState(existing?.updated_at ?? "");
-  const closed =
-    existing?.status !== "CHANGES_REQUESTED" &&
-    (!form.published ||
-      !!(form.deadline && Date.parse(form.deadline) < Date.now()));
-  const readOnly =
-    admin ||
-    closed ||
-    !!(existing && !["DRAFT", "CHANGES_REQUESTED"].includes(existing.status));
-  const questions = existing?.questions ?? form.questions;
-  const { dirty, markSaved } = useUnsavedChanges(
-    JSON.stringify({ answers, confirmationEmail }),
-    !readOnly,
-  );
-  const persist = async (submit: boolean) => {
-    const r = await save({
-      formId: form.id,
-      answers,
-      submit,
-      revision,
-      confirmationEmail,
-    });
-    if (r) {
-      markSaved();
-      setRevision(r.revision);
-      setSavedAt(r.updated_at);
-    }
-  };
-  return (
-    <Panel
-      title={form.title}
-      action={
-        <Button
-          secondary
-          onClick={() => {
-            if (confirmDiscard()) cancel();
-          }}
-        >
-          Back to applications
-        </Button>
-      }
-    >
-      <div className="application-content">
-        <p className="section-intro">{form.description}</p>
-        <div className="application-meta">
-          <Pill
-            tone={
-              existing?.status === "APPROVED"
-                ? "green"
-                : existing?.status === "SUBMITTED" ||
-                    existing?.status === "UNDER_REVIEW"
-                  ? "rose"
-                  : "neutral"
-            }
-          >
-            {admin
-              ? "Admin preview"
-              : existing
-                ? status(existing.status)
-                : closed
-                  ? "Closed"
-                  : "Not started"}
-          </Pill>
-          <small>
-            Question version {existing?.form_version ?? form.current_version}
-            {form.deadline && ` · Due ${when(form.deadline)} CT`}
-          </small>
-        </div>
-        {existing?.review_note && (
-          <div className="review-note">
-            <h3>SEC feedback</h3>
-            <p>{existing.review_note}</p>
-          </div>
-        )}
-        {form.kind === "HIGH_IMPACT" && (
-          <p>Event approval and point awards are separate.</p>
-        )}
-        {existing &&
-        !admin &&
-        !["DRAFT", "CHANGES_REQUESTED"].includes(existing.status) ? (
-          <div className="application-submitted">
-            <section
-              className="application-receipt"
-              aria-label="Submission details"
-            >
-              <div>
-                <Check size={18} aria-hidden="true" />
-                <strong>Application submitted</strong>
-              </div>
-              {existing.submitted_at && (
-                <p>Submitted {when(existing.submitted_at)} CT</p>
-              )}
-              <ReceiptStatus submission={existing} />
-              {!existing.confirmation_status && (
-                <p>
-                  Confirmation email:{" "}
-                  {existing.confirmation_email || "Not provided"}
-                </p>
-              )}
-            </section>
-            <h3>Your responses</h3>
-            <dl className="application-responses">
-              {questions.map((q) => {
-                const value = answers[q.id];
-                return (
-                  <div key={q.id}>
-                    <dt>{q.label}</dt>
-                    <dd>
-                      {Array.isArray(value) ? (
-                        value.length ? (
-                          <ul>
-                            {value.map((option, index) => (
-                              <li key={index}>
-                                <Check size={15} aria-hidden="true" />
-                                {option}
-                              </li>
-                            ))}
-                          </ul>
-                        ) : (
-                          "No answer provided"
-                        )
-                      ) : (
-                        value || "No answer provided"
-                      )}
-                    </dd>
-                  </div>
-                );
-              })}
-            </dl>
-          </div>
-        ) : (
-          <form
-            data-unsaved-changes={dirty ? "true" : undefined}
-            className="editor-form"
-            onSubmit={(e) => {
-              e.preventDefault();
-              void persist(true);
-            }}
-          >
-            <Field
-              label="Confirmation email"
-              hint="We’ll send a receipt here when you submit. An officer’s personal email or a society email works."
-            >
-              <input
-                type="email"
-                autoComplete="email"
-                maxLength={254}
-                value={confirmationEmail}
-                onChange={(e) => setConfirmationEmail(e.target.value)}
-                disabled={readOnly || busy}
-              />
-            </Field>
-            <ReceiptStatus submission={existing} />
-            <AnswerFields
-              questions={questions}
-              answers={answers}
-              setAnswers={setAnswers}
-              disabled={readOnly || busy}
-            />
-            {!readOnly && (
-              <div className="actions">
-                <Button
-                  secondary
-                  disabled={busy}
-                  onClick={() => void persist(false)}
-                >
-                  Save draft
-                </Button>
-                <Button type="submit" disabled={busy}>
-                  {busy ? "Saving…" : "Submit application"}
-                  <ArrowRight size={16} />
-                </Button>
-              </div>
-            )}
-            {savedAt && <small>Last saved {when(savedAt)} CT</small>}
-          </form>
-        )}
-      </div>
-    </Panel>
-  );
-}
-function ReviewView({
-  submission: s,
-  retryEmail,
-  busy,
-  cancel,
-  save,
-}: {
-  submission: Submission;
-  retryEmail: (id: string) => Promise<void>;
-  busy: boolean;
-  cancel: () => void;
-  save: (b: unknown) => Promise<void>;
-}) {
-  const [decision, setDecision] = useState(
-      ["UNDER_REVIEW", "CHANGES_REQUESTED", "APPROVED", "DENIED"].includes(
-        s.status,
-      )
-        ? s.status
-        : "UNDER_REVIEW",
-    ),
-    [note, setNote] = useState(s.review_note);
-  return (
-    <Panel
-      title={s.society_name}
-      action={
-        <Button secondary onClick={cancel}>
-          Back to queue
-        </Button>
-      }
-    >
-      <h3>{s.form_title}</h3>
-      <div className="inline">
-        <Pill>{status(s.status)}</Pill>
-        <small>
-          Question version {s.form_version} · Submitted{" "}
-          {s.submitted_at ? when(s.submitted_at) : "—"}
-        </small>
-      </div>
-      <ReceiptStatus submission={s} />
-      {s.confirmation_email_id &&
-        s.confirmation_status !== "SENT" &&
-        (s.confirmation_attempts ?? 0) < 5 && (
-          <Button
-            secondary
-            disabled={busy}
-            onClick={() => void retryEmail(s.confirmation_email_id!)}
-          >
-            {s.confirmation_status === "UNCERTAIN"
-              ? "Review and resend confirmation"
-              : "Retry confirmation email"}
-          </Button>
-        )}
-      <div className="review-answers">
-        {s.questions.map((q) => (
-          <section key={q.id}>
-            <h4>{q.label}</h4>
-            <p>
-              {Array.isArray(s.answers[q.id])
-                ? (s.answers[q.id] as string[]).join(", ")
-                : s.answers[q.id] || "No answer provided"}
-            </p>
-          </section>
-        ))}
-      </div>
-      <form
-        className="editor-form"
-        onSubmit={(e) => {
-          e.preventDefault();
-          void save({ id: s.id, status: decision, note, revision: s.revision });
-        }}
-      >
-        <Field label="Review status">
-          <select
-            value={decision}
-            onChange={(e) => setDecision(e.target.value)}
-          >
-            <option value="UNDER_REVIEW">Under review</option>
-            <option value="CHANGES_REQUESTED">Changes requested</option>
-            <option value="APPROVED">Approved</option>
-            <option value="DENIED">Denied</option>
-          </select>
-        </Field>
-        <Field label="Feedback visible to the society">
-          <textarea
-            rows={4}
-            required={decision === "CHANGES_REQUESTED"}
-            value={note}
-            maxLength={5000}
-            onChange={(e) => setNote(e.target.value)}
-          />
-        </Field>
-        <p>Review decisions do not award event points.</p>
-        <FormActions busy={busy} onCancel={cancel} label="Save review" />
-      </form>
-    </Panel>
   );
 }
 function ProvisionForm({
@@ -4183,19 +3202,4 @@ function exportCredits(credits: HubData["credits"]) {
   a.download = "society-attendance.csv";
   a.click();
   URL.revokeObjectURL(url);
-}
-
-function ReceiptStatus({ submission: s }: { submission?: Submission }) {
-  if (!s?.confirmation_status) return null;
-  return (
-    <p className="receipt-status">
-      {s.confirmation_status === "SENT"
-        ? `Confirmation email sent to ${s.confirmation_email}.`
-        : s.confirmation_status === "UNCERTAIN"
-          ? `Your application is saved. Email delivery is unconfirmed; SEC can review its status.`
-          : s.confirmation_status === "FAILED"
-            ? `Your application is saved. The confirmation email to ${s.confirmation_email} could not be sent; SEC can retry it.`
-            : `Confirmation email to ${s.confirmation_email} is queued for sending.`}
-    </p>
-  );
 }

@@ -1,6 +1,6 @@
 import { type PoolClient } from "pg";
 import { z } from "zod";
-import { receiptContent } from "./application-email";
+import { receiptContent, decisionContent } from "./application-email";
 import { audit } from "./db";
 import { digest, token } from "./security";
 import {
@@ -85,8 +85,9 @@ export async function checkIn(db: PoolClient, actor: Actor, input: unknown) {
   }
   if (
     !event.checkin_open ||
-    Date.now() < new Date(event.starts_at).getTime() ||
-    Date.now() > new Date(event.ends_at).getTime()
+    Date.now() <
+      new Date(event.checkin_starts_at ?? event.starts_at).getTime() ||
+    Date.now() >= new Date(event.checkin_ends_at ?? event.ends_at).getTime()
   )
     throw new AppError("Check-in is closed. Contact SEC if you attended.");
   const inserted = await db.query(
@@ -403,11 +404,17 @@ export async function adminMutation(
           startsAt: date,
           endsAt: date,
           checkinOpen: z.boolean(),
+          checkinStartsAt: date.optional(),
+          checkinEndsAt: date.optional(),
         })
         .refine((x) => new Date(x.endsAt) > new Date(x.startsAt), {
-          message: "Check-in end must follow its start.",
+          message: "Event end must follow its start.",
         })
         .parse(input);
+      const checkinStart = b.checkinStartsAt ?? b.startsAt,
+        checkinEnd = b.checkinEndsAt ?? b.endsAt;
+      if (Date.parse(checkinEnd) <= Date.parse(checkinStart))
+        throw new AppError("Check-in end must follow its start.");
       if (b.id) {
         const {
           rows: [old],
@@ -422,7 +429,7 @@ export async function adminMutation(
             "Event category cannot change. Create a new event instead.",
           );
         await db.query(
-          "UPDATE events SET name=$1,description=$2,location=$3,starts_at=$4,ends_at=$5,checkin_open=$6,revision=revision+1 WHERE id=$7",
+          "UPDATE events SET name=$1,description=$2,location=$3,starts_at=$4,ends_at=$5,checkin_open=$6,revision=revision+1,checkin_starts_at=$8,checkin_ends_at=$9 WHERE id=$7",
           [
             b.name,
             b.description,
@@ -431,6 +438,8 @@ export async function adminMutation(
             b.endsAt,
             b.category === "HIGH_IMPACT" ? false : b.checkinOpen,
             b.id,
+            checkinStart,
+            checkinEnd,
           ],
         );
         await audit(db, actor.id, "EVENT_UPDATED", b.id);
@@ -439,7 +448,7 @@ export async function adminMutation(
       const {
         rows: [event],
       } = await db.query(
-        "INSERT INTO events(semester_id,name,description,location,category,starts_at,ends_at,checkin_open,checkin_token,created_by) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING *",
+        "INSERT INTO events(semester_id,name,description,location,category,starts_at,ends_at,checkin_open,checkin_token,created_by,checkin_starts_at,checkin_ends_at) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) RETURNING *",
         [
           await legacyContainer(db),
           b.name,
@@ -451,6 +460,8 @@ export async function adminMutation(
           b.category === "HIGH_IMPACT" ? false : b.checkinOpen,
           token(),
           actor.id,
+          checkinStart,
+          checkinEnd,
         ],
       );
       await audit(db, actor.id, "EVENT_CREATED", event.id);
@@ -662,10 +673,16 @@ export async function adminMutation(
         .parse(input);
       if (b.status === "CHANGES_REQUESTED" && !b.note.trim())
         throw new AppError("Explain the requested changes.");
+      const previous = (
+        await db.query(
+          "SELECT status,review_note FROM submissions WHERE id=$1 FOR UPDATE",
+          [b.id],
+        )
+      ).rows[0];
       const {
         rows: [s],
       } = await db.query(
-        "UPDATE submissions SET status=$1,review_note=$2,revision=revision+1,updated_at=now() WHERE id=$3 AND status!='DRAFT' AND revision=$4 RETURNING id",
+        "UPDATE submissions SET status=$1,review_note=$2,revision=revision+1,updated_at=now() WHERE id=$3 AND status!='DRAFT' AND revision=$4 RETURNING *",
         [b.status, b.note, b.id, b.revision],
       );
       if (!s)
@@ -673,7 +690,39 @@ export async function adminMutation(
       await audit(db, actor.id, "APPLICATION_REVIEWED", b.id, {
         status: b.status,
       });
-      return { ok: true };
+      let emailId: string | undefined;
+      if (
+        ["APPROVED", "DENIED", "CHANGES_REQUESTED"].includes(b.status) &&
+        (previous?.status !== b.status || previous?.review_note !== b.note) &&
+        z.email().safeParse(s.confirmation_email).success
+      ) {
+        const info = (
+          await db.query(
+            "SELECT f.title,a.display_name FROM forms f JOIN accounts a ON a.id=$2 WHERE f.id=$1",
+            [s.form_id, s.account_id],
+          )
+        ).rows[0];
+        const content = decisionContent({
+          societyName: info.display_name,
+          formTitle: info.title,
+          submissionId: s.id,
+          status: b.status,
+        });
+        emailId = (
+          await db.query(
+            "INSERT INTO application_emails(submission_id,submission_revision,recipient,subject,html,body,kind) VALUES($1,$2,$3,$4,$5,$6,'DECISION') RETURNING id",
+            [
+              s.id,
+              s.revision,
+              s.confirmation_email,
+              content.subject,
+              content.html,
+              content.body,
+            ],
+          )
+        ).rows[0].id;
+      }
+      return { ok: true, confirmation_email_id: emailId };
     }
     case "admin/allowlist": {
       const b = z

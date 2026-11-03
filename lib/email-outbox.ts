@@ -1,3 +1,4 @@
+import { operationalHealth } from "./observability";
 import type { PoolClient } from "pg";
 import { transaction, audit } from "./db";
 import { token } from "./security";
@@ -167,7 +168,11 @@ export async function runMaintenance(
     await db.query(
       "DELETE FROM mutation_requests WHERE created_at<now()-interval '30 days'",
     );
-    const health = await outboxHealth(db);
+    await db.query(
+      "DELETE FROM operational_metrics WHERE created_at<now()-interval '14 days'",
+    );
+    const operations = await operationalHealth(db);
+    const health = { ...(await outboxHealth(db)), operations };
     await db.query(
       "UPDATE maintenance_runs SET last_finished_at=now(),details=$1 WHERE name='outbox'",
       [JSON.stringify({ ...health, processed })],
@@ -177,6 +182,11 @@ export async function runMaintenance(
   return {
     processed,
     ...health,
-    ok: !health.uncertain && !health.exhausted && !health.delayed,
+    ok:
+      !health.uncertain &&
+      !health.exhausted &&
+      !health.delayed &&
+      health.operations.errors < 5 &&
+      health.operations.client_errors < 10,
   };
 }

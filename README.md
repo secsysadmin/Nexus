@@ -78,7 +78,7 @@ Unit and fault tests use in-memory PostgreSQL with the production migrations. `n
 
 ## Reference and scope
 
-Kraken informed the check-in, application-builder, draft, and access-control workflows. SocietyHub’s requirements are authoritative: credit belongs to an ESO, uses the three fixed funding categories, resets manually at the chairs’ discretion without deleting history, and High Impact awards are manual. Google OAuth, file uploads, event reminders and decision emails, funding disbursement, and institution-managed single sign-on are not implemented.
+Kraken informed the check-in, application-builder, draft, and access-control workflows. SocietyHub’s requirements are authoritative: credit belongs to an ESO, uses the three fixed funding categories, resets manually at the chairs’ discretion without deleting history, and High Impact awards are manual. Google OAuth, file uploads, event reminders, funding disbursement, and institution-managed single sign-on are not implemented.
 
 See `docs/architecture.md` for data and authorization details.
 
@@ -113,3 +113,17 @@ SEC chairs use **Settings & audit → Reset all society points** and type `RESET
 Closed check-in can be reopened from Events. If its window has passed, **Reopen check-in** opens the event editor to choose a window that includes now. The existing QR code remains valid. High Impact events continue to require manual SEC awards.
 
 The interface uses a locally hosted Geist variable font, distinct heading/label/metadata roles, and reduced-motion alternatives for the greeting and point animations. Confirmation emails use table-based inline styling and email-safe sans-serif fallbacks.
+
+## Contacts, decisions, and event schedules
+
+Societies can update their president, SEC representative, and preferred notification email in **Account settings**. SEC can edit the same information from **Societies → Edit contacts**. Current values are stored separately from original imported responses; conflicting updates require an explicit reload. The preferred address suggests an address for new applications. Existing applications keep their chosen recipient. Contact changes do not grant access or change passwords; chairs continue to issue setup/reset links for officer handoff.
+
+Approval, denial, and requested-change decisions atomically queue a branded email to the application’s selected address. Emails link directly to the owning submission after sign-in and omit application answers/review feedback. They share receipt retry, uncertain-delivery, and operator controls. Moving a submission Under Review sends no email. Approval still awards no points.
+
+Events now have **Event starts / Event ends** for the calendar and a separate **Check-in window starts / ends** for QR availability. Existing records retain their previous times in both fields until a chair edits them. Extending check-in preserves event times and existing links. The calendar fetches the selected month independently of the paginated event list.
+
+Events, forms, submissions, accounts, and contact groups load in pages of 50. Dashboard counts come from full scoped aggregates rather than the visible page. Contact groups are never split between pages. Server searches reach records outside the loaded page; selected contact responses remain available while searching. Roster, administrative activity, and allowlist data load only on their relevant screens. Current-period attendance remains available for accurate point totals; archived attendance remains paginated.
+
+## Operations and production release gates
+
+See [the operations runbook](docs/operations.md) for recovery, monitoring, release checks, and permissions.

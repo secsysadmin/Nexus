@@ -40,3 +40,7 @@ Brand details are implementation assumptions: maroon, warm neutral surfaces, res
 ## Application receipts and login motion
 
 Application submission and resubmission send a confirmation receipt to an address chosen by the submitting officer, prefilled from the latest valid imported society contact when possible. Drafts send nothing. SEC can inspect and retry failed delivery. Outbound email is enabled only in production. The login’s left panel uses flowing maroon ribbons inspired by the user’s Stripe reference, with reduced-motion and non-WebGL fallbacks.
+
+## Contacts, notification decisions, and separate event times
+
+Societies and SEC can edit current officer/notification contacts while preserving imported evidence and revision guards. Officer access remains chair-controlled through setup/reset links. Initial submission receipts and approval/denial/change-request notifications use the application-selected address and link to its authenticated detail; feedback stays in the app. Event calendar times are independent of QR check-in windows. Lists are paginated, calendar months load independently, and dashboard aggregates remain complete. SEC can view privacy-minimized operational metrics. Google sign-in remains deferred.

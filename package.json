@@ -15,7 +15,9 @@
     "roster:stage": "tsx scripts/stage-roster.ts",
     "test:e2e": "tsx scripts/isolated-tests.ts",
     "test:integration": "tsx scripts/isolated-tests.ts --integration",
-    "check": "npm run typecheck && npm test && npm run test:integration"
+    "check": "npm run typecheck && npm test && npm run test:integration",
+    "build:vercel": "tsx scripts/production-gate.ts",
+    "restore:drill": "tsx scripts/restore-drill.ts"
   },
   "dependencies": {
     "@aws-sdk/client-ses": "^3.1161.0",

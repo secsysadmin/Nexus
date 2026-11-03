@@ -3354,3 +3354,9 @@ textarea {
     grid-column: 1 / -1;
   }
 }
+.contact-officer { margin: 0; padding: 20px 0; border: 0; border-top: 1px solid var(--line); min-width: 0; }
+.contact-officer legend { font-weight: 650; padding: 0 12px 0 0; }
+.collection-pages { display: flex; flex-wrap: wrap; gap: 12px; margin: 24px 0; }
+.operations-summary { display: grid; grid-template-columns: repeat(auto-fit,minmax(160px,1fr)); gap: 24px; margin: 0; }
+.operations-summary dt { color: var(--muted); font-size: 14px; }
+.operations-summary dd { margin: 8px 0 0; font-size: 24px; font-weight: 650; font-variant-numeric: tabular-nums; }
