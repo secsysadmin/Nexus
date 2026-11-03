@@ -222,6 +222,8 @@ Form labels expose required state and associate hints with their controls. Check
 
 Application receipt email uses table-based structure and inline styling: a white content surface, pale rose surroundings and footer, maroon identity/action, dark ink, and muted descriptive copy. The SEC image is loaded through the configured HTTPS public site URL, rather than an invented mark. It records application and submission time without semester details, and explains that receipt is not approval or a point award. Arial/Helvetica/sans-serif is the intentional email-client fallback; Geist rendering in Gmail is not assumed.
 
+The account-provisioning roster condenses repeated society names into one ruled row per group, with a canonical name, contact-response count, and one checkbox selecting every original response ID in that group. Grouping uses explicit aliases plus Unicode, case, ampersand, and punctuation normalization; related chapters and parent organizations stay distinct. Search includes the canonical name, original submitted names, and contacts. The native Contacts disclosure preserves each original name, submission date, and contact details, with (16px) vertical response padding and hairlines between responses; original-response metadata is muted (13px), with a (10px) bottom margin. The account-creation summary repeats the condensed canonical name and response count. This presentation groups records without merging or changing database data.
+
 ## Do's and Don'ts
 
 ### Do:

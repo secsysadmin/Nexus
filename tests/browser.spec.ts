@@ -865,6 +865,17 @@ test("mobile navigation protects focus and roster filters preserve explicit sele
         environment: "development",
         roster: [
           {
+            id: "gamma-two",
+            name: "GAMMA ENGINEERING SOCIETY",
+            source_timestamp: "11/02/2026",
+            contacts: {
+              president: {
+                name: "Second Officer",
+                email: "gamma-two@example.invalid",
+              },
+            },
+          },
+          {
             id: "gamma",
             name: "Gamma Engineering Society",
             source_timestamp: "11/01/2026",
@@ -927,7 +938,9 @@ test("mobile navigation protects focus and roster filters preserve explicit sele
   await expect(page.locator(".roster-row")).toHaveCount(1);
   await page.locator(".roster-row").getByRole("checkbox").check();
   await search.fill("Delta");
-  await expect(page.locator(".roster-toolbar")).toContainText("1 selected");
+  await expect(page.locator(".roster-toolbar")).toContainText(
+    "2 responses selected",
+  );
   await search.fill("");
   await expect(
     page
@@ -935,10 +948,17 @@ test("mobile navigation protects focus and roster filters preserve explicit sele
       .filter({ hasText: "Gamma Engineering Society" })
       .getByRole("checkbox"),
   ).toBeChecked();
-  await page.locator(".roster-row").first().locator("summary").click();
+  await page
+    .locator(".roster-row")
+    .filter({ hasText: "gamma@example.invalid" })
+    .locator("summary")
+    .click();
   await expect(
     page.getByRole("link", { name: "gamma@example.invalid" }),
   ).toHaveAttribute("href", "mailto:gamma@example.invalid");
+  await expect(
+    page.getByRole("link", { name: "gamma-two@example.invalid", exact: true }),
+  ).toBeVisible();
   await page.getByRole("button", { name: "Add society", exact: true }).click();
   const username = page.getByRole("textbox", {
     name: "Society username",

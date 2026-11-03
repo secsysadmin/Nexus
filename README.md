@@ -47,7 +47,7 @@ Stage the supplied CSV into production without copying contact data into Git:
 npm run roster:stage -- '/absolute/path/to/contacts.csv' --prod
 ```
 
-Omit `--prod` for development. Re-importing identical responses is idempotent. In **SEC → Societies**, inspect responses, select rows belonging to the same ESO, confirm the display name, and choose a unique username. Creating the account retains every selected contact response and issues a private setup link. Do not automatically merge ambiguous society names. Contacts are only returned to SEC and the owning society account.
+Omit `--prod` for development. Re-importing identical responses is idempotent. In **SEC → Societies**, repeated names and known aliases appear as one society entry with a contact-response count. Expand Contacts to inspect original names, dates, and contacts. Selecting a society includes every response in that group; search matches all its aliases and contacts. Confirm the display name and choose a unique username before provisioning. Creating the account retains every selected contact response and issues a private setup link. Do not automatically merge ambiguous society names. Contacts are only returned to SEC and the owning society account.
 
 ## Vercel deployment
 

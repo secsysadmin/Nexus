@@ -39,6 +39,7 @@ import MaroonRibbons from "./maroon-ribbons";
 import PointsSummary from "./points-summary";
 import EventCalendar from "./event-calendar";
 import { dashboardItems } from "../lib/dashboard";
+import { groupSocietyRoster, rosterGroupMatches } from "../lib/society-roster";
 import { defaultConfirmationEmail } from "../lib/application-email";
 import type {
   HubData,
@@ -559,10 +560,9 @@ export default function Hub() {
       .toLowerCase()
       .includes(directorySearch.trim().toLowerCase()),
   );
-  const visibleRoster = data.roster.filter((r) =>
-    `${r.name} ${JSON.stringify(r.contacts)}`
-      .toLowerCase()
-      .includes(rosterSearch.trim().toLowerCase()),
+  const rosterGroups = groupSocietyRoster(data.roster);
+  const visibleRoster = rosterGroups.filter((group) =>
+    rosterGroupMatches(group, rosterSearch),
   );
   const societyActions = (a: Account) => (
     <div className="actions society-actions">
@@ -2040,12 +2040,12 @@ export default function Hub() {
                 )}
               </Panel>
               <Panel
-                title={`Contact roster review · ${data.roster.length} unassigned responses`}
+                title={`Contact roster review · ${rosterGroups.length} societies`}
               >
                 <p className="section-intro">
-                  Select all responses that belong to one society, then create
-                  one account. Original names and contacts are retained. Review
-                  name variations before combining.
+                  Repeated names and known aliases are grouped into one society.
+                  Select a society to include all its contact responses, then
+                  create one account. Expand Contacts to review the originals.
                 </p>
                 {data.roster.length ? (
                   <>
@@ -2059,9 +2059,9 @@ export default function Hub() {
                     </Field>
                     <div className="roster-toolbar">
                       <span aria-live="polite">
-                        {selectedRoster.length} selected ·{" "}
-                        {visibleRoster.length} of {data.roster.length} responses
-                        shown
+                        {selectedRoster.length} responses selected ·{" "}
+                        {visibleRoster.length} of {rosterGroups.length}{" "}
+                        societies shown
                       </span>
                       <Button
                         disabled={!selectedRoster.length}
@@ -2084,33 +2084,63 @@ export default function Hub() {
                       </Empty>
                     )}
                     <div className="roster-list">
-                      {visibleRoster.map((r) => (
-                        <div className="roster-row" key={r.id}>
-                          <label>
-                            <input
-                              type="checkbox"
-                              checked={selectedRoster.includes(r.id)}
-                              onChange={(e) =>
-                                setSelectedRoster(
-                                  e.target.checked
-                                    ? [...selectedRoster, r.id]
-                                    : selectedRoster.filter(
-                                        (id) => id !== r.id,
-                                      ),
-                                )
-                              }
-                            />
-                            <span>
-                              <strong>{r.name}</strong>
-                              <small>{r.source_timestamp}</small>
-                            </span>
-                          </label>
-                          <details>
-                            <summary>Contacts</summary>
-                            <ContactInfo contacts={r.contacts} />
-                          </details>
-                        </div>
-                      ))}
+                      {visibleRoster.map((group) => {
+                        const ids = group.responses.map((r) => r.id);
+                        const allSelected = ids.every((id) =>
+                          selectedRoster.includes(id),
+                        );
+                        const partiallySelected =
+                          !allSelected &&
+                          ids.some((id) => selectedRoster.includes(id));
+                        return (
+                          <div className="roster-row" key={group.id}>
+                            <label>
+                              <input
+                                type="checkbox"
+                                checked={allSelected}
+                                ref={(node) => {
+                                  if (node)
+                                    node.indeterminate = partiallySelected;
+                                }}
+                                onChange={(e) =>
+                                  setSelectedRoster((selected) =>
+                                    e.target.checked
+                                      ? [...new Set([...selected, ...ids])]
+                                      : selected.filter(
+                                          (id) => !ids.includes(id),
+                                        ),
+                                  )
+                                }
+                              />
+                              <span>
+                                <strong>{group.name}</strong>
+                                <small>
+                                  {group.responses.length} contact{" "}
+                                  {group.responses.length === 1
+                                    ? "response"
+                                    : "responses"}
+                                </small>
+                              </span>
+                            </label>
+                            <details>
+                              <summary>Contacts</summary>
+                              {group.responses.map((response) => (
+                                <div
+                                  className="roster-response"
+                                  key={response.id}
+                                >
+                                  <p>
+                                    {response.source_timestamp}
+                                    {response.name !== group.name &&
+                                      ` · Submitted as ${response.name}`}
+                                  </p>
+                                  <ContactInfo contacts={response.contacts} />
+                                </div>
+                              ))}
+                            </details>
+                          </div>
+                        );
+                      })}
                     </div>
                   </>
                 ) : (
@@ -3528,7 +3558,7 @@ function ProvisionForm({
   cancel: () => void;
   save: (b: unknown) => Promise<void>;
 }) {
-  const [name, setName] = useState(selected[0]?.name ?? ""),
+  const [name, setName] = useState(groupSocietyRoster(selected)[0]?.name ?? ""),
     [username, setUsername] = useState("");
   return (
     <Panel title="Create society account">
@@ -3537,9 +3567,10 @@ function ProvisionForm({
           ? `${selected.length} selected contact responses will be attached to this account. Confirm they all belong to the same society.`
           : "Create an account for a society not yet in the contact roster."}
       </p>
-      {selected.map((s) => (
-        <p key={s.id}>
-          {s.name} · {s.source_timestamp}
+      {groupSocietyRoster(selected).map((group) => (
+        <p key={group.id}>
+          {group.name} · {group.responses.length} contact{" "}
+          {group.responses.length === 1 ? "response" : "responses"}
         </p>
       ))}
       <form

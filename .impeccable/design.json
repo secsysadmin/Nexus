@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-11-03T06:29:43.245520+00:00",
+  "generatedAt": "2026-11-03T06:41:24.108638+00:00",
   "title": "Design System: SocietyHub",
   "extensions": {
     "colorMeta": {
@@ -909,6 +909,30 @@
       "fontFamily": "Arial, Helvetica, sans-serif",
       "logo": "Actual SEC mark using configured HTTPS site URL",
       "semesterDetails": false
+    },
+    "societyRoster": {
+      "description": "The account-provisioning roster condenses repeated society names into one ruled row per group, with a canonical name, contact-response count, and one checkbox selecting every original response ID in that group. Grouping uses explicit aliases plus Unicode, case, ampersand, and punctuation normalization; related chapters and parent organizations stay distinct. Search includes the canonical name, original submitted names, and contacts. The native Contacts disclosure preserves each original name, submission date, and contact details, with (16px) vertical response padding and hairlines between responses; original-response metadata is muted (13px), with a (10px) bottom margin. The account-creation summary repeats the condensed canonical name and response count. This presentation groups records without merging or changing database data.",
+      "grouping": "Explicit aliases plus NFKC/case/ampersand/punctuation normalization; no fuzzy matching.",
+      "row": "Canonical name, original-response count, one checkbox for all response IDs.",
+      "search": [
+        "Canonical name",
+        "Original submitted names",
+        "Contact details"
+      ],
+      "originalRecordsDisclosure": "Contacts",
+      "originalRecordsPreserved": [
+        "Name",
+        "Submission date",
+        "Contact details",
+        "Original response ID"
+      ],
+      "responsePadding": "16px 0",
+      "responseSeparator": "1px solid var(--line)",
+      "responseMetadataSize": "13px",
+      "responseMetadataMargin": "0 0 10px",
+      "provisionSummary": "Canonical name and response count",
+      "databaseMutation": false,
+      "relatedOrganizations": "Chapters, teams and parent organizations remain separate unless an explicit alias matches."
     }
   },
   "components": [

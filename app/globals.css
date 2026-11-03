@@ -2980,3 +2980,6 @@ input:not([type="checkbox"]), select, textarea { font-size: 1rem; font-weight: 4
 .auth-help p { font-size: .8125rem; line-height: 1.65; }
 .points-summary-table tbody th { font-size: .875rem; }
 .points-summary-table thead th, .points-summary-table td:not(.points-earned) { font-size: .8125rem; }
+.roster-response { padding: 16px 0; }
+.roster-response + .roster-response { border-top: 1px solid var(--line); }
+.roster-response > p { font-size: .8125rem; color: var(--muted); margin: 0 0 10px; }
