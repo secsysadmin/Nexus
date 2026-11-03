@@ -3662,3 +3662,77 @@ textarea {
     font-size: 10px;
   }
 }
+
+/* Reuse the original static artwork as atmosphere, never as a content layer. */
+.main {
+  position: relative;
+  isolation: isolate;
+}
+.main::before {
+  content: "";
+  position: absolute;
+  inset: 78px 0 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image: url("/society-ribbon.svg"), url("/society-ribbon.svg");
+  background-repeat: no-repeat;
+  background-position: left -180px top 440px, right -160px bottom 140px;
+  background-size: 500px 760px, 540px 820px;
+  opacity: 0.045;
+}
+.page-heading::before {
+  width: min(56%, 540px);
+  opacity: 0.095;
+}
+.sidebar-bottom,
+.footer,
+.empty,
+.admin-insights .insight-prt {
+  position: relative;
+  isolation: isolate;
+}
+.sidebar-bottom::before,
+.footer::before,
+.empty::before,
+.insight-prt::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  pointer-events: none;
+  background: url("/society-ribbon.svg") center / contain no-repeat;
+}
+.sidebar-bottom::before {
+  inset: 0 0 0 18%;
+  opacity: 0.075;
+  transform: scaleX(-1);
+}
+.footer::before {
+  inset: 0 28% 0 28%;
+  background-size: 240px auto;
+  opacity: 0.075;
+}
+.empty::before {
+  inset: 0 0 0 auto;
+  width: min(35%, 180px);
+  opacity: 0.08;
+}
+.insight-prt::before {
+  inset: 0 0 0 35%;
+  opacity: 0.075;
+  border-radius: inherit;
+}
+@media (max-width: 760px) {
+  .main::before {
+    inset-block-start: 65px;
+    background-position: right -130px top 560px, left -160px bottom 180px;
+    background-size: 300px 520px, 320px 560px;
+    opacity: 0.035;
+  }
+  .page-heading::before {
+    width: 52%;
+    opacity: 0.065;
+  }
+  .footer::before {
+    inset-inline: 45% 0;
+  }
+}
