@@ -1492,7 +1492,6 @@ td strong {
   overflow-wrap: anywhere;
 }
 
-/* The login is one white surface; maroon is reserved for the ribbons and actions. */
 .auth-page {
   background: #fff;
   --ground: #fff;
@@ -1536,7 +1535,6 @@ td strong {
   outline-color: #8c4658;
 }
 
-/* Keep the message clear of the reference ribbon's broad outer curve. */
 .auth-story h1 {
   max-width: 480px;
   font-size: clamp(36px, 3.6vw, 56px);

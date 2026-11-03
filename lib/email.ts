@@ -1,7 +1,16 @@
-// Adapted from SysAd/Delphi/lib/email.ts: SES/Resend selection, MIME encoding,
-// authenticated sender, and throttling retries. Registration-specific content is excluded.
 import { SESClient, SendRawEmailCommand } from "@aws-sdk/client-ses";
 import { Resend } from "resend";
+const ENCODED_WORD_MAX_BYTES = 39;
+const BASE64_LINE_LENGTH = 76;
+const MIME_BOUNDARY = "=_SocietyHub_Application_Receipt";
+const DEFAULT_FROM = "Student Engineers' Council <no-reply@sec.tamu.edu>";
+const DEFAULT_AWS_REGION = "us-east-1";
+const SES_CLIENT_MAX_ATTEMPTS = 2;
+const SES_CONNECTION_TIMEOUT_MS = 5000;
+const SES_REQUEST_TIMEOUT_MS = 10000;
+const MAX_SEND_ATTEMPTS = 3;
+const THROTTLE_BACKOFF_MS = 1000;
+const THROTTLE_PATTERN = /throttl|rate.?limit|too many|rate exceeded/i;
 export type Mail = { to: string; subject: string; html: string; body: string };
 export function emailDeliveryEnabled(
   env: Record<string, string | undefined> = process.env,
@@ -11,6 +20,12 @@ export function emailDeliveryEnabled(
     (!env.VERCEL_ENV || env.VERCEL_ENV === "production")
   );
 }
+function isThrottled(error: unknown) {
+  return (
+    error instanceof Error &&
+    THROTTLE_PATTERN.test(`${error.name} ${error.message}`)
+  );
+}
 function cleanHeader(s: string) {
   return s.replace(/[\r\n]+/g, " ").trim();
 }
@@ -18,7 +33,7 @@ export function encodedHeader(s: string) {
   const chunks: string[] = [];
   let chunk = "";
   for (const c of cleanHeader(s)) {
-    if (Buffer.byteLength(chunk + c) > 39) {
+    if (Buffer.byteLength(chunk + c) > ENCODED_WORD_MAX_BYTES) {
       chunks.push(chunk);
       chunk = "";
     }
@@ -33,7 +48,7 @@ function base64Body(s: string) {
   return (
     Buffer.from(s)
       .toString("base64")
-      .match(/.{1,76}/g)
+      .match(new RegExp(`.{1,${BASE64_LINE_LENGTH}}`, "g"))
       ?.join("\r\n") ?? ""
   );
 }
@@ -41,27 +56,26 @@ export function rawMessage(mail: Mail, from: string) {
   const clean = cleanHeader(from);
   const match = clean.match(/^(.*?)\s*<([^>]+)>$/);
   const sender = match ? `${encodedHeader(match[1])} <${match[2]}>` : clean;
-  const boundary = "=_SocietyHub_Application_Receipt";
   return [
     `From: ${sender}`,
     `To: ${cleanHeader(mail.to)}`,
     `Subject: ${encodedHeader(mail.subject)}`,
     "MIME-Version: 1.0",
-    `Content-Type: multipart/alternative; boundary="${boundary}"`,
+    `Content-Type: multipart/alternative; boundary="${MIME_BOUNDARY}"`,
     "",
-    `--${boundary}`,
+    `--${MIME_BOUNDARY}`,
     "Content-Type: text/plain; charset=UTF-8",
     "Content-Transfer-Encoding: base64",
     "",
     base64Body(mail.body),
     "",
-    `--${boundary}`,
+    `--${MIME_BOUNDARY}`,
     "Content-Type: text/html; charset=UTF-8",
     "Content-Transfer-Encoding: base64",
     "",
     base64Body(mail.html),
     "",
-    `--${boundary}--`,
+    `--${MIME_BOUNDARY}--`,
     "",
   ].join("\r\n");
 }
@@ -69,9 +83,7 @@ export async function sendMail(
   mail: Mail,
   idempotencyKey: string,
 ): Promise<string> {
-  const from =
-    process.env.EMAIL_FROM ||
-    "Student Engineers' Council <no-reply@sec.tamu.edu>";
+  const from = process.env.EMAIL_FROM || DEFAULT_FROM;
   const provider =
     process.env.EMAIL_PROVIDER ||
     (process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY
@@ -86,13 +98,16 @@ export async function sendMail(
     throw new Error("Email provider is not configured.");
   if (!["ses", "resend"].includes(provider))
     throw new Error("Unsupported email provider.");
-  for (let attempt = 1; attempt <= 3; attempt++) {
+  for (let attempt = 1; attempt <= MAX_SEND_ATTEMPTS; attempt++) {
     try {
       if (provider === "ses") {
         const client = new SESClient({
-          region: process.env.AWS_REGION || "us-east-1",
-          maxAttempts: 2,
-          requestHandler: { connectionTimeout: 5000, requestTimeout: 10000 },
+          region: process.env.AWS_REGION || DEFAULT_AWS_REGION,
+          maxAttempts: SES_CLIENT_MAX_ATTEMPTS,
+          requestHandler: {
+            connectionTimeout: SES_CONNECTION_TIMEOUT_MS,
+            requestTimeout: SES_REQUEST_TIMEOUT_MS,
+          },
         });
         try {
           const response = await client.send(
@@ -126,15 +141,8 @@ export async function sendMail(
       if (!data?.id) throw new Error("Provider returned no message ID.");
       return data.id;
     } catch (e) {
-      const err = e as Error;
-      if (
-        attempt >= 3 ||
-        !/throttl|rate.?limit|too many|rate exceeded/i.test(
-          err.name + " " + err.message,
-        )
-      )
-        throw e;
-      await new Promise((r) => setTimeout(r, attempt * 1000));
+      if (attempt >= MAX_SEND_ATTEMPTS || !isThrottled(e)) throw e;
+      await new Promise((r) => setTimeout(r, attempt * THROTTLE_BACKOFF_MS));
     }
   }
   throw new Error("Email delivery failed.");

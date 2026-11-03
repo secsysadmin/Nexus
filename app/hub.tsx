@@ -40,7 +40,162 @@ import type {
   Candidate,
   Account,
 } from "../lib/types";
-import { labels, type Question, type Answers } from "../lib/domain";
+import {
+  labels,
+  categories,
+  formKinds,
+  questionTypes,
+  isOneOf,
+  MAX_EMAIL_ATTEMPTS,
+  type Question,
+  type Answers,
+} from "../lib/domain";
+type Run = (path: string, body: unknown, message?: string) => Promise<unknown>;
+type FieldProps = {
+  label: string;
+  children: ReactNode;
+  hint?: string;
+};
+type PillProps = {
+  children: ReactNode;
+  tone?: string;
+};
+type PanelProps = {
+  title: string;
+  children: ReactNode;
+  action?: ReactNode;
+};
+type ButtonProps = {
+  children: ReactNode;
+  onClick?: () => void;
+  secondary?: boolean;
+  disabled?: boolean;
+  type?: "button" | "submit";
+};
+type FormActionsProps = {
+  busy: boolean;
+  onCancel: () => void;
+  label?: string;
+};
+type AuthScreenProps = {
+  activate?: boolean;
+  token?: string;
+  checkin?: boolean;
+  error: string;
+  busy: boolean;
+  onSubmit: (b: unknown) => Promise<void>;
+};
+type EventEditorProps = {
+  initial: Event | null;
+  semesters: HubData["semesters"];
+  selectedSemester: string;
+  busy: boolean;
+  cancel: () => void;
+  save: (b: unknown) => Promise<void>;
+};
+type QRPanelProps = {
+  event: Event;
+  close: () => void;
+  rotate: () => Promise<void>;
+  busy: boolean;
+};
+type ManualAwardProps = {
+  events: Event[];
+  societies: Account[];
+  busy: boolean;
+  save: (b: unknown) => Promise<boolean>;
+};
+type CreditCorrectionProps = {
+  id: string;
+  revoked: boolean;
+  busy: boolean;
+  save: (b: unknown) => Promise<boolean>;
+};
+type FormEditorProps = {
+  initial: Form | null;
+  semesters: HubData["semesters"];
+  selectedSemester: string;
+  busy: boolean;
+  cancel: () => void;
+  save: (b: unknown) => Promise<void>;
+};
+type AnswerFieldsProps = {
+  questions: Question[];
+  answers: Answers;
+  setAnswers: (a: Answers) => void;
+  disabled: boolean;
+};
+type SubmissionSave = {
+  formId: string;
+  answers: Answers;
+  submit: boolean;
+  revision: number;
+  confirmationEmail: string;
+};
+type ApplicationViewProps = {
+  form: Form;
+  defaultEmail: string;
+  existing?: Submission;
+  admin: boolean;
+  busy: boolean;
+  cancel: () => void;
+  save: (b: SubmissionSave) => Promise<Submission | undefined>;
+};
+type ReviewViewProps = {
+  submission: Submission;
+  retryEmail: (id: string) => Promise<void>;
+  busy: boolean;
+  cancel: () => void;
+  save: (b: unknown) => Promise<void>;
+};
+type ProvisionFormProps = {
+  selected: Candidate[];
+  busy: boolean;
+  cancel: () => void;
+  save: (b: unknown) => Promise<void>;
+};
+type PasswordFormProps = {
+  busy: boolean;
+  save: (b: unknown) => Promise<void>;
+};
+type SemesterManagerProps = {
+  data: HubData;
+  busy: boolean;
+  run: Run;
+};
+type AllowlistProps = {
+  data: HubData;
+  busy: boolean;
+  run: Run;
+};
+type EmptyProps = {
+  title: string;
+  children: ReactNode;
+};
+type ContactInfoProps = {
+  contacts: Record<string, unknown>;
+};
+type CopyLinkProps = {
+  value: string;
+};
+type ReceiptStatusProps = {
+  submission?: Submission;
+};
+const REFRESH_INTERVAL_MS = 30000;
+const QR_SIZE_PX = 400;
+const QR_MARGIN_MODULES = 3;
+const QR_DARK = "#500000";
+const QR_LIGHT = "#ffffff";
+class RequestError extends Error {
+  constructor(
+    message: string,
+    public status: number,
+  ) {
+    super(message);
+  }
+}
+const errorMessage = (e: unknown) =>
+  e instanceof Error ? e.message : "Request failed.";
 const when = (s: string) =>
   new Intl.DateTimeFormat("en-US", {
     month: "short",
@@ -69,23 +224,11 @@ async function api<T = Record<string, unknown>>(
   });
   const data = await res.json();
   if (!res.ok) {
-    const err = new Error(data.error ?? "Request failed.") as Error & {
-      status: number;
-    };
-    err.status = res.status;
-    throw err;
+    throw new RequestError(data.error ?? "Request failed.", res.status);
   }
   return data;
 }
-function Field({
-  label,
-  children,
-  hint,
-}: {
-  label: string;
-  children: ReactNode;
-  hint?: string;
-}) {
+function Field({ label, children, hint }: FieldProps) {
   return (
     <label className="field">
       <span>{label}</span>
@@ -94,7 +237,7 @@ function Field({
     </label>
   );
 }
-function Empty({ title, children }: { title: string; children: ReactNode }) {
+function Empty({ title, children }: EmptyProps) {
   return (
     <div className="empty">
       <h3>{title}</h3>
@@ -102,24 +245,10 @@ function Empty({ title, children }: { title: string; children: ReactNode }) {
     </div>
   );
 }
-function Pill({
-  children,
-  tone = "neutral",
-}: {
-  children: ReactNode;
-  tone?: string;
-}) {
+function Pill({ children, tone = "neutral" }: PillProps) {
   return <span className={"pill " + tone}>{children}</span>;
 }
-function Panel({
-  title,
-  children,
-  action,
-}: {
-  title: string;
-  children: ReactNode;
-  action?: ReactNode;
-}) {
+function Panel({ title, children, action }: PanelProps) {
   return (
     <section className="panel">
       <div className="section-head">
@@ -136,13 +265,7 @@ function Button({
   secondary = false,
   disabled = false,
   type = "button",
-}: {
-  children: ReactNode;
-  onClick?: () => void;
-  secondary?: boolean;
-  disabled?: boolean;
-  type?: "button" | "submit";
-}) {
+}: ButtonProps) {
   return (
     <button
       type={type}
@@ -158,11 +281,7 @@ function FormActions({
   busy,
   onCancel,
   label = "Save changes",
-}: {
-  busy: boolean;
-  onCancel: () => void;
-  label?: string;
-}) {
+}: FormActionsProps) {
   return (
     <div className="actions">
       <Button type="submit" disabled={busy}>
@@ -174,7 +293,7 @@ function FormActions({
     </div>
   );
 }
-function ContactInfo({ contacts }: { contacts: Record<string, unknown> }) {
+function ContactInfo({ contacts }: ContactInfoProps) {
   return <pre className="contacts">{JSON.stringify(contacts, null, 2)}</pre>;
 }
 export default function Hub() {
@@ -223,10 +342,10 @@ export default function Hub() {
           "",
       );
     } catch (e) {
-      if ((e as Error & { status?: number }).status === 401) {
+      if (e instanceof RequestError && e.status === 401) {
         setData(null);
         setAuthNeeded(true);
-      } else setError((e as Error).message);
+      } else setError(errorMessage(e));
     } finally {
       setLoading(false);
     }
@@ -274,7 +393,7 @@ export default function Hub() {
         !review
       )
         void refresh();
-    }, 30000);
+    }, REFRESH_INTERVAL_MS);
     const visible = () => {
       if (document.visibilityState === "visible") void refresh();
     };
@@ -306,7 +425,7 @@ export default function Hub() {
       await refresh();
       return result;
     } catch (e) {
-      setError((e as Error).message);
+      setError(errorMessage(e));
       return undefined;
     } finally {
       setBusy(false);
@@ -1132,9 +1251,7 @@ export default function Hub() {
                   const r = await run<Submission>(
                     "submissions/save",
                     b,
-                    (b as { submit: boolean }).submit
-                      ? "Application submitted."
-                      : "Draft saved.",
+                    b.submit ? "Application submitted." : "Draft saved.",
                   );
                   return r;
                 }}
@@ -1505,14 +1622,7 @@ function AuthScreen({
   error,
   busy,
   onSubmit,
-}: {
-  activate?: boolean;
-  token?: string;
-  checkin?: boolean;
-  error: string;
-  busy: boolean;
-  onSubmit: (b: unknown) => Promise<void>;
-}) {
+}: AuthScreenProps) {
   const [username, setUsername] = useState(""),
     [password, setPassword] = useState(""),
     [confirm, setConfirm] = useState(""),
@@ -1655,7 +1765,7 @@ function AuthScreen({
     </main>
   );
 }
-function CopyLink({ value }: { value: string }) {
+function CopyLink({ value }: CopyLinkProps) {
   const [copied, setCopied] = useState(false),
     [err, setErr] = useState(false);
   return (
@@ -1692,14 +1802,7 @@ function EventEditor({
   busy,
   cancel,
   save,
-}: {
-  initial: Event | null;
-  semesters: HubData["semesters"];
-  selectedSemester: string;
-  busy: boolean;
-  cancel: () => void;
-  save: (b: unknown) => Promise<void>;
-}) {
+}: EventEditorProps) {
   const [name, setName] = useState(initial?.name ?? ""),
     [description, setDescription] = useState(initial?.description ?? ""),
     [location, setLocation] = useState(initial?.location ?? ""),
@@ -1757,7 +1860,10 @@ function EventEditor({
             <select
               disabled={!!initial}
               value={category}
-              onChange={(e) => setCategory(e.target.value as Event["category"])}
+              onChange={(e) => {
+                if (isOneOf(categories, e.target.value))
+                  setCategory(e.target.value);
+              }}
             >
               <option value="PRT">PRT · 1 point</option>
               <option value="STANDARD">Standard · 1 point</option>
@@ -1823,26 +1929,16 @@ function EventEditor({
     </Panel>
   );
 }
-function QRPanel({
-  event,
-  close,
-  rotate,
-  busy,
-}: {
-  event: Event;
-  close: () => void;
-  rotate: () => Promise<void>;
-  busy: boolean;
-}) {
+function QRPanel({ event, close, rotate, busy }: QRPanelProps) {
   const [src, setSrc] = useState(""),
     [error, setError] = useState("");
   const link = `${window.location.origin}/checkin/${event.id}?token=${event.checkin_token}`;
   useEffect(() => {
     void QRCode.toDataURL(link, {
-      width: 400,
-      margin: 3,
+      width: QR_SIZE_PX,
+      margin: QR_MARGIN_MODULES,
       errorCorrectionLevel: "M",
-      color: { dark: "#500000", light: "#ffffff" },
+      color: { dark: QR_DARK, light: QR_LIGHT },
     })
       .then(setSrc)
       .catch(() =>
@@ -1901,17 +1997,7 @@ function QRPanel({
     </Panel>
   );
 }
-function ManualAward({
-  events,
-  societies,
-  busy,
-  save,
-}: {
-  events: Event[];
-  societies: Account[];
-  busy: boolean;
-  save: (b: unknown) => Promise<boolean>;
-}) {
+function ManualAward({ events, societies, busy, save }: ManualAwardProps) {
   const [event, setEvent] = useState(""),
     [account, setAccount] = useState(""),
     [note, setNote] = useState("");
@@ -1977,17 +2063,7 @@ function ManualAward({
     </Panel>
   );
 }
-function CreditCorrection({
-  id,
-  revoked,
-  busy,
-  save,
-}: {
-  id: string;
-  revoked: boolean;
-  busy: boolean;
-  save: (b: unknown) => Promise<boolean>;
-}) {
+function CreditCorrection({ id, revoked, busy, save }: CreditCorrectionProps) {
   const [open, setOpen] = useState(false),
     [note, setNote] = useState("");
   return (
@@ -2034,14 +2110,7 @@ function FormEditor({
   busy,
   cancel,
   save,
-}: {
-  initial: Form | null;
-  semesters: HubData["semesters"];
-  selectedSemester: string;
-  busy: boolean;
-  cancel: () => void;
-  save: (b: unknown) => Promise<void>;
-}) {
+}: FormEditorProps) {
   const [title, setTitle] = useState(initial?.title ?? ""),
     [description, setDescription] = useState(initial?.description ?? ""),
     [kind, setKind] = useState(initial?.kind ?? "FUNDING"),
@@ -2120,7 +2189,9 @@ function FormEditor({
             <select
               disabled={!!initial}
               value={kind}
-              onChange={(e) => setKind(e.target.value as Form["kind"])}
+              onChange={(e) => {
+                if (isOneOf(formKinds, e.target.value)) setKind(e.target.value);
+              }}
             >
               <option value="FUNDING">Society Funding</option>
               <option value="HIGH_IMPACT">
@@ -2169,7 +2240,8 @@ function FormEditor({
                   <select
                     value={q.type}
                     onChange={(e) =>
-                      update(i, { type: e.target.value as Question["type"] })
+                      isOneOf(questionTypes, e.target.value) &&
+                      update(i, { type: e.target.value })
                     }
                   >
                     <option value="short">Short answer</option>
@@ -2271,12 +2343,7 @@ function AnswerFields({
   answers,
   setAnswers,
   disabled,
-}: {
-  questions: Question[];
-  answers: Answers;
-  setAnswers: (a: Answers) => void;
-  disabled: boolean;
-}) {
+}: AnswerFieldsProps) {
   return (
     <div className="answer-fields">
       {questions.map((q) => {
@@ -2355,15 +2422,7 @@ function ApplicationView({
   busy,
   cancel,
   save,
-}: {
-  form: Form;
-  defaultEmail: string;
-  existing?: Submission;
-  admin: boolean;
-  busy: boolean;
-  cancel: () => void;
-  save: (b: unknown) => Promise<Submission | undefined>;
-}) {
+}: ApplicationViewProps) {
   const [confirmationEmail, setConfirmationEmail] = useState(
     existing?.confirmation_email || defaultEmail,
   );
@@ -2481,13 +2540,7 @@ function ReviewView({
   busy,
   cancel,
   save,
-}: {
-  submission: Submission;
-  retryEmail: (id: string) => Promise<void>;
-  busy: boolean;
-  cancel: () => void;
-  save: (b: unknown) => Promise<void>;
-}) {
+}: ReviewViewProps) {
   const [decision, setDecision] = useState(
       ["UNDER_REVIEW", "CHANGES_REQUESTED", "APPROVED", "DENIED"].includes(
         s.status,
@@ -2516,11 +2569,14 @@ function ReviewView({
       <ReceiptStatus submission={s} />
       {s.confirmation_email_id &&
         s.confirmation_status !== "SENT" &&
-        (s.confirmation_attempts ?? 0) < 5 && (
+        (s.confirmation_attempts ?? 0) < MAX_EMAIL_ATTEMPTS && (
           <Button
             secondary
             disabled={busy}
-            onClick={() => void retryEmail(s.confirmation_email_id!)}
+            onClick={() =>
+              s.confirmation_email_id &&
+              void retryEmail(s.confirmation_email_id)
+            }
           >
             Retry confirmation email
           </Button>
@@ -2570,17 +2626,7 @@ function ReviewView({
     </Panel>
   );
 }
-function ProvisionForm({
-  selected,
-  busy,
-  cancel,
-  save,
-}: {
-  selected: Candidate[];
-  busy: boolean;
-  cancel: () => void;
-  save: (b: unknown) => Promise<void>;
-}) {
+function ProvisionForm({ selected, busy, cancel, save }: ProvisionFormProps) {
   const [name, setName] = useState(selected[0]?.name ?? ""),
     [username, setUsername] = useState("");
   return (
@@ -2635,13 +2681,7 @@ function ProvisionForm({
     </Panel>
   );
 }
-function PasswordForm({
-  busy,
-  save,
-}: {
-  busy: boolean;
-  save: (b: unknown) => Promise<void>;
-}) {
+function PasswordForm({ busy, save }: PasswordFormProps) {
   const [current, setCurrent] = useState(""),
     [password, setPassword] = useState(""),
     [confirm, setConfirm] = useState(""),
@@ -2706,16 +2746,7 @@ function PasswordForm({
     </Panel>
   );
 }
-type Run = (path: string, body: unknown, message?: string) => Promise<unknown>;
-function SemesterManager({
-  data,
-  busy,
-  run,
-}: {
-  data: HubData;
-  busy: boolean;
-  run: Run;
-}) {
+function SemesterManager({ data, busy, run }: SemesterManagerProps) {
   const [name, setName] = useState(""),
     [start, setStart] = useState(""),
     [end, setEnd] = useState(""),
@@ -2813,15 +2844,7 @@ function SemesterManager({
     </Panel>
   );
 }
-function Allowlist({
-  data,
-  busy,
-  run,
-}: {
-  data: HubData;
-  busy: boolean;
-  run: Run;
-}) {
+function Allowlist({ data, busy, run }: AllowlistProps) {
   const [email, setEmail] = useState("");
   return (
     <Panel title="Future Google admin access">
@@ -2918,7 +2941,7 @@ function exportCredits(credits: HubData["credits"]) {
   URL.revokeObjectURL(url);
 }
 
-function ReceiptStatus({ submission: s }: { submission?: Submission }) {
+function ReceiptStatus({ submission: s }: ReceiptStatusProps) {
   if (!s?.confirmation_status) return null;
   return (
     <p className="receipt-status">

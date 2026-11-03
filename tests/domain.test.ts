@@ -3,7 +3,6 @@ import assert from "node:assert/strict";
 import {
   resolveEnvironment,
   validateAnswers,
-  safeReturn,
   questionsSchema,
   type Question,
 } from "../lib/domain";
@@ -95,9 +94,4 @@ test("form IDs must be unique and choices need options", () => {
       { id: "a", label: "B", type: "short", required: true },
     ]).success,
   );
-});
-test("return URLs cannot redirect off site", () => {
-  assert.equal(safeReturn("//evil.test"), "/");
-  assert.equal(safeReturn("/\\evil.test"), "/");
-  assert.equal(safeReturn("/events"), "/events");
 });

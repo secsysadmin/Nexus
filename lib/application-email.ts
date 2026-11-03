@@ -1,4 +1,12 @@
 import { z } from "zod";
+const RECEIPT_TIME_ZONE = "America/Chicago";
+const HTML_ESCAPES: Record<string, string> = {
+  "&": "&amp;",
+  "<": "&lt;",
+  ">": "&gt;",
+  '"': "&quot;",
+  "'": "&#039;",
+};
 export type ReceiptInput = {
   societyName: string;
   formTitle: string;
@@ -28,25 +36,26 @@ export function defaultConfirmationEmail(
   }
   return "";
 }
-const escape = (s: string) =>
-  s.replace(
-    /[&<>"']/g,
-    (c) =>
-      ({
-        "&": "&amp;",
-        "<": "&lt;",
-        ">": "&gt;",
-        '"': "&quot;",
-        "'": "&#039;",
-      })[c]!,
-  );
+function escape(s: string) {
+  return s.replace(/[&<>"']/g, (c) => HTML_ESCAPES[c] ?? c);
+}
+function configuredAppOrigin() {
+  const configured =
+    process.env.SOCIETYHUB_APP_URL ||
+    (process.env.VERCEL_PROJECT_PRODUCTION_URL
+      ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+      : "");
+  if (!URL.canParse(configured)) return "";
+  const url = new URL(configured);
+  return url.protocol === "https:" ? url.origin : "";
+}
 export function receiptContent(input: ReceiptInput) {
   const subject = `SocietyHub: ${input.resubmission ? "Updated application received" : "Application received"} — ${input.formTitle.replace(/[\r\n]+/g, " ")}`;
   const when =
     new Intl.DateTimeFormat("en-US", {
       dateStyle: "medium",
       timeStyle: "short",
-      timeZone: "America/Chicago",
+      timeZone: RECEIPT_TIME_ZONE,
     }).format(new Date(input.submittedAt)) + " CT";
   const title = input.resubmission
     ? "Updated application received"
@@ -60,19 +69,7 @@ export function receiptContent(input: ReceiptInput) {
     `Reference: ${input.submissionId}`,
     "This confirms receipt, not approval or a point award. Sign in to SocietyHub to view your application and SEC feedback.",
   ];
-  // This URL is controlled by server configuration, never the request Host header.
-  const configured =
-    process.env.SOCIETYHUB_APP_URL ||
-    (process.env.VERCEL_PROJECT_PRODUCTION_URL
-      ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
-      : "");
-  let link = "";
-  try {
-    const u = new URL(configured);
-    if (u.protocol === "https:") link = u.origin;
-  } catch {
-    /* Receipt remains useful without a link. */
-  }
+  const link = configuredAppOrigin();
   const body = [...lines, ...(link ? [link] : [])].join("\n\n");
   const html = `<!doctype html><html><body style="margin:0;background:#f6f5f1;color:#292623;font-family:Arial,sans-serif"><div style="max-width:620px;margin:auto;padding:28px 18px"><div style="background:#500000;color:#fff;padding:24px"><strong>SocietyHub · Student Engineers’ Council</strong><h1 style="font-size:24px;margin:14px 0 0">${escape(title)}</h1></div><div style="padding:24px;background:#fff">${lines.map((line) => `<p style="line-height:1.6">${escape(line)}</p>`).join("")}${link ? `<p><a href="${escape(link)}" style="display:inline-block;background:#500000;color:#fff;padding:12px 18px;text-decoration:none">Open SocietyHub</a></p>` : ""}<p style="font-size:12px;color:#68645f">Texas A&amp;M University · Student Engineers’ Council</p></div></div></body></html>`;
   return { subject, body, html };

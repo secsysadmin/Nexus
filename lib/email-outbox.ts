@@ -2,6 +2,10 @@ import type { PoolClient } from "pg";
 import { transaction, audit } from "./db";
 import { token } from "./security";
 import { emailDeliveryEnabled, sendMail, type Mail } from "./email";
+import { MAX_EMAIL_ATTEMPTS } from "./domain";
+const SEND_LEASE_MINUTES = 2;
+const DELIVERY_FAILED_MESSAGE =
+  "Delivery failed. SEC can retry after checking email settings.";
 type Transact = <T>(fn: (db: PoolClient) => Promise<T>) => Promise<T>;
 export async function deliverApplicationEmail(
   id: string,
@@ -18,8 +22,8 @@ export async function deliverApplicationEmail(
     async (db) =>
       (
         await db.query(
-          "UPDATE application_emails SET status='SENDING',attempts=attempts+1,lease_token=$2,lease_until=now()+interval '2 minutes',last_error=NULL WHERE id=$1 AND attempts<5 AND (status IN ('PENDING','FAILED') OR (status='SENDING' AND lease_until<now())) RETURNING *",
-          [id, lease],
+          "UPDATE application_emails SET status='SENDING',attempts=attempts+1,lease_token=$2,lease_until=now()+make_interval(mins => $3),last_error=NULL WHERE id=$1 AND attempts<$4 AND (status IN ('PENDING','FAILED') OR (status='SENDING' AND lease_until<now())) RETURNING *",
+          [id, lease, SEND_LEASE_MINUTES, MAX_EMAIL_ATTEMPTS],
         )
       ).rows[0],
   );
@@ -48,11 +52,14 @@ export async function deliverApplicationEmail(
       );
     });
     return { status: "SENT" };
-  } catch {
+  } catch (error) {
+    console.error(
+      `Application email ${id} failed to send: ${error instanceof Error ? error.name : "unknown error"}`,
+    );
     await transact(async (db) => {
       await db.query(
-        "UPDATE application_emails SET status='FAILED',last_error='Delivery failed. SEC can retry after checking email settings.',lease_token=NULL,lease_until=NULL WHERE id=$1 AND lease_token=$2",
-        [id, lease],
+        "UPDATE application_emails SET status='FAILED',last_error=$3,lease_token=NULL,lease_until=NULL WHERE id=$1 AND lease_token=$2",
+        [id, lease, DELIVERY_FAILED_MESSAGE],
       );
       await audit(
         db,

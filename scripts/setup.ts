@@ -129,7 +129,6 @@ try {
       );
     console.log(`Ready: ${schema}, restricted role ${role}`);
   }
-  // Confirm both application roles lack access to the opposite environment.
   const { rows } = await db.query(
     "SELECT has_schema_privilege('nexus_dev_app','nexus_prod','USAGE') dev_can_access_prod,has_schema_privilege('nexus_prod_app','nexus_dev','USAGE') prod_can_access_dev",
   );

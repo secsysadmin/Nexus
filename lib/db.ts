@@ -1,15 +1,21 @@
 import pg, { type PoolClient } from "pg";
 import { resolveEnvironment } from "./domain";
-const globalDb = globalThis as unknown as { nexusPool?: pg.Pool };
+const POOL_MAX_CONNECTIONS = 2;
+const POOL_IDLE_TIMEOUT_MS = 10000;
+const POOL_CONNECT_TIMEOUT_MS = 10000;
+declare global {
+  var nexusPool: pg.Pool | undefined;
+}
 function pool() {
-  const connectionString = process.env.NEXUS_DATABASE_URL || process.env.DATABASE_URL;
+  const connectionString =
+    process.env.NEXUS_DATABASE_URL || process.env.DATABASE_URL;
   if (!connectionString)
     throw new Error("Database is not configured. See README setup.");
-  return (globalDb.nexusPool ??= new pg.Pool({
+  return (globalThis.nexusPool ??= new pg.Pool({
     connectionString,
-    max: 2,
-    idleTimeoutMillis: 10000,
-    connectionTimeoutMillis: 10000,
+    max: POOL_MAX_CONNECTIONS,
+    idleTimeoutMillis: POOL_IDLE_TIMEOUT_MS,
+    connectionTimeoutMillis: POOL_CONNECT_TIMEOUT_MS,
   }));
 }
 export async function transaction<T>(
