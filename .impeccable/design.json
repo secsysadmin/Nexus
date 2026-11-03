@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-11-02T23:59:07.191185+00:00",
+  "generatedAt": "2026-11-03T00:32:13.751070+00:00",
   "title": "Design System: SocietyHub",
   "extensions": {
     "colorMeta": {
@@ -858,7 +858,8 @@
         "brandBorderBottom": "1px solid var(--line)",
         "formPadding": "36px 24px",
         "formMaxWidth": "440px"
-      }
+      },
+      "signInInstruction": "Use your society username and shared password."
     },
     "eventRowActions": {
       "desktopColumns": "72px 104px",
@@ -913,6 +914,36 @@
       "pointTypography": "700 30px/1.15 var(--heading)",
       "mobilePointSize": "26px",
       "caption": "Active-record count; 12px muted text."
+    },
+    "loginPassword": {
+      "description": "The sign-in instruction is \u201cUse your society username and shared password.\u201d The existing SEC-chair contact help remains below the form. Password fields are hidden by default; the sign-in Password and activation New password controls add a (44px) right-aligned Eye/EyeOff toggle inside a relatively positioned control, with (46px) input right padding and right-side (6px) rounding. The toggle is a separate button outside the explicit input label, uses muted color with maroon hover, and exposes Show password / Hide password, `aria-pressed`, and `aria-controls=\"auth-password\"`. Toggling changes the input type without changing its value. The activation hint is linked with `aria-describedby`; Confirm password stays hidden and has no visibility toggle.",
+      "defaultVisible": false,
+      "appliesTo": [
+        "Sign-in Password",
+        "Activation New password"
+      ],
+      "confirmPasswordToggle": false,
+      "controlPosition": "relative",
+      "inputPaddingRight": "46px",
+      "toggleWidth": "44px",
+      "togglePosition": "absolute; top: 0; right: 0; bottom: 0",
+      "toggleColor": "var(--muted)",
+      "toggleHoverColor": "var(--maroon)",
+      "toggleBorderRadius": "0 6px 6px 0",
+      "iconSize": "17px",
+      "icons": [
+        "Eye",
+        "EyeOff"
+      ],
+      "labels": [
+        "Show password",
+        "Hide password"
+      ],
+      "ariaPressed": "Current visibility",
+      "ariaControls": "auth-password",
+      "labelAssociation": "Explicit label for auth-password; toggle is outside label.",
+      "activationHint": "auth-password-hint via aria-describedby",
+      "valuePreservation": true
     }
   },
   "components": [

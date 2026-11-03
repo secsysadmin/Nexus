@@ -16,6 +16,8 @@ import {
   LogOut,
   ArrowUpRight,
   ArrowRight,
+  Eye,
+  EyeOff,
   Check,
   Plus,
   Copy,
@@ -1948,6 +1950,7 @@ function AuthScreen({
 }) {
   const [username, setUsername] = useState(""),
     [password, setPassword] = useState(""),
+    [showPassword, setShowPassword] = useState(false),
     [confirm, setConfirm] = useState(""),
     [localError, setLocalError] = useState("");
   return (
@@ -1980,7 +1983,7 @@ function AuthScreen({
           <p>
             {activate
               ? "Your society can share this password with its authorized officers."
-              : "Use your society username and shared password. SEC chairs use the SEC account."}
+              : "Use your society username and shared password."}
           </p>
           {(error || localError) && (
             <div className="alert error" role="alert">
@@ -2013,20 +2016,39 @@ function AuthScreen({
                 />
               </Field>
             )}
-            <Field
-              label={activate ? "New password" : "Password"}
-              hint={activate ? "Use at least 12 characters." : undefined}
-            >
-              <input
-                required
-                type="password"
-                autoComplete={activate ? "new-password" : "current-password"}
-                minLength={activate ? 12 : 1}
-                maxLength={128}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-            </Field>
+            <div className="field">
+              <label htmlFor="auth-password">
+                {activate ? "New password" : "Password"}
+              </label>
+              <span className="password-control">
+                <input
+                  id="auth-password"
+                  aria-describedby={activate ? "auth-password-hint" : undefined}
+                  required
+                  type={showPassword ? "text" : "password"}
+                  autoComplete={activate ? "new-password" : "current-password"}
+                  minLength={activate ? 12 : 1}
+                  maxLength={128}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
+                <button
+                  type="button"
+                  className="password-toggle"
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                  aria-pressed={showPassword}
+                  aria-controls="auth-password"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? <EyeOff size={17} /> : <Eye size={17} />}
+                </button>
+              </span>
+              {activate && (
+                <small id="auth-password-hint">
+                  Use at least 12 characters.
+                </small>
+              )}
+            </div>
             {activate && (
               <Field label="Confirm password">
                 <input

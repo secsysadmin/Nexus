@@ -2853,3 +2853,28 @@ td strong {
     animation: none;
   }
 }
+
+.password-control {
+  position: relative;
+  display: block;
+}
+.password-control input {
+  width: 100%;
+  padding-right: 46px;
+}
+.password-toggle {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 44px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  background: none;
+  color: var(--muted);
+  border-radius: 0 6px 6px 0;
+}
+.password-toggle:hover {
+  color: var(--maroon);
+}
