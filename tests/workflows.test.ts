@@ -103,7 +103,7 @@ test("check-in credits an ESO once and never automatically awards High Impact", 
     await f.db.close();
   }
 });
-test("closed, outside-window, historical and revoked attendance cannot create credit", async () => {
+test("closed, outside-window and revoked attendance cannot create credit", async () => {
   const f = await fixture();
   try {
     const e = (await adminMutation(
@@ -129,11 +129,6 @@ test("closed, outside-window, historical and revoked attendance cannot create cr
       "UPDATE events SET ends_at=now()+interval '1 hour' WHERE id=$1",
       [e.id],
     );
-    await f.db.query("UPDATE semesters SET is_current=false");
-    await assert.rejects(() =>
-      checkIn(f.client, f.society, { eventId: e.id, token: e.checkin_token }),
-    );
-    await f.db.query("UPDATE semesters SET is_current=true");
     await checkIn(f.client, f.society, {
       eventId: e.id,
       token: e.checkin_token,
@@ -264,7 +259,7 @@ test("form edits preserve existing drafts; revisions prevent officer overwrites;
     await f.db.close();
   }
 });
-test("semester changes preserve historical credits and immutable event categories", async () => {
+test("manual resets archive credits without duplicating attendance and immutable event categories", async () => {
   const f = await fixture();
   try {
     const e = (await adminMutation(
@@ -277,17 +272,55 @@ test("semester changes preserve historical credits and immutable event categorie
       eventId: e.id,
       token: e.checkin_token,
     });
-    const next = (await adminMutation(f.client, f.admin, "admin/semesters", {
-      name: "Spring 2027",
-      startsOn: "2027-01-01",
-      endsOn: "2027-06-30",
-      current: true,
-    })) as { id: string };
+    const prior = (await getData(f.client, f.society)).pointCycle.id;
+    const request = { currentCycleId: prior, confirmation: "RESET POINTS" };
+    await assert.rejects(() =>
+      adminMutation(f.client, f.society, "admin/reset-points", request),
+    );
+    await assert.rejects(() =>
+      adminMutation(f.client, f.admin, "admin/reset-points", {
+        ...request,
+        confirmation: "reset",
+      }),
+    );
+    const next = (await adminMutation(
+      f.client,
+      f.admin,
+      "admin/reset-points",
+      request,
+    )) as { id: string };
+    assert.notEqual(next.id, prior);
+    await assert.rejects(() =>
+      adminMutation(f.client, f.admin, "admin/reset-points", request),
+    );
     const data = await getData(f.client, f.society);
-    assert.equal(data.credits[0].semester_id, f.sem);
+    assert.equal(data.credits[0].cycle_id, prior);
+    assert.equal(data.credits.filter((c) => c.cycle_id === next.id).length, 0);
+    assert.equal(data.events.length, 1);
     assert.equal(
-      data.credits.filter((c) => c.semester_id === next.id).length,
-      0,
+      (
+        await checkIn(f.client, f.society, {
+          eventId: e.id,
+          token: e.checkin_token,
+        })
+      ).already,
+      true,
+    );
+    const newEvent = (await adminMutation(
+      f.client,
+      f.admin,
+      "admin/events",
+      eventInput(f.sem),
+    )) as Record<string, string>;
+    await checkIn(f.client, f.society, {
+      eventId: newEvent.id,
+      token: newEvent.checkin_token,
+    });
+    assert.equal(
+      (await getData(f.client, f.society)).credits.filter(
+        (c) => c.cycle_id === next.id,
+      ).length,
+      1,
     );
     await assert.rejects(() =>
       adminMutation(f.client, f.admin, "admin/events", {

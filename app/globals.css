@@ -1,8 +1,8 @@
 :root {
   --maroon: #500000;
   --maroon-light: #6c2424;
-  --ink: #292623;
-  --muted: #68645f;
+  --ink: #211d20;
+  --muted: #625b60;
   --ground: #fff;
   --paper: #fff;
   --line: #e5e2df;
@@ -13,8 +13,8 @@
   --amber-bg: #fbf0d5;
   --red: #962b29;
   --radius: 14px;
-  --sans: "DM Sans Variable", sans-serif;
-  --heading: "Manrope Variable", sans-serif;
+  --sans: "Geist Variable", "Segoe UI", Arial, sans-serif;
+  --heading: var(--sans);
   color-scheme: light;
 }
 * {
@@ -24,7 +24,7 @@ body {
   margin: 0;
   background: var(--ground);
   color: var(--ink);
-  font: 15px/1.6 var(--sans);
+  font: 16px/1.55 var(--sans);
   -webkit-font-smoothing: antialiased;
 }
 ::selection {
@@ -57,7 +57,6 @@ button {
 }
 button:disabled {
   cursor: not-allowed;
-  opacity: 0.5;
 }
 input,
 textarea {
@@ -156,7 +155,7 @@ strong {
 }
 .workspace-label {
   color: var(--muted);
-  font-size: 11px;
+  font-size: 12px;
   margin: 48px 14px 12px;
   letter-spacing: 0.055em;
 }
@@ -191,7 +190,7 @@ strong {
 }
 .nav-count {
   margin-left: auto;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
 }
 .sidebar-bottom {
@@ -214,7 +213,7 @@ strong {
 }
 .identity small {
   color: var(--muted);
-  font-size: 11px;
+  font-size: 12px;
 }
 .avatar {
   background: #f5e9ed;
@@ -224,12 +223,12 @@ strong {
   flex-shrink: 0;
   display: grid;
   place-items: center;
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 700;
   border-radius: 50%;
 }
 .sidebar-bottom p {
-  font-size: 10px;
+  font-size: 12px;
   color: var(--muted);
   line-height: 1.8;
   padding: 20px 14px 0;
@@ -260,21 +259,6 @@ strong {
   display: flex;
   gap: 18px;
   align-items: center;
-}
-.semester-select {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-}
-.semester-select select {
-  appearance: none;
-  background: none;
-  border: 0;
-  font-weight: 600;
-  font-size: 12px;
-  color: var(--ink);
-  padding: 8px 0;
-  max-width: 180px;
 }
 .icon-button {
   padding: 8px;
@@ -385,26 +369,8 @@ strong {
   font-size: 13px;
   margin-bottom: 20px;
 }
-.semester-summary {
-  background: #fff;
-  padding: 25px 28px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 20px;
-  border-radius: var(--radius);
-  margin-bottom: 24px;
-}
-.semester-summary h2 {
-  font-size: 22px;
-  margin-bottom: 5px;
-}
-.semester-summary p {
-  margin: 0;
-  font-size: 12px;
-}
 .pill {
-  font-size: 10px;
+  font-size: 12px;
   line-height: 1.5;
   padding: 5px 9px;
   border-radius: 5px;
@@ -462,7 +428,7 @@ strong {
   display: flex;
   gap: 5px;
   align-items: center;
-  font-size: 11px;
+  font-size: 12px;
   margin: 10px 0 0;
 }
 .point-tracker progress {
@@ -575,7 +541,7 @@ table {
 th {
   font-weight: 500;
   color: var(--muted);
-  font-size: 11px;
+  font-size: 12px;
   background: #faf9fa;
   padding: 12px 14px;
   white-space: nowrap;
@@ -613,7 +579,7 @@ td strong {
   padding: 8px 12px;
 }
 .date-block span {
-  font-size: 10px;
+  font-size: 12px;
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
@@ -640,7 +606,7 @@ td strong {
 }
 .event-details small {
   display: block;
-  font-size: 11px;
+  font-size: 12px;
   margin-top: 5px;
 }
 .event-actions {
@@ -666,13 +632,13 @@ td strong {
   min-width: 0;
 }
 .field small {
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 400;
 }
 input:not([type="checkbox"]),
 select,
 textarea {
-  border: 1px solid #cec8ca;
+  border: 1px solid var(--input-line);
   border-radius: 6px;
   background: #fff;
   color: var(--ink);
@@ -783,7 +749,7 @@ input[type="checkbox"] {
   margin-bottom: 3px;
 }
 .ledger-row small {
-  font-size: 11px;
+  font-size: 12px;
 }
 .correction {
   max-width: 300px;
@@ -819,7 +785,7 @@ input[type="checkbox"] {
 summary {
   cursor: pointer;
   color: var(--muted);
-  font-size: 11px;
+  font-size: 12px;
   padding: 6px 0;
 }
 .roster-toolbar {
@@ -844,7 +810,7 @@ summary {
 .copy-link input {
   flex: 1;
   min-width: 180px;
-  font-size: 11px;
+  font-size: 12px;
 }
 .activation-result {
   background: #fff5dd;
@@ -942,7 +908,7 @@ summary {
   justify-content: space-between;
   gap: 15px;
   border-top: 1px solid var(--line);
-  font-size: 10px;
+  font-size: 12px;
   color: var(--muted);
   padding-top: 24px;
   margin-top: 30px;
@@ -975,7 +941,7 @@ summary {
   max-width: 38ch;
 }
 .auth-story p.auth-footer {
-  font-size: 11px;
+  font-size: 12px;
   color: #d0aca1;
   margin: 60px 0 0;
   max-width: none;
@@ -1056,7 +1022,7 @@ summary {
   border: 0;
 }
 .environment-note {
-  font-size: 11px;
+  font-size: 12px;
   color: #795310;
   background: #fbf0d5;
   padding: 8px 12px;
@@ -1144,10 +1110,6 @@ td strong {
   .topbar-actions {
     gap: 8px;
   }
-  .semester-select select {
-    font-size: 11px;
-    max-width: 190px;
-  }
   .content {
     padding: 28px 18px 20px;
   }
@@ -1160,15 +1122,6 @@ td strong {
   }
   .page-heading h1 {
     font-size: 29px;
-  }
-  .semester-summary {
-    padding: 20px;
-    align-items: flex-start;
-    flex-direction: column;
-    gap: 10px;
-  }
-  .semester-summary h2 {
-    font-size: 19px;
   }
   .point-trackers {
     grid-template-columns: 1fr;
@@ -1198,14 +1151,14 @@ td strong {
   .point-value small {
     display: block;
     margin: 0;
-    font-size: 10px;
+    font-size: 12px;
   }
   .point-tracker progress {
     max-width: 180px;
     margin-top: 6px;
   }
   .point-tracker p {
-    font-size: 10px;
+    font-size: 12px;
     margin-top: 4px;
     grid-column: 1;
   }
@@ -1223,7 +1176,7 @@ td strong {
     gap: 0;
   }
   .section-head .text-button {
-    font-size: 10px;
+    font-size: 12px;
     white-space: nowrap;
     padding: 0;
   }
@@ -1234,7 +1187,7 @@ td strong {
     font-size: 12px;
   }
   .record small {
-    font-size: 10px;
+    font-size: 12px;
   }
   .record .button {
     padding: 8px 10px;
@@ -1287,7 +1240,7 @@ td strong {
     font-size: 20px;
   }
   .roster-toolbar .button {
-    font-size: 11px;
+    font-size: 12px;
   }
   .inline-form {
     align-items: stretch;
@@ -1350,11 +1303,8 @@ td strong {
   textarea {
     font-size: 16px;
   }
-  .semester-select select {
-    font-size: 12px;
-  }
   .field small {
-    font-size: 11px;
+    font-size: 12px;
   }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -1406,7 +1356,7 @@ td strong {
     content: "Scroll horizontally to view all columns";
     display: block;
     color: var(--muted);
-    font-size: 11px;
+    font-size: 12px;
     margin-bottom: 10px;
   }
 }
@@ -1499,22 +1449,6 @@ td strong {
 /* Shared white and maroon workspace, continuing the sign-in surface. */
 .sidebar .brand {
   color: var(--maroon);
-}
-.semester-summary {
-  border: 1px solid var(--line);
-  background-image:
-    linear-gradient(90deg, #fff 65%, rgba(255, 255, 255, 0.8)),
-    url("/society-ribbon.svg");
-  background-size:
-    100% 100%,
-    220px 275px;
-  background-position:
-    center,
-    right center;
-  background-repeat: no-repeat;
-}
-.semester-summary > * {
-  position: relative;
 }
 .environment-note {
   background: var(--tint);
@@ -1675,11 +1609,11 @@ td strong {
   }
 }
 
-.semester-points {
+.points-summary {
   border-top: 1px solid var(--line);
   padding: 26px 0;
 }
-.semester-points .section-head h2 {
+.points-summary .section-head h2 {
   font-size: 19px;
   font-weight: 650;
 }
@@ -1710,7 +1644,7 @@ td strong {
   color: var(--muted);
 }
 .points-ledger-note {
-  font-size: 11px;
+  font-size: 12px;
   margin: 10px 0 18px;
 }
 .points-summary-table {
@@ -1719,7 +1653,7 @@ td strong {
   margin: 0;
 }
 .points-summary-table thead th {
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 500;
   color: var(--muted);
   background: transparent;
@@ -1760,7 +1694,7 @@ td strong {
 }
 .points-row-label small {
   display: block;
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 400;
   margin-top: 5px;
   color: var(--muted);
@@ -1824,7 +1758,7 @@ td strong {
   font-weight: 400;
 }
 .prt-ring small {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--muted);
 }
 .prt-requirement-status {
@@ -1838,7 +1772,7 @@ td strong {
   color: var(--green);
 }
 .prt-requirement p {
-  font-size: 11px;
+  font-size: 12px;
   max-width: 30ch;
   margin: 12px 0 0;
 }
@@ -1854,7 +1788,7 @@ td strong {
   }
 }
 @media (max-width: 760px) {
-  .semester-points .section-head {
+  .points-summary .section-head {
     flex-wrap: wrap;
     gap: 10px;
   }
@@ -1882,96 +1816,13 @@ td strong {
     margin-left: 23px;
   }
   .points-row-label small {
-    font-size: 10px;
+    font-size: 12px;
   }
   .points-summary-table tbody th {
     background: transparent;
     border-bottom: 1px solid var(--line);
     font-size: 12px;
   }
-}
-
-.semester-picker {
-  position: relative;
-}
-.semester-trigger {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  min-height: 40px;
-  padding: 8px 12px;
-  background: #fff;
-  color: var(--ink);
-  border: 1px solid var(--line);
-  border-radius: 6px;
-  font-size: 12px;
-  font-weight: 600;
-}
-.semester-trigger:hover,
-.semester-trigger[aria-expanded="true"] {
-  border-color: #b58e98;
-  background: #fcf5f5;
-}
-.semester-trigger > svg {
-  color: var(--maroon);
-  flex-shrink: 0;
-}
-.semester-trigger small {
-  color: var(--maroon);
-  background: #f5e9ed;
-  padding: 2px 6px;
-  border-radius: 4px;
-  font-size: 10px;
-}
-.semester-options {
-  position: absolute;
-  top: calc(100% + 8px);
-  right: 0;
-  min-width: 270px;
-  max-width: calc(100vw - 36px);
-  max-height: 300px;
-  overflow-y: auto;
-  padding: 6px;
-  background: #fff;
-  border: 1px solid #ead4d8;
-  border-radius: 6px;
-  box-shadow: 0 12px 30px #29000b18;
-  z-index: 30;
-}
-.semester-option {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 11px 10px;
-  border-radius: 4px;
-  cursor: pointer;
-  color: var(--ink);
-}
-.semester-option.highlighted {
-  background: #fcf5f5;
-}
-.semester-option > span:first-child {
-  flex: 1;
-  min-width: 0;
-}
-.semester-option strong {
-  display: block;
-  font-size: 12px;
-}
-.semester-option small {
-  display: block;
-  margin-top: 3px;
-  font-size: 10px;
-}
-.semester-current {
-  color: var(--maroon);
-  font-size: 10px;
-  font-weight: 600;
-}
-.semester-option-check {
-  width: 16px;
-  display: flex;
-  color: var(--maroon);
 }
 .audit-disclosure > summary {
   display: flex;
@@ -2003,31 +1854,12 @@ td strong {
   font-size: 12px;
 }
 @media (max-width: 760px) {
-  .semester-trigger {
-    gap: 7px;
-    padding: 7px 9px;
-  }
-  .semester-options {
-    min-width: 250px;
-  }
   .audit-disclosure > summary {
     flex-wrap: wrap;
     font-size: 17px;
   }
 }
-.semester-trigger > span {
-  max-width: 170px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.semester-option strong {
-  overflow-wrap: anywhere;
-}
 @media (max-width: 760px) {
-  .semester-trigger > span {
-    max-width: 120px;
-  }
 }
 .publication-actions {
   margin-top: 28px;
@@ -2087,7 +1919,7 @@ td strong {
 }
 .calendar-weekdays > div {
   padding: 10px 8px;
-  font-size: 11px;
+  font-size: 12px;
   color: var(--muted);
   background: #faf9fa;
 }
@@ -2168,7 +2000,7 @@ td strong {
   gap: 3px;
   background: var(--event-color);
   color: #fff;
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 500;
   min-width: 0;
   margin-inline: 4px;
@@ -2208,7 +2040,7 @@ td strong {
   gap: 18px;
   flex-wrap: wrap;
   margin-top: 14px;
-  font-size: 11px;
+  font-size: 12px;
   color: var(--muted);
 }
 .calendar-legend > span {
@@ -2236,7 +2068,7 @@ td strong {
 .calendar-day-details .record small {
   display: block;
   margin-top: 4px;
-  font-size: 11px;
+  font-size: 12px;
 }
 .calendar-day-details .record p {
   margin: 8px 0;
@@ -2249,13 +2081,13 @@ td strong {
     gap: 5px;
   }
   .calendar-span {
-    font-size: 9px;
+    font-size: 12px;
     padding-inline: 3px;
     margin-inline: 2px;
   }
   .calendar-weekdays > div {
     padding: 9px 5px;
-    font-size: 10px;
+    font-size: 12px;
   }
   .calendar-toolbar h3 {
     font-size: 20px;
@@ -2355,7 +2187,7 @@ td strong {
   padding: 7px 0;
   border: 0;
   background: transparent;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 500;
   color: var(--muted);
 }
@@ -2414,7 +2246,7 @@ td strong {
   }
   .event-checkin-toggle {
     grid-column: auto;
-    font-size: 10px;
+    font-size: 12px;
   }
   .qr-modal {
     width: calc(100% - 24px);
@@ -2459,7 +2291,7 @@ td strong {
   margin-top: 4px;
 }
 .choice-options > small {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--muted);
 }
 .application-content {
@@ -2483,7 +2315,7 @@ td strong {
   color: var(--maroon);
 }
 .application-meta > small {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--muted);
 }
 .application-content .editor-form {
@@ -2604,7 +2436,7 @@ td strong {
   margin: 0 0 6px;
 }
 .ledger-entry small {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--muted);
 }
 .ledger-point-value {
@@ -2621,7 +2453,7 @@ td strong {
   letter-spacing: -0.03em;
 }
 .ledger-point-value > span {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--muted);
   margin-top: 4px;
 }
@@ -2667,7 +2499,7 @@ td strong {
   display: inline-flex;
   align-items: center;
   gap: 7px;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 600;
   color: var(--event-color);
 }
@@ -2719,7 +2551,7 @@ td strong {
   display: inline-flex;
   align-items: center;
   gap: 7px;
-  font-size: 11px;
+  font-size: 12px;
   color: var(--muted);
 }
 .calendar-checkin-status::before {
@@ -2783,7 +2615,7 @@ td strong {
     flex-direction: column;
   }
   .calendar-event-facts > span {
-    font-size: 11px;
+    font-size: 12px;
   }
   .calendar-detail-actions {
     margin-top: 0;
@@ -2853,3 +2685,298 @@ td strong {
     animation: none;
   }
 }
+
+/* Audit refinements: readable metadata, deliberate controls, and protected mobile navigation. */
+:root {
+  --control-hit: 44px;
+  --focus: #8c4658;
+  --input-line: #9c9094;
+}
+:focus-visible {
+  outline-color: var(--focus);
+}
+.button,
+.icon-button,
+.text-button{
+  min-height: var(--control-hit);
+}
+.icon-button {
+  min-width: var(--control-hit);
+}
+.button:disabled {
+  background: #f1eded;
+  border-color: var(--line);
+  color: var(--muted);
+  box-shadow: none;
+  opacity: 1;
+}
+.button.secondary:disabled {
+  background: #f6f4f5;
+  color: var(--muted);
+}
+.text-button:disabled,
+.icon-button:disabled {
+  color: var(--muted);
+  opacity: 0.65;
+}
+.field > label {
+  display: block;
+}
+.required-mark {
+  color: var(--maroon);
+}
+.check-field {
+  min-height: 44px;
+}
+summary {
+  min-height: 36px;
+  align-content: center;
+}
+.sidebar {
+  overflow-y: auto;
+}
+.navigation-backdrop {
+  display: none;
+}
+.alert-message {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.alert > .icon-button {
+  flex-shrink: 0;
+}
+.is-refreshing svg {
+  animation: workspace-refresh 800ms linear infinite;
+}
+@keyframes workspace-refresh {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.contact-details {
+  font-family: var(--sans);
+  font-size: 12px;
+  margin: 12px 0;
+  max-width: 560px;
+}
+.contact-details dl {
+  margin: 0;
+  padding: 12px 0;
+  border-top: 1px solid var(--line);
+}
+.contact-details dl:first-child {
+  border-top: 0;
+}
+.contact-details dl > div {
+  display: grid;
+  grid-template-columns: minmax(100px, 0.8fr) minmax(0, 1.2fr);
+  gap: 8px;
+  padding: 5px 0;
+}
+.contact-details dt {
+  font-weight: 500;
+  color: var(--muted);
+}
+.contact-details dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+  color: var(--ink);
+}
+.contact-details a {
+  color: var(--maroon);
+  text-decoration: underline;
+}
+.contact-empty {
+  margin: 12px 0;
+  font-size: 12px;
+}
+.mobile-society-list {
+  display: none;
+}
+.society-actions {
+  min-width: 180px;
+}
+.calendar-span {
+  font-size: 12px;
+  line-height: 1.25;
+}
+.view-switch button {
+  min-height: 38px;
+}
+.event-actions .button,
+.event-checkin-toggle,
+.choice-option-row .icon-button {
+  min-height: 44px;
+}
+.section-head {
+  flex-wrap: wrap;
+}
+.section-head h2 {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.review-answers {
+  max-width: 800px;
+}
+.review-answers p {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.standalone {
+  max-width: 640px;
+}
+.standalone > .button {
+  margin-top: 10px;
+}
+@media (max-width: 760px) {
+  .navigation-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    border: 0;
+    border-radius: 0;
+    background: #21181b66;
+    z-index: 19;
+  }
+  .sidebar {
+    max-height: 100dvh;
+  }
+  .directory-table {
+    display: none;
+  }
+  .mobile-society-list {
+    display: block;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .mobile-society-list > li {
+    padding: 22px 0;
+    border-top: 1px solid var(--line);
+  }
+  .mobile-society-list > li:first-child {
+    border-top: 0;
+    padding-top: 4px;
+  }
+  .mobile-society-heading {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 7px;
+  }
+  .mobile-society-heading h3 {
+    flex: 1;
+    min-width: 150px;
+    font-size: 15px;
+    margin: 0;
+    overflow-wrap: anywhere;
+  }
+  .mobile-society-list details {
+    margin: 12px 0;
+  }
+  .society-actions {
+    min-width: 0;
+    margin-top: 12px;
+  }
+  .society-actions .button {
+    white-space: normal;
+  }
+  .contact-details dl > div {
+    grid-template-columns: 1fr;
+    gap: 2px;
+  }
+  .view-switch button {
+    min-height: 44px;
+  }
+  .text-button,
+  .event-checkin-toggle {
+    font-size: 12px;
+  }
+  .calendar-event-facts > span,
+  .choice-options > small {
+    font-size: 12px;
+  }
+  .roster-toolbar {
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .roster-toolbar > span {
+    width: 100%;
+  }
+  .roster-row > label {
+    min-height: 44px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .is-refreshing svg {
+    animation: none;
+  }
+}
+
+.standalone-logo {
+  margin-bottom: 24px;
+}
+
+.field-label {
+  display: flex;
+  gap: 4px;
+  align-items: baseline;
+}
+
+@media (max-width: 360px) {
+  .event-actions {
+    grid-template-columns: 72px 104px;
+  }
+  .event-checkin-toggle {
+    grid-column: 1 / -1;
+    justify-content: flex-start;
+  }
+  .event-actions .button {
+    min-height: 44px;
+  }
+}
+
+/* One family; distinct roles for orientation, reading, labels, and data. */
+:root {
+  --type-display: clamp(2.25rem, 3.6vw, 3.5rem);
+  --type-section: 1.375rem;
+  --type-item: 1.0625rem;
+  --type-body: 1rem;
+  --type-label: .875rem;
+  --type-meta: .8125rem;
+}
+h1, .page-heading h1 { font-size: var(--type-display); font-weight: 760; line-height: 1.08; letter-spacing: -.04em; }
+h2, .section-head h2, .dashboard-section .section-head h2, .points-summary .section-head h2 { font-size: var(--type-section); font-weight: 680; line-height: 1.3; letter-spacing: -.025em; }
+h3, .record strong, .application-link strong { font-size: var(--type-item); font-weight: 650; line-height: 1.4; letter-spacing: -.012em; }
+.page-heading p { font-size: var(--type-body); color: var(--muted); margin-top: 16px; line-height: 1.6; max-width: 65ch; }
+.section-intro, .empty p, .application-description, .ledger-entry p { font-size: .9375rem; line-height: 1.65; max-width: 70ch; }
+.field-label, .field > label, .check-field, .choice-field legend, th { font-size: var(--type-label); font-weight: 600; color: var(--ink); }
+small, .record small, td small, .field-hint, .ledger-entry small, .ledger-caption, .points-ledger-note, .dashboard-context, .points-rule { font-size: var(--type-meta); line-height: 1.6; color: var(--muted); }
+.button, .text-button, .sidebar nav button { font-size: var(--type-label); font-weight: 600; }
+input, select, textarea { font-size: 1rem; }
+.record strong, .ledger-entry h3 { color: var(--ink); }
+.record small { margin-top: 6px; }
+.dashboard-metric strong, .points-earned, .points-ring-value, .ledger-point-value strong { font-variant-numeric: tabular-nums; letter-spacing: -.04em; }
+.is-dashboard .page-heading h1 { font-weight: 760; }
+.history-disclosure { border-top: 1px solid var(--line); padding: 24px 0; }
+.history-disclosure summary { cursor: pointer; font-size: 1.0625rem; font-weight: 650; padding: 10px 0; }
+.reset-modal { border: 1px solid var(--line); border-radius: 10px; width: min(540px, calc(100% - 32px)); padding: 32px; color: var(--ink); background: white; box-shadow: 0 24px 80px #211d2030; }
+.reset-modal::backdrop { background: #211d2066; backdrop-filter: blur(4px); }
+.reset-modal p { font-size: .9375rem; line-height: 1.65; }
+.reset-modal .field { margin: 24px 0; }
+.reset-modal .button-row { display: flex; justify-content: flex-end; gap: 12px; }
+body:has(.reset-modal[open]) { overflow: hidden; }
+@media (max-width: 760px) {
+  .page-heading h1, .is-dashboard .page-heading h1 { font-size: clamp(2rem, 7.5vw, 2.75rem); line-height: 1.12; }
+  .section-head h2, .dashboard-section .section-head h2 { font-size: 1.25rem; }
+  .reset-modal { padding: 24px; }
+}
+input:not([type="checkbox"]), select, textarea { font-size: 1rem; font-weight: 400; }
+.auth-form h1 { font-size: clamp(1.75rem, 2.5vw, 2rem); font-weight: 720; line-height: 1.2; letter-spacing: -.035em; }
+.auth-form > p { font-size: .9375rem; line-height: 1.65; }
+.auth-help strong { font-size: .875rem; }
+.auth-help p { font-size: .8125rem; line-height: 1.65; }
+.points-summary-table tbody th { font-size: .875rem; }
+.points-summary-table thead th, .points-summary-table td:not(.points-earned) { font-size: .8125rem; }

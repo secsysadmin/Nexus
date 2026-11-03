@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-11-02T23:59:07.191185+00:00",
+  "generatedAt": "2026-11-03T06:29:43.245520+00:00",
   "title": "Design System: SocietyHub",
   "extensions": {
     "colorMeta": {
@@ -36,28 +36,28 @@
         "role": "neutral",
         "displayName": "Ink",
         "tonalRamp": [
-          "oklch(15% 0.00705 67.52)",
-          "oklch(26% 0.00705 67.52)",
-          "oklch(38% 0.00705 67.52)",
-          "oklch(49% 0.00705 67.52)",
-          "oklch(61% 0.00705 67.52)",
-          "oklch(72% 0.00705 67.52)",
-          "oklch(84% 0.00705 67.52)",
-          "oklch(95% 0.00705 67.52)"
+          "oklch(15% 0.00828 334.46)",
+          "oklch(26% 0.00828 334.46)",
+          "oklch(38% 0.00828 334.46)",
+          "oklch(49% 0.00828 334.46)",
+          "oklch(61% 0.00828 334.46)",
+          "oklch(72% 0.00828 334.46)",
+          "oklch(84% 0.00828 334.46)",
+          "oklch(95% 0.00828 334.46)"
         ]
       },
       "muted": {
         "role": "neutral",
         "displayName": "Muted",
         "tonalRamp": [
-          "oklch(15% 0.00930 73.67)",
-          "oklch(26% 0.00930 73.67)",
-          "oklch(38% 0.00930 73.67)",
-          "oklch(49% 0.00930 73.67)",
-          "oklch(61% 0.00930 73.67)",
-          "oklch(72% 0.00930 73.67)",
-          "oklch(84% 0.00930 73.67)",
-          "oklch(95% 0.00930 73.67)"
+          "oklch(15% 0.01187 335.73)",
+          "oklch(26% 0.01187 335.73)",
+          "oklch(38% 0.01187 335.73)",
+          "oklch(49% 0.01187 335.73)",
+          "oklch(61% 0.01187 335.73)",
+          "oklch(72% 0.01187 335.73)",
+          "oklch(84% 0.01187 335.73)",
+          "oklch(95% 0.01187 335.73)"
         ]
       },
       "ground": {
@@ -114,20 +114,6 @@
           "oklch(72% 0.00551 3.34)",
           "oklch(84% 0.00551 3.34)",
           "oklch(95% 0.00551 3.34)"
-        ]
-      },
-      "semester": {
-        "role": "neutral",
-        "displayName": "Semester",
-        "tonalRamp": [
-          "oklch(15% 0.00000 89.88)",
-          "oklch(26% 0.00000 89.88)",
-          "oklch(38% 0.00000 89.88)",
-          "oklch(49% 0.00000 89.88)",
-          "oklch(61% 0.00000 89.88)",
-          "oklch(72% 0.00000 89.88)",
-          "oklch(84% 0.00000 89.88)",
-          "oklch(95% 0.00000 89.88)"
         ]
       },
       "green": {
@@ -204,14 +190,14 @@
         "role": "primary",
         "displayName": "Nav Text",
         "tonalRamp": [
-          "oklch(15% 0.00930 73.67)",
-          "oklch(26% 0.00930 73.67)",
-          "oklch(38% 0.00930 73.67)",
-          "oklch(49% 0.00930 73.67)",
-          "oklch(61% 0.00930 73.67)",
-          "oklch(72% 0.00930 73.67)",
-          "oklch(84% 0.00930 73.67)",
-          "oklch(95% 0.00930 73.67)"
+          "oklch(15% 0.01187 335.73)",
+          "oklch(26% 0.01187 335.73)",
+          "oklch(38% 0.01187 335.73)",
+          "oklch(49% 0.01187 335.73)",
+          "oklch(61% 0.01187 335.73)",
+          "oklch(72% 0.01187 335.73)",
+          "oklch(84% 0.01187 335.73)",
+          "oklch(95% 0.01187 335.73)"
         ]
       },
       "nav-hover": {
@@ -246,14 +232,14 @@
         "role": "neutral",
         "displayName": "Input Line",
         "tonalRamp": [
-          "oklch(15% 0.00719 354.83)",
-          "oklch(26% 0.00719 354.83)",
-          "oklch(38% 0.00719 354.83)",
-          "oklch(49% 0.00719 354.83)",
-          "oklch(61% 0.00719 354.83)",
-          "oklch(72% 0.00719 354.83)",
-          "oklch(84% 0.00719 354.83)",
-          "oklch(95% 0.00719 354.83)"
+          "oklch(15% 0.01533 355.24)",
+          "oklch(26% 0.01533 355.24)",
+          "oklch(38% 0.01533 355.24)",
+          "oklch(49% 0.01533 355.24)",
+          "oklch(61% 0.01533 355.24)",
+          "oklch(72% 0.01533 355.24)",
+          "oklch(84% 0.01533 355.24)",
+          "oklch(95% 0.01533 355.24)"
         ]
       },
       "focus": {
@@ -386,23 +372,31 @@
     "typographyMeta": {
       "headline": {
         "displayName": "Page heading",
-        "purpose": "Workspace page titles."
+        "purpose": "Geist display role; dashboard retains a more-specific desktop size and mobile override."
       },
       "title": {
         "displayName": "Section heading",
-        "purpose": "Panel and section titles."
+        "purpose": "22px, weight 680; 20px mobile."
       },
       "body": {
         "displayName": "Body",
-        "purpose": "Reading text and inherited controls."
+        "purpose": "16px/1.55 Geist; descriptive copy uses 15px/1.65."
       },
       "label": {
-        "displayName": "Field label",
-        "purpose": "Compact persistent form labels."
+        "displayName": "Label",
+        "purpose": "14px, weight 600 for controls, navigation and field labels."
       },
       "point-total": {
         "displayName": "Point total",
         "purpose": "Actual earned total in the category ledger; 32px desktop and 26px mobile."
+      },
+      "item": {
+        "displayName": "Item heading",
+        "purpose": "17px, weight 650."
+      },
+      "metadata": {
+        "displayName": "Metadata",
+        "purpose": "13px/1.6 muted supporting information."
       }
     },
     "shadows": [
@@ -417,14 +411,14 @@
         "purpose": "Open mobile navigation edge."
       },
       {
-        "name": "semester-picker",
-        "value": "0 12px 30px #29000b18",
-        "purpose": "Semester listbox popup only."
-      },
-      {
         "name": "qr-modal",
         "value": "0 24px 80px #1d001a30",
         "purpose": "Centered native QR dialog."
+      },
+      {
+        "name": "point-reset-dialog",
+        "value": "0 24px 80px #211d2030",
+        "purpose": "Typed confirmation for resetting all society points."
       }
     ],
     "motion": [
@@ -456,12 +450,17 @@
       {
         "name": "earned-share-bar",
         "value": "460ms cubic-bezier(0.16, 1, 0.3, 1)",
-        "purpose": "Nonzero bars scaleX(0) to scaleX(1), origin left center; replay only on mount or society/semester/category-value/earned-total key changes; reduced motion shows final state."
+        "purpose": "Nonzero bars scaleX(0) to scaleX(1), origin left center; replay only on mount or society/point-period/category-value/earned-total key changes; reduced motion shows final state."
       },
       {
         "name": "prt-requirement-draw",
         "value": "850ms cubic-bezier(0.22, 1, 0.36, 1)",
-        "purpose": "Met ring draws clockwise from top with stroke-dashoffset 100 to 0; key is society/semester/met state; no replay from a higher already-met PRT amount; reduced motion shows final state."
+        "purpose": "Met ring draws clockwise from top with stroke-dashoffset 100 to 0; key is society/point-period/met state; no replay from a higher already-met PRT amount; reduced motion shows final state."
+      },
+      {
+        "name": "workspace-refresh",
+        "value": "800ms linear infinite",
+        "purpose": "Refresh icon while loading; disabled by reduced motion."
       }
     ],
     "breakpoints": [
@@ -484,7 +483,7 @@
       "sourceAsset": "Delphi/public/sec_favicon.png",
       "preservation": "Copied unchanged; retain proportions, contain fit, circular rounding, and no shrinking.",
       "sidebar": {
-        "fontFamily": "Manrope Variable",
+        "fontFamily": "Geist Variable",
         "fontSize": "21px",
         "fontWeight": 750,
         "logoWidth": "42px",
@@ -547,12 +546,12 @@
       "retryBusyState": "disabled"
     },
     "dashboard": {
-      "layoutDescription": "The public navigation destination is Dashboard. SEC\u2019s dashboard prioritizes the oldest five applications awaiting review with direct review actions and a full-queue link, then the earliest five upcoming or ongoing selected-semester events with event-management actions and explicit check-in or manual High Impact award status. It also shows up to five enabled societies without an active PRT credit in that semester and up to five enabled accounts awaiting setup across all semesters, with direct setup-link actions. Counts beside section headings reflect the full matching lists, and truncation text points to the complete destination. The full society points table remains available in the initially collapsed native disclosure, \u201cAll society point totals.\u201d The society dashboard greets its account with \u201cHello, {display_name}\u201d without an overview subtitle. It retains applications and recent attendance, shows the next three upcoming or ongoing events with a View events link, and replaces the former three-column trackers with the Semester points ledger and separate PRT requirement.",
+      "layoutDescription": "The public navigation destination is Dashboard. SEC\u2019s dashboard prioritizes the oldest five applications awaiting review with direct review actions and a full-queue link, then the earliest five upcoming or ongoing events with event-management actions and explicit check-in or manual High Impact award status. It also shows up to five enabled societies without an active PRT credit in the current point period and up to five enabled accounts awaiting setup across all point periods, with direct setup-link actions. Counts beside section headings reflect the full matching lists, and truncation text points to the complete destination. The full society points table remains available in the initially collapsed native disclosure, \u201cAll society point totals.\u201d The society dashboard greets its account with \u201cHello, {display_name}\u201d without an overview subtitle. It retains applications and recent attendance, shows the next three upcoming or ongoing events with a View events link, and replaces the former three-column trackers with the Society points ledger and separate PRT requirement.",
       "rowDescription": "Dashboard action rows reuse ruled records and existing primary, secondary, or text actions. Row content allows shrinking with `min-width: 0`, while its direct action does not shrink. At (760px) and below, action rows stack their content and action vertically, align to the start, and use an (8px) gap. The native points-register disclosure summary is maroon, (13px), weight (650), with (12px 0 20px) padding. Repeated direct actions have descriptive accessible names; changing navigation destinations scrolls to the top.",
       "publicNavigationLabel": "Dashboard",
       "admin": {
         "pendingReviews": {
-          "scope": "Selected semester, submitted applications",
+          "scope": "Current point period, submitted applications",
           "sort": "Oldest submission first",
           "previewLimit": 5,
           "actions": [
@@ -561,19 +560,19 @@
           ]
         },
         "events": {
-          "scope": "Selected semester, not yet ended",
+          "scope": "Current point period, not yet ended",
           "sort": "Earliest start first",
           "previewLimit": 5,
           "action": "Manage event",
           "status": "Check-in availability or manual SEC award for High Impact."
         },
         "prtFollowUp": {
-          "scope": "Enabled societies without an active, nonrevoked PRT credit of at least one point in the selected semester",
+          "scope": "Enabled societies without an active, nonrevoked PRT credit of at least one point in the current point period",
           "previewLimit": 5,
           "fullRegister": "All society point totals"
         },
         "awaitingSetup": {
-          "scope": "Enabled, unactivated society accounts across all semesters",
+          "scope": "Enabled, unactivated society accounts across all point periods",
           "previewLimit": 5,
           "action": "Issue setup link"
         },
@@ -609,17 +608,17 @@
         "mobileGap": "8px"
       },
       "composition": {
-        "description": "Dashboard composition uses open sections separated by hairlines, with (26px 0) section padding and (24px 0) on mobile. The page headline is `clamp(34px, 3.5vw, 52px)` with (1.12) line height and (-0.04em) tracking, fixed at (34px) on mobile. Section headings are (19px), weight (650), reducing to (18px) on mobile; counts sit outside the heading in muted body type (14px, weight 500). Empty sections become one compact status line with a check icon and an optional destination action, using (18px 0) padding, without an extra heading or description. Each section keeps its accessible name and `data-count`. SEC has one primary header action: review the oldest pending application, otherwise manage the earliest upcoming event, otherwise create an event. The collapsed points-register content is also flat. The society greeting has the scoped entrance motion described below; the static login reference artwork remains unchanged.",
+        "description": "Dashboard composition uses open sections separated by hairlines, with (26px 0) section padding and (24px 0) on mobile. The page headline is `clamp(34px, 3.5vw, 52px)` with (1.12) line height and (-0.04em) tracking, with mobile title sizing defined by the Typography section. Section headings are (22px), weight (680), reducing to (20px) on mobile; counts sit outside the heading in muted body type (14px, weight 500). Empty sections become one compact status line with a check icon and an optional destination action, using (18px 0) padding, without an extra heading or description. Each section keeps its accessible name and `data-count`. SEC has one primary header action: review the oldest pending application, otherwise manage the earliest upcoming event, otherwise create an event. The collapsed points-register content is also flat. The society greeting has the scoped entrance motion described below; the static login reference artwork remains unchanged.",
         "sectionPadding": "26px 0",
         "mobileSectionPadding": "24px 0",
         "emptyPadding": "18px 0",
         "columnGap": "42px",
         "rowGap": "0",
         "headlineFontSize": "clamp(34px, 3.5vw, 52px)",
-        "mobileHeadlineFontSize": "34px",
-        "sectionHeadingSize": "19px",
-        "mobileSectionHeadingSize": "18px",
-        "sectionHeadingWeight": 650,
+        "mobileHeadlineFontSize": "clamp(2rem, 7.5vw, 2.75rem)",
+        "sectionHeadingSize": "22px",
+        "mobileSectionHeadingSize": "20px",
+        "sectionHeadingWeight": 680,
         "countFontSize": "14px",
         "countFontWeight": 500,
         "contextRow": "Unboxed; no ribbon artwork.",
@@ -632,7 +631,7 @@
       }
     },
     "loginHelp": {
-      "description": "The login combines account setup and password-reset help in one pale rose card (#fcf5f5) with a (1px #ead4d8) border, the input-matching (6px) radius, (18px) padding, and a (32px minmax(0, 1fr)) grid with a (12px) gap. A maroon KeyRound icon (17px) sits in a white circular holder (32px). The bold title and body are (12px); body margins are (7px 0 10px). The \u201cContact an SEC chair\u201d action is maroon (12px, weight 650), with an ArrowRight icon, (8px) gap, and (36px) minimum height; hover underlines the label. Its mail link targets `society@sec.tamu.edu` with subject \u201cSocietyHub account help.\u201d Autofilled sign-in inputs retain white fill with a (1000px) inset white shadow, ink text and text fill, and a maroon caret through `:is(:autofill, :-webkit-autofill)`.",
+      "description": "The login combines account setup and password-reset help in one pale rose card (#fcf5f5) with a (1px #ead4d8) border, the input-matching (6px) radius, (18px) padding, and a (32px minmax(0, 1fr)) grid with a (12px) gap. A maroon KeyRound icon (17px) sits in a white circular holder (32px). The bold title is (14px) and body is (13px / 1.65); body margins are (7px 0 10px). The \u201cContact an SEC chair\u201d action is maroon (12px, weight 650), with an ArrowRight icon, (8px) gap, and (36px) minimum height; hover underlines the label. Its mail link targets `society@sec.tamu.edu` with subject \u201cSocietyHub account help.\u201d Autofilled sign-in inputs retain white fill with a (1000px) inset white shadow, ink text and text fill, and a maroon caret through `:is(:autofill, :-webkit-autofill)`.",
       "background": "#fcf5f5",
       "border": "1px solid #ead4d8",
       "radius": "6px",
@@ -649,8 +648,8 @@
         "holderShape": "circle",
         "color": "var(--maroon)"
       },
-      "titleSize": "12px",
-      "bodySize": "12px",
+      "titleSize": "14px",
+      "bodySize": "13px",
       "bodyMargin": "7px 0 10px",
       "action": {
         "label": "Contact an SEC chair",
@@ -683,77 +682,8 @@
       "markerBottom": "12px",
       "markerLeft": "0"
     },
-    "semesterPoints": {
-      "description": "Semester points is a category ledger with Category, Earned, and Minimum columns, an actual earned-total heading, and an Attendance history action. Each ruled category row has a status icon, its point rate, and a (7px) bar showing that category\u2019s share of total earned points, with no implied target. PRT uses maroon, Standard uses chart-standard rose, and High Impact uses chart-high-impact slate. Only PRT has a minimum of one point; Standard and High Impact display None. A separate (180px) ring shows the PRT requirement capped at 0 / 1 or 1 / 1, with (10px) strokes and an explicit requirement status; the ledger and accessible ring label retain the true PRT total even above one. Completed status uses semantic green. A zero total leaves all share bars empty and states that no points are recorded. Totals use only the selected society/semester\u2019s nonrevoked credits. The display has no timeline, forecast, category-filter controls, or monthly-data disclosure. Its nonzero share bars and completed requirement ring use a brief draw entrance while text and numbers stay constant.",
-      "layout": "minmax(0, 2fr) minmax(240px, 1fr)",
-      "gap": "44px",
-      "requirementBorder": "1px solid var(--line)",
-      "requirementPaddingLeft": "36px",
-      "stackMaxWidth": "1000px",
-      "stackGap": "28px",
-      "stackRequirementPaddingTop": "24px",
-      "totalMobileSize": "26px",
-      "earnedValue": "750 24px var(--heading)",
-      "categoryTokens": {
-        "PRT": "maroon",
-        "STANDARD": "chart-standard",
-        "HIGH_IMPACT": "chart-high-impact"
-      },
-      "columns": [
-        "Category",
-        "Earned",
-        "Minimum"
-      ],
-      "shareTrackHeight": "7px",
-      "shareMeaning": "Category earned points / actual total earned points; zero total yields zero-width bars.",
-      "minimum": {
-        "PRT": 1,
-        "STANDARD": null,
-        "HIGH_IMPACT": null
-      },
-      "ring": {
-        "size": "180px",
-        "strokeWidth": "10px",
-        "cap": 1,
-        "label": "Includes capped requirement and actual PRT total."
-      },
-      "motion": "Earned-share bars scale horizontally from (0) to (1), anchored at the left center, over (460ms) with `cubic-bezier(0.16, 1, 0.3, 1)` easing. The completed PRT ring draws clockwise from the top by changing stroke dash offset from (100) to (0) over (850ms) with `cubic-bezier(0.22, 1, 0.36, 1)` easing. These draw once on mount or when their keyed state changes: bars key society, semester, category value, and total; the ring keys society, semester, and whether the minimum is met. Increasing an already-met PRT total does not replay the ring. Zero bars and an unmet ring have no draw animation. Reduced-motion preference shows the final state immediately, with all numeric values and status text stable throughout."
-    },
-    "semesterPicker": {
-      "description": "The semester control is a custom combobox rather than a native select. Its white trigger uses the control radius, a line border, (40px) minimum height, maroon CalendarDays/ChevronDown icons, and a pale rose Current badge. The white listbox opens (8px) below and aligns right, with (270px) minimum width, (250px) on mobile, (300px) maximum height, (6px) padding and radius, a (1px #ead4d8) border, and shadow (`0 12px 30px #29000b18`). Highlighted options use (#fcf5f5); each option shows dates, a current label when applicable, and a selected check. Arrow keys, Home/End, Enter/Space, Escape, Tab, outside pointer dismissal, and typeahead are supported. Selection restores trigger focus. The adjacent refresh action exposes the tooltip \u201cReload the latest workspace data\u201d; automatic refresh remains every (30s).",
-      "trigger": {
-        "background": "#ffffff",
-        "border": "1px solid var(--line)",
-        "radius": "6px",
-        "minHeight": "40px",
-        "fontSize": "12px"
-      },
-      "popup": {
-        "minWidth": "270px",
-        "mobileMinWidth": "250px",
-        "maxHeight": "300px",
-        "padding": "6px",
-        "radius": "6px",
-        "border": "1px solid #ead4d8",
-        "shadow": "0 12px 30px #29000b18",
-        "highlight": "#fcf5f5"
-      },
-      "keyboard": [
-        "ArrowUp",
-        "ArrowDown",
-        "Home",
-        "End",
-        "Enter",
-        "Space",
-        "Escape",
-        "Tab",
-        "typeahead"
-      ],
-      "refreshTooltip": "Reload the latest workspace data",
-      "automaticRefreshInterval": "30s"
-    },
     "eventCalendar": {
-      "description": "Events offer List and Calendar views through native `aria-pressed` buttons in a white, line-bordered (6px) segmented control with a rose active fill. The view toolbar sits outside the content panel. The selected-semester month calendar uses Central-time event windows, seven equal columns, and minimum day heights of (110px) desktop and (64px) mobile. Events render as continuous weekly spans in reusable nonoverlapping lanes, labeled once per weekly segment, with continuation arrows at clipped edges. Category fills use maroon, Standard rose, and High Impact slate, with a named legend and readable selected-day details. Date buttons retain roving keyboard focus, arrows and Home/End, a pale rose selected-day state, and a maroon circle for today; month navigation remains within scoped bounds.",
+      "description": "Events offer List and Calendar views through native `aria-pressed` buttons in a white, line-bordered (6px) segmented control with a rose active fill. The view toolbar sits outside the content panel. The current point-period month calendar uses Central-time event windows, seven equal columns, and minimum day heights of (110px) desktop and (64px) mobile. Events render as continuous weekly spans in reusable nonoverlapping lanes, labeled once per weekly segment, with continuation arrows at clipped edges. Category fills use maroon, Standard rose, and High Impact slate, with a named legend and readable selected-day details. Date buttons retain roving keyboard focus, arrows and Home/End, a pale rose selected-day state, and a maroon circle for today; month navigation remains within scoped bounds.",
       "viewControlRadius": "6px",
       "dayMinHeight": "110px",
       "mobileDayMinHeight": "64px",
@@ -788,7 +718,7 @@
       }
     },
     "administrativeForms": {
-      "description": "Administrative activity is an admin-only native disclosure, initially collapsed within an operational panel. Its summary uses Manrope Variable (18px, weight 650), (17px) on mobile, an activity count, and a maroon chevron that rotates on open; expanded content is separated by (20px). Application authoring explicitly offers Save draft / Publish application, or Save published changes / Unpublish and save draft for published forms. The publication actions follow a top rule, (28px) top margin, and (20px) top padding. Drafts carry an amber label and a written not-published hint; the application list offers a primary Publish application action. Publication changes preserve the existing versioned form and saved submission behavior.",
+      "description": "Administrative activity is an admin-only native disclosure, initially collapsed within an operational panel. Its summary uses Geist Variable (18px, weight 650), (17px) on mobile, an activity count, and a maroon chevron that rotates on open; expanded content is separated by (20px). Application authoring explicitly offers Save draft / Publish application, or Save published changes / Unpublish and save draft for published forms. The publication actions follow a top rule, (28px) top margin, and (20px) top padding. Drafts carry an amber label and a written not-published hint; the application list offers a primary Publish application action. Publication changes preserve the existing versioned form and saved submission behavior.",
       "auditDefault": "collapsed",
       "auditSummary": "650 18px/1.4 var(--heading)",
       "auditSummaryMobileSize": "17px",
@@ -808,7 +738,7 @@
       "draftLabelTone": "amber"
     },
     "checkInQr": {
-      "description": "Event check-in QR artwork opens in a centered native dialog with a maximum width of (900px), white surface, panel radius, shadow (`0 24px 80px #1d001a30`), and dark backdrop (#21181b66). Its width is `min(900px, calc(100% - 48px))`, with a maximum height of `calc(100dvh - 48px)`; mobile uses (24px) total viewport clearance. The dialog traps Tab focus, restores the opener and page scrolling on close, and closes by its close control, Escape, or backdrop click. It retains a locally generated (1024px) maroon-on-white PNG download, sanitized event-derived filename, and current-link-bound image. Link replacement reports success locally with role status and explicitly invalidates earlier links/QRs; failure uses role alert and asks the user to reload before sharing. The event row arranges Edit and QR & link in a (72px 104px) action grid with an (8px) gap and a compact check-in toggle below; mobile uses (72px 104px 1fr) so the toggle shares the action row. Actions retain (38px) minimum height and `aria-pressed` toggle state.",
+      "description": "Event check-in QR artwork opens in a centered native dialog with a maximum width of (900px), white surface, panel radius, shadow (`0 24px 80px #1d001a30`), and dark backdrop (#21181b66). Its width is `min(900px, calc(100% - 48px))`, with a maximum height of `calc(100dvh - 48px)`; mobile uses (24px) total viewport clearance. The dialog traps Tab focus, restores the opener and page scrolling on close, and closes by its close control, Escape, or backdrop click. It retains a locally generated (1024px) maroon-on-white PNG download, sanitized event-derived filename, and current-link-bound image. Link replacement reports success locally with role status and explicitly invalidates earlier links/QRs; failure uses role alert and asks the user to reload before sharing. The event row arranges Edit and QR & link in a (72px 104px) action grid with an (8px) gap and a compact check-in toggle below; mobile uses (72px 104px 1fr) so the toggle shares the action row. Actions retain (44px) minimum height and `aria-pressed` toggle state.",
       "format": "image/png",
       "width": "min(900px, calc(100% - 48px))",
       "dark": "#500000",
@@ -844,11 +774,12 @@
       "formMaxWidth": "400px",
       "primaryHeading": {
         "element": "h1",
-        "fontSize": "28px",
-        "mobileFontSize": "26px",
-        "letterSpacing": "-0.03em",
-        "lineHeight": 1.25,
-        "margin": "0 0 14px"
+        "fontSize": "clamp(1.75rem, 2.5vw, 2rem)",
+        "mobileFontSize": "28px",
+        "letterSpacing": "-0.035em",
+        "lineHeight": 1.2,
+        "margin": "0 0 14px",
+        "fontWeight": 720
       },
       "mobile": {
         "maxWidth": "760px",
@@ -863,21 +794,21 @@
     "eventRowActions": {
       "desktopColumns": "72px 104px",
       "gap": "8px",
-      "actionMinHeight": "38px",
+      "actionMinHeight": "44px",
       "togglePlacementDesktop": "Below Edit and QR & link",
       "mobileColumns": "72px 104px 1fr",
       "togglePlacementMobile": "Same action row",
       "toggleState": "aria-pressed"
     },
     "applicationChoices": {
-      "description": "Choice-based application questions use separate required Choice N input rows rather than a multiline options editor. Rows use a (10px) gap with a flexible field and an icon remove control (42px minimum width, 44px minimum height). The choice group is capped at (640px) with (12px) row gaps and (20px 0 26px) margins. Add choice focuses the new field; removal focuses the preceding available choice. Each choice accepts up to (200) characters, with at least one and at most (30) choices; removal is disabled at one. Select and checkbox questions save their options array, while other question types normalize options to an empty array.",
+      "description": "Choice-based application questions use separate required Choice N input rows rather than a multiline options editor. Rows use a (10px) gap with a flexible field and an icon remove control (44px minimum width, 44px minimum height). The choice group is capped at (640px) with (12px) row gaps and (20px 0 26px) margins. Add choice focuses the new field; removal focuses the preceding available choice. Each choice accepts up to (200) characters, with at least one and at most (30) choices; removal is disabled at one. Select and checkbox questions save their options array, while other question types normalize options to an empty array.",
       "groupMaxWidth": "640px",
       "groupGap": "12px",
       "rowGap": "10px",
       "choiceMin": 1,
       "choiceMax": 30,
       "choiceMaxLength": 200,
-      "removeMinWidth": "42px",
+      "removeMinWidth": "44px",
       "removeMinHeight": "44px",
       "labels": "Choice N",
       "addAction": "Add choice",
@@ -905,14 +836,79 @@
       "mobileHeader": "Column, start-aligned, 14px gap"
     },
     "attendanceLedger": {
-      "description": "Attendance history is a ruled ledger with a compact date block, readable event details, and a prominent point amount rather than a tiny badge. A muted (12px) caption reports the active-record count. Rows use (24px) vertical padding and a (20px) gap; the date block is (56px) wide, and the point amount is Manrope Variable (30px, weight 700, line height 1.15). Mobile uses (12px) gaps, a (44px) date block, (13px) event titles, and (26px) amounts, keeping the core row together unless correction controls need wrapping. Removed records retain their written state with muted date styling. The former \u201cOne society. One record\u201d funding note is absent from the dashboard.",
+      "description": "Attendance history is a ruled ledger with a compact date block, readable event details, and a prominent point amount rather than a tiny badge. A muted (13px) caption reports the active-record count. Rows use (24px) vertical padding and a (20px) gap; the date block is (56px) wide, and the point amount is Geist Variable (30px, weight 700, line height 1.15). Mobile uses (12px) gaps, a (44px) date block, (13px) event titles, and (26px) amounts, keeping the core row together unless correction controls need wrapping. Removed records retain their written state with muted date styling. The former \u201cOne society. One record\u201d funding note is absent from the dashboard.",
       "rowPadding": "24px 0",
       "gap": "20px",
       "dateWidth": "56px",
       "mobileDateWidth": "44px",
       "pointTypography": "700 30px/1.15 var(--heading)",
       "mobilePointSize": "26px",
-      "caption": "Active-record count; 12px muted text."
+      "caption": "Active-record count; 13px muted text."
+    },
+    "societyPoints": {
+      "description": "Society points is a category ledger with Category, Earned, and Minimum columns, an actual earned-total heading, and an Attendance history action. Each ruled category row has a status icon, its point rate, and a (7px) bar showing that category\u2019s share of total earned points, with no implied target. PRT uses maroon, Standard uses chart-standard rose, and High Impact uses chart-high-impact slate. Only PRT has a minimum of one point; Standard and High Impact display None. A separate (180px) ring shows the PRT requirement capped at 0 / 1 or 1 / 1, with (10px) strokes and an explicit requirement status; the ledger and accessible ring label retain the true PRT total even above one. Completed status uses semantic green. A zero total leaves all share bars empty and states that no points are recorded. Totals use only the selected society/current point period\u2019s nonrevoked credits. The display has no timeline, forecast, category-filter controls, or monthly-data disclosure. Its nonzero share bars and completed requirement ring use a brief draw entrance while text and numbers stay constant.",
+      "layout": "minmax(0, 2fr) minmax(240px, 1fr)",
+      "gap": "44px",
+      "requirementBorder": "1px solid var(--line)",
+      "requirementPaddingLeft": "36px",
+      "stackMaxWidth": "1000px",
+      "stackGap": "28px",
+      "stackRequirementPaddingTop": "24px",
+      "totalMobileSize": "26px",
+      "earnedValue": "750 24px var(--heading)",
+      "categoryTokens": {
+        "PRT": "maroon",
+        "STANDARD": "chart-standard",
+        "HIGH_IMPACT": "chart-high-impact"
+      },
+      "columns": [
+        "Category",
+        "Earned",
+        "Minimum"
+      ],
+      "shareTrackHeight": "7px",
+      "shareMeaning": "Category earned points / actual total earned points; zero total yields zero-width bars.",
+      "minimum": {
+        "PRT": 1,
+        "STANDARD": null,
+        "HIGH_IMPACT": null
+      },
+      "ring": {
+        "size": "180px",
+        "strokeWidth": "10px",
+        "cap": 1,
+        "label": "Includes capped requirement and actual PRT total."
+      },
+      "motion": "Earned-share bars scale horizontally from (0) to (1), anchored at the left center, over (460ms) with `cubic-bezier(0.16, 1, 0.3, 1)` easing. The completed PRT ring draws clockwise from the top by changing stroke dash offset from (100) to (0) over (850ms) with `cubic-bezier(0.22, 1, 0.36, 1)` easing. These draw once on mount or when their keyed state changes: bars key society, point period, category value, and total; the ring keys society, point period, and whether the minimum is met. Increasing an already-met PRT total does not replay the ring. Zero bars and an unmet ring have no draw animation. Reduced-motion preference shows the final state immediately, with all numeric values and status text stable throughout."
+    },
+    "pointReset": {
+      "description": "Point periods are controlled manually by SEC. Settings & audit provides Reset all society points, opening a native confirmation dialog that requires the exact text RESET POINTS. The white dialog has a (10px) radius, a line border, width `min(540px, calc(100% - 32px))`, (32px) padding (24px mobile), shadow (`0 24px 80px #211d2030`), and a blurred dark backdrop. It reports archived record/point counts before confirmation; busy controls prevent duplicate submission. Reset begins a new current points period for every society while preserving attendance history, events, forms, submissions, and QR links. Previous attendance records is a native disclosure with a (17px, weight 650) summary and an Export all history CSV action. Closing and reopening event check-in preserves the QR; an expired window opens the event editor so chairs can set a new window.",
+      "confirmation": "RESET POINTS",
+      "location": "Settings & audit",
+      "scope": "All societies",
+      "radius": "10px",
+      "width": "min(540px, calc(100% - 32px))",
+      "padding": "32px",
+      "mobilePadding": "24px",
+      "backdrop": "#211d2066; blur(4px)",
+      "previousRecordsDisclosure": "Previous attendance records",
+      "csvAction": "Export all history",
+      "automaticSemesterGating": false,
+      "visibleSemesterControls": false
+    },
+    "workspaceAccessibility": {
+      "description": "Form labels expose required state and associate hints with their controls. Check-in completion moves focus to its result heading. Notices and errors wrap long text and have accessible dismissal controls. The society directory offers search, readable labeled contact details with email/phone actions, and a ruled mobile list instead of the desktop table; contact detail columns stack on mobile. Primary buttons, icon actions, checkboxes, and event actions retain (44px) interaction targets.",
+      "navigation": "Mobile dialog; trapped Tab, inert main, backdrop, Escape, focus restore, scroll lock.",
+      "controlTarget": "44px",
+      "checkInResult": "Focus moves to result heading.",
+      "directory": "Search, labeled contacts, mobile list."
+    },
+    "receiptEmail": {
+      "description": "Application receipt email uses table-based structure and inline styling: a white content surface, pale rose surroundings and footer, maroon identity/action, dark ink, and muted descriptive copy. The SEC image is loaded through the configured HTTPS public site URL, rather than an invented mark. It records application and submission time without semester details, and explains that receipt is not approval or a point award. Arial/Helvetica/sans-serif is the intentional email-client fallback; Geist rendering in Gmail is not assumed.",
+      "layout": "Presentation tables with inline styling",
+      "fontFamily": "Arial, Helvetica, sans-serif",
+      "logo": "Actual SEC mark using configured HTTPS site URL",
+      "semesterDetails": false
     }
   },
   "components": [
@@ -922,7 +918,7 @@
       "refersTo": "button-primary",
       "description": "Main action with maroon hover and explicit disabled treatment.",
       "html": "<button class=\"ds-button\">Save application</button>",
-      "css": ".ds-button { display:inline-flex; align-items:center; justify-content:center; padding:11px 17px; border:1px solid transparent; border-radius:6px; background:var(--maroon,#500000); color:#ffffff; font:650 12px/1.4 var(--sans,\"DM Sans Variable\",sans-serif); min-height:42px; cursor:pointer; transition:background .15s ease,box-shadow .15s ease; } .ds-button:hover:not(:disabled) { background:#712727; box-shadow:0 3px 8px #50000016; } .ds-button:disabled { opacity:.5; cursor:not-allowed; } .ds-button:focus-visible { outline:3px solid var(--ds-focus,#8c4658); outline-offset:4px; } @media(prefers-reduced-motion:reduce) { .ds-button { transition:none; } }"
+      "css": ".ds-button { display:inline-flex; align-items:center; justify-content:center; padding:11px 17px; border:1px solid transparent; border-radius:6px; background:var(--maroon,#500000); color:#ffffff; font:600 14px/1.4 var(--sans,\"Geist Variable\",\"Segoe UI\",Arial,sans-serif); min-height:44px; cursor:pointer; transition:background .15s ease,box-shadow .15s ease; } .ds-button:hover:not(:disabled) { background:#712727; box-shadow:0 3px 8px #50000016; } .ds-button:disabled { opacity:1; cursor:not-allowed; background:#f1eded; border-color:var(--line,#e5e2df); color:var(--muted,#625b60); box-shadow:none; } .ds-button:focus-visible { outline:3px solid var(--ds-focus,#8c4658); outline-offset:4px; } @media(prefers-reduced-motion:reduce) { .ds-button { transition:none; } }"
     },
     {
       "name": "Secondary button",
@@ -930,15 +926,15 @@
       "refersTo": "button-secondary",
       "description": "Supporting action with a ruled paper surface.",
       "html": "<button class=\"ds-button ds-secondary\">Save draft</button>",
-      "css": ".ds-button { display:inline-flex; align-items:center; justify-content:center; padding:11px 17px; border:1px solid transparent; border-radius:6px; background:var(--maroon,#500000); color:#ffffff; font:650 12px/1.4 var(--sans,\"DM Sans Variable\",sans-serif); min-height:42px; cursor:pointer; transition:background .15s ease,box-shadow .15s ease; } .ds-button:hover:not(:disabled) { background:#712727; box-shadow:0 3px 8px #50000016; } .ds-button:disabled { opacity:.5; cursor:not-allowed; } .ds-button:focus-visible { outline:3px solid var(--ds-focus,#8c4658); outline-offset:4px; } .ds-secondary { background:var(--paper,#fff); color:var(--ink,#292623); border-color:var(--line,#e5e2df); } .ds-secondary:hover:not(:disabled) { background:var(--tint,#f7f2f3); box-shadow:none; } @media(prefers-reduced-motion:reduce) { .ds-button { transition:none; } }"
+      "css": ".ds-button { display:inline-flex; align-items:center; justify-content:center; padding:11px 17px; border:1px solid transparent; border-radius:6px; background:var(--maroon,#500000); color:#ffffff; font:600 14px/1.4 var(--sans,\"Geist Variable\",\"Segoe UI\",Arial,sans-serif); min-height:44px; cursor:pointer; transition:background .15s ease,box-shadow .15s ease; } .ds-button:hover:not(:disabled) { background:#712727; box-shadow:0 3px 8px #50000016; } .ds-button:disabled { opacity:1; cursor:not-allowed; background:#f1eded; border-color:var(--line,#e5e2df); color:var(--muted,#625b60); box-shadow:none; } .ds-button:focus-visible { outline:3px solid var(--ds-focus,#8c4658); outline-offset:4px; } .ds-secondary { background:var(--paper,#fff); color:var(--ink,#211d20); border-color:var(--line,#e5e2df); } .ds-secondary:hover:not(:disabled) { background:var(--tint,#f7f2f3); box-shadow:none; } @media(prefers-reduced-motion:reduce) { .ds-button { transition:none; } }"
     },
     {
       "name": "Labeled field",
       "kind": "input",
       "refersTo": "input",
       "description": "Persistent label with a white bordered control and mobile-readable type.",
-      "html": "<label class=\"ds-field\">Semester name<input class=\"ds-input\" placeholder=\"Spring 2027\"></label>",
-      "css": ".ds-field { display:flex; flex-direction:column; gap:7px; color:var(--ink,#292623); font:600 12px/1.6 var(--sans,\"DM Sans Variable\",sans-serif); } .ds-input { padding:11px 12px; min-height:43px; border:1px solid #cec8ca; border-radius:6px; background:#fff; color:var(--ink,#292623); font:400 13px/1.6 var(--sans,\"DM Sans Variable\",sans-serif); caret-color:var(--maroon,#500000); } .ds-input::placeholder { color:var(--muted,#68645f); } .ds-input:disabled { background:#f6f4f5; color:var(--muted,#68645f); } .ds-input:focus-visible { outline:3px solid var(--ds-focus,#8c4658); outline-offset:4px; } @media(max-width:760px) { .ds-input { font-size:16px; } }"
+      "html": "<label class=\"ds-field\">Application title<input class=\"ds-input\" placeholder=\"Society application\"></label>",
+      "css": ".ds-field { display:flex; flex-direction:column; gap:7px; color:var(--ink,#211d20); font:600 14px/1.6 var(--sans,\"Geist Variable\",\"Segoe UI\",Arial,sans-serif); } .ds-input { padding:11px 12px; min-height:43px; border:1px solid #9c9094; border-radius:6px; background:#fff; color:var(--ink,#211d20); font:400 16px/1.55 var(--sans,\"Geist Variable\",\"Segoe UI\",Arial,sans-serif); caret-color:var(--maroon,#500000); } .ds-input::placeholder { color:var(--muted,#625b60); } .ds-input:disabled { background:#f6f4f5; color:var(--muted,#625b60); } .ds-input:focus-visible { outline:3px solid var(--ds-focus,#8c4658); outline-offset:4px; } @media(max-width:760px) { .ds-input { font-size:16px; } }"
     },
     {
       "name": "Workspace navigation",
@@ -946,7 +942,7 @@
       "refersTo": "navigation-active",
       "description": "White workspace navigation with muted resting text and a transparent maroon active state marked by a thin left rule.",
       "html": "<nav class=\"ds-nav\" aria-label=\"Main navigation\"><button class=\"ds-nav-item ds-active\" aria-current=\"page\">Dashboard</button><button class=\"ds-nav-item\">Attendance</button></nav>",
-      "css": ".ds-nav { padding:18px; background:var(--paper,#fff); border-right:1px solid var(--line,#e5e2df); display:flex; flex-direction:column; gap:5px; } .ds-nav-item { padding:12px 14px; min-height:46px; border:0; border-radius:8px; background:transparent; color:#68645f; font:400 13px/1.6 var(--sans,\"DM Sans Variable\",sans-serif); text-align:left; cursor:pointer; transition:background .15s ease; } .ds-nav-item:not(.ds-active):hover { background:var(--tint,#f7f2f3); color:var(--maroon,#500000); } .ds-active { position:relative; background:transparent; color:var(--maroon,#500000); font-weight:650; border-radius:6px; } .ds-active::before { content:\"\"; position:absolute; left:0; top:12px; bottom:12px; width:2px; background:var(--maroon,#500000); } .ds-nav-item:focus-visible { outline:3px solid var(--ds-focus,#8c4658); outline-offset:4px; } @media(prefers-reduced-motion:reduce) {  .ds-nav-item { transition:none; } }"
+      "css": ".ds-nav { padding:18px; background:var(--paper,#fff); border-right:1px solid var(--line,#e5e2df); display:flex; flex-direction:column; gap:5px; } .ds-nav-item { padding:12px 14px; min-height:46px; border:0; border-radius:8px; background:transparent; color:#625b60; font:600 14px/1.6 var(--sans,\"Geist Variable\",\"Segoe UI\",Arial,sans-serif); text-align:left; cursor:pointer; transition:background .15s ease; } .ds-nav-item:not(.ds-active):hover { background:var(--tint,#f7f2f3); color:var(--maroon,#500000); } .ds-active { position:relative; background:transparent; color:var(--maroon,#500000); font-weight:650; border-radius:6px; } .ds-active::before { content:\"\"; position:absolute; left:0; top:12px; bottom:12px; width:2px; background:var(--maroon,#500000); } .ds-nav-item:focus-visible { outline:3px solid var(--ds-focus,#8c4658); outline-offset:4px; } @media(prefers-reduced-motion:reduce) {  .ds-nav-item { transition:none; } }"
     },
     {
       "name": "Positive status pill",
@@ -954,7 +950,7 @@
       "refersTo": "pill-positive",
       "description": "Compact written state reinforced by semantic green.",
       "html": "<span class=\"ds-pill\">Requirement met</span>",
-      "css": ".ds-pill { display:inline-flex; align-items:center; padding:5px 9px; border-radius:5px; background:var(--green-bg,#eaf3ed); color:var(--green,#265c43); font:650 10px/1.5 var(--sans,\"DM Sans Variable\",sans-serif); white-space:nowrap; }"
+      "css": ".ds-pill { display:inline-flex; align-items:center; padding:5px 9px; border-radius:5px; background:var(--green-bg,#eaf3ed); color:var(--green,#265c43); font:650 10px/1.5 var(--sans,\"Geist Variable\",\"Segoe UI\",Arial,sans-serif); white-space:nowrap; }"
     },
     {
       "name": "Ruled paper panel",
@@ -962,14 +958,14 @@
       "refersTo": "panel",
       "description": "Operational form or record container; dashboard sections use open hairline divisions instead.",
       "html": "<section class=\"ds-panel\"><h2 class=\"ds-title\">Recent attendance</h2><div class=\"ds-record\">Event name <span class=\"ds-meta\">PRT \u00b7 1 point</span></div><div class=\"ds-record\">Event name <span class=\"ds-meta\">Standard \u00b7 1 point</span></div></section>",
-      "css": ".ds-panel { padding:26px; border:1px solid var(--line,#e5e2df); border-radius:var(--radius,14px); background:var(--paper,#fff); color:var(--ink,#292623); font:400 13px/1.6 var(--sans,\"DM Sans Variable\",sans-serif); } .ds-title { margin:0 0 18px; font:720 20px/1.35 var(--heading,\"Manrope Variable\",sans-serif); letter-spacing:-.02em; } .ds-record { padding:16px 0; border-top:1px solid var(--line,#e5e2df); } .ds-meta { display:block; margin-top:4px; font-size:12px; color:var(--muted,#68645f); } @media(max-width:760px) { .ds-panel { padding:20px 18px; } .ds-title { font-size:17px; } }"
+      "css": ".ds-panel { padding:26px; border:1px solid var(--line,#e5e2df); border-radius:var(--radius,14px); background:var(--paper,#fff); color:var(--ink,#211d20); font:400 16px/1.55 var(--sans,\"Geist Variable\",\"Segoe UI\",Arial,sans-serif); } .ds-title { margin:0 0 18px; font:680 22px/1.3 var(--heading,\"Geist Variable\",\"Segoe UI\",Arial,sans-serif); letter-spacing:-.02em; } .ds-record { padding:16px 0; border-top:1px solid var(--line,#e5e2df); } .ds-meta { display:block; margin-top:4px; font-size:13px; color:var(--muted,#625b60); } @media(max-width:760px) { .ds-panel { padding:20px 18px; } .ds-title { font-size:20px; } }"
     },
     {
-      "name": "Semester points ledger",
+      "name": "Society points ledger",
       "kind": "custom",
       "description": "Actual earned category totals and minima, with a separate capped PRT requirement.",
-      "html": "<section class=\"ds-ledger\"><h2 class=\"ds-ledger-title\">Semester points</h2><p class=\"ds-ledger-total\">0 <small>total points</small></p><p class=\"ds-ledger-note\">Bars show each category\u2019s share of your earned points.</p><table class=\"ds-ledger-table\"><thead><tr><th>Category</th><th>Earned</th><th>Minimum</th></tr></thead><tbody><tr><th>PRT</th><td>0</td><td>1 point</td></tr><tr><th>Standard</th><td>0</td><td>None</td></tr><tr><th>High Impact</th><td>0</td><td>None</td></tr></tbody></table><p class=\"ds-ledger-note\">No points recorded yet. Your first credited event will appear here.</p><p class=\"ds-ledger-requirement\">PRT requirement: 0 / 1 \u00b7 1 PRT point still needed</p></section>",
-      "css": ".ds-ledger { border-top:1px solid var(--line,#e5e2df); padding:26px 0; color:var(--ink,#292623); font-family:var(--sans,\"DM Sans Variable\",sans-serif); } .ds-ledger-title { font:650 19px/1.35 var(--heading,\"Manrope Variable\",sans-serif); margin:0 0 18px; } .ds-ledger-total { font:750 32px/1.2 var(--heading,\"Manrope Variable\",sans-serif); color:var(--maroon,#500000); margin:0; font-variant-numeric:tabular-nums; } .ds-ledger-total small { font:400 12px var(--sans,\"DM Sans Variable\",sans-serif); color:var(--muted,#68645f); } .ds-ledger-note { font-size:11px; color:var(--muted,#68645f); margin:10px 0 18px; } .ds-ledger-table { width:100%; border-collapse:collapse; text-align:left; font-size:12px; } .ds-ledger-table th,.ds-ledger-table td { padding:18px 0; border-bottom:1px solid var(--line,#e5e2df); } .ds-ledger-table td { text-align:right; } .ds-ledger-requirement { border-top:1px solid var(--line,#e5e2df); padding-top:24px; color:var(--maroon,#500000); font-size:12px; } @media(max-width:760px) { .ds-ledger-total { font-size:26px; } }"
+      "html": "<section class=\"ds-ledger\"><h2 class=\"ds-ledger-title\">Society points</h2><p class=\"ds-ledger-total\">0 <small>total points</small></p><p class=\"ds-ledger-note\">Bars show each category\u2019s share of your earned points.</p><table class=\"ds-ledger-table\"><thead><tr><th>Category</th><th>Earned</th><th>Minimum</th></tr></thead><tbody><tr><th>PRT</th><td>0</td><td>1 point</td></tr><tr><th>Standard</th><td>0</td><td>None</td></tr><tr><th>High Impact</th><td>0</td><td>None</td></tr></tbody></table><p class=\"ds-ledger-note\">No points recorded yet. Your first credited event will appear here.</p><p class=\"ds-ledger-requirement\">PRT requirement: 0 / 1 \u00b7 1 PRT point still needed</p></section>",
+      "css": ".ds-ledger { border-top:1px solid var(--line,#e5e2df); padding:26px 0; color:var(--ink,#211d20); font-family:var(--sans,\"Geist Variable\",\"Segoe UI\",Arial,sans-serif); } .ds-ledger-title { font:680 22px/1.3 var(--heading,\"Geist Variable\",\"Segoe UI\",Arial,sans-serif); margin:0 0 18px; } .ds-ledger-total { font:750 32px/1.2 var(--heading,\"Geist Variable\",\"Segoe UI\",Arial,sans-serif); color:var(--maroon,#500000); margin:0; font-variant-numeric:tabular-nums; } .ds-ledger-total small { font:400 12px var(--sans,\"Geist Variable\",\"Segoe UI\",Arial,sans-serif); color:var(--muted,#625b60); } .ds-ledger-note { font-size:13px; color:var(--muted,#625b60); margin:10px 0 18px; } .ds-ledger-table { width:100%; border-collapse:collapse; text-align:left; font-size:12px; } .ds-ledger-table th,.ds-ledger-table td { padding:18px 0; border-bottom:1px solid var(--line,#e5e2df); } .ds-ledger-table td { text-align:right; } .ds-ledger-requirement { border-top:1px solid var(--line,#e5e2df); padding-top:24px; color:var(--maroon,#500000); font-size:12px; } @media(max-width:760px) { .ds-ledger-total { font-size:26px; } }"
     }
   ],
   "narrative": {

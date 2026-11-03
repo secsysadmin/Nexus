@@ -310,11 +310,9 @@ test("society hub end-to-end: admin, concurrent check-in, drafts, review, QR and
   await society.getByRole("button", { name: "Confirm check-in" }).click();
   await expect(
     society.getByRole("heading", { name: "You’re checked in." }),
-  ).toBeVisible();
+  ).toBeFocused();
   await society.getByRole("button", { name: "View dashboard" }).click();
-  await expect(
-    society.getByText("Semester minimum met", { exact: true }),
-  ).toBeVisible();
+  await expect(society.getByText("Minimum met", { exact: true })).toBeVisible();
   const concurrent = await Promise.all(
     Array.from({ length: 12 }, () =>
       post(societyContext.request, "checkin", { eventId, token: eventToken }),
@@ -646,9 +644,10 @@ test("society hub end-to-end: admin, concurrent check-in, drafts, review, QR and
   await expect(
     admin.getByRole("button", { name: "Close sidebar" }),
   ).toBeFocused();
-  await expect(
-    admin.getByRole("button", { name: "Close navigation" }),
-  ).toHaveAttribute("aria-expanded", "true");
+  await expect(admin.locator(".mobile-menu")).toHaveAttribute(
+    "aria-expanded",
+    "true",
+  );
   await admin.keyboard.press("Escape");
   await expect(
     admin.getByRole("button", { name: "Open navigation" }),
@@ -665,7 +664,7 @@ test("society hub end-to-end: admin, concurrent check-in, drafts, review, QR and
   await societyContext.close();
 });
 
-test("semester picker keyboard controls and administrative activity disclosure", async ({
+test("manual point controls replace semester picker; administrative activity disclosure", async ({
   page,
 }) => {
   await page.route("**/api/data", (route) =>
@@ -677,7 +676,13 @@ test("semester picker keyboard controls and administrative activity disclosure",
           display_name: "Test SEC",
           role: "admin",
         },
-        semesters: [
+        pointCycle: {
+          id: "fall",
+          started_at: "2026-07-01T05:00:00Z",
+          ended_at: null,
+          is_current: true,
+        },
+        legacyContainers: [
           {
             id: "fall",
             name: "Fall 2026",
@@ -714,19 +719,9 @@ test("semester picker keyboard controls and administrative activity disclosure",
     }),
   );
   await page.goto("/");
-  const picker = page.getByRole("combobox", { name: "Viewing semester" });
-  await picker.focus();
-  await picker.press("ArrowDown");
-  await expect(picker).toHaveAttribute("aria-expanded", "true");
-  await picker.press("ArrowDown");
-  await picker.press("Enter");
-  await expect(picker).toContainText("Spring 2026");
-  await picker.press("Home");
-  await picker.press("Enter");
-  await expect(picker).toContainText("Fall 2026");
-  await picker.click();
-  await picker.press("Escape");
-  await expect(picker).toHaveAttribute("aria-expanded", "false");
+  await expect(
+    page.getByRole("combobox", { name: "Viewing semester" }),
+  ).toHaveCount(0);
   await page
     .getByRole("button", { name: "Settings & audit", exact: true })
     .click();
@@ -764,7 +759,13 @@ test("QR replacement feedback stays inside the modal on failure and success", as
           display_name: "SEC · Test data",
           role: "admin",
         },
-        semesters: [
+        pointCycle: {
+          id: "fall",
+          started_at: "2026-07-01T05:00:00Z",
+          ended_at: null,
+          is_current: true,
+        },
+        legacyContainers: [
           {
             id: "fall",
             name: "Fall 2026",
@@ -825,4 +826,264 @@ test("QR replacement feedback stays inside the modal on failure and success", as
   expect(await modal.evaluate((n) => n.scrollWidth <= n.clientWidth)).toBe(
     true,
   );
+});
+
+test("mobile navigation protects focus and roster filters preserve explicit selections", async ({
+  page,
+}) => {
+  await page.route("**/api/data", (route) =>
+    route.fulfill({
+      json: {
+        actor: {
+          id: "sec",
+          username: "sec",
+          display_name: "SEC accessibility fixture",
+          role: "admin",
+        },
+        pointCycle: {
+          id: "fall",
+          started_at: "2026-07-01T05:00:00Z",
+          ended_at: null,
+          is_current: true,
+        },
+        legacyContainers: [
+          {
+            id: "fall",
+            name: "Fall 2026",
+            starts_on: "2026-07-01",
+            ends_on: "2026-12-31",
+            is_current: true,
+          },
+        ],
+        events: [],
+        forms: [],
+        accounts: [],
+        credits: [],
+        submissions: [],
+        audit: [],
+        allowlist: [],
+        environment: "development",
+        roster: [
+          {
+            id: "gamma",
+            name: "Gamma Engineering Society",
+            source_timestamp: "11/01/2026",
+            contacts: {
+              president: {
+                name: "Gamma President",
+                email: "gamma@example.invalid",
+              },
+            },
+          },
+          {
+            id: "delta",
+            name: "Delta Engineering Society",
+            source_timestamp: "11/02/2026",
+            contacts: {
+              president: {
+                name: "Delta President",
+                email: "delta@example.invalid",
+              },
+            },
+          },
+        ],
+      },
+    }),
+  );
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/");
+  await page.getByRole("heading", { name: "SEC dashboard" }).waitFor();
+  await page.getByRole("link", { name: "Skip to content" }).focus();
+  await page.keyboard.press("Enter");
+  await expect(page.locator("#main-content")).toBeFocused();
+  const menu = page.getByRole("button", { name: "Open navigation" });
+  await menu.click();
+  await expect(
+    page.getByRole("dialog", { name: "Workspace navigation" }),
+  ).toBeVisible();
+  expect(
+    await page.locator(".main").evaluate((n) => (n as HTMLElement).inert),
+  ).toBe(true);
+  expect(await page.evaluate(() => document.body.style.overflow)).toBe(
+    "hidden",
+  );
+  for (let i = 0; i < 18; i++) {
+    await page.keyboard.press("Tab");
+    expect(
+      await page
+        .locator(".sidebar")
+        .evaluate((n) => n.contains(document.activeElement)),
+    ).toBe(true);
+  }
+  await page.keyboard.press("Escape");
+  await expect(menu).toBeFocused();
+  expect(
+    await page.locator(".main").evaluate((n) => (n as HTMLElement).inert),
+  ).toBe(false);
+  await menu.click();
+  await page.getByRole("button", { name: "Societies", exact: true }).click();
+  const search = page.getByRole("searchbox", { name: "Search contact roster" });
+  await search.fill("Gamma");
+  await expect(page.locator(".roster-row")).toHaveCount(1);
+  await page.locator(".roster-row").getByRole("checkbox").check();
+  await search.fill("Delta");
+  await expect(page.locator(".roster-toolbar")).toContainText("1 selected");
+  await search.fill("");
+  await expect(
+    page
+      .locator(".roster-row")
+      .filter({ hasText: "Gamma Engineering Society" })
+      .getByRole("checkbox"),
+  ).toBeChecked();
+  await page.locator(".roster-row").first().locator("summary").click();
+  await expect(
+    page.getByRole("link", { name: "gamma@example.invalid" }),
+  ).toHaveAttribute("href", "mailto:gamma@example.invalid");
+  await page.getByRole("button", { name: "Add society", exact: true }).click();
+  const username = page.getByRole("textbox", {
+    name: "Society username",
+    exact: true,
+  });
+  await expect(username).toHaveAttribute("aria-describedby", /.+/);
+  await expect(username).toHaveAccessibleDescription(/lowercase letters/);
+  await menu.click();
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await expect(
+    page.getByRole("dialog", { name: "Workspace navigation" }),
+  ).toHaveCount(0);
+  expect(
+    await page.locator(".main").evaluate((n) => (n as HTMLElement).inert),
+  ).toBe(false);
+  expect(await page.evaluate(() => document.body.style.overflow)).toBe("");
+});
+
+test("manual reset is explicit, preserves history, and event check-in can reopen with the same link", async ({
+  page,
+}) => {
+  let current = "initial",
+    open = true,
+    end = new Date(Date.now() + 3600000).toISOString();
+  const event = () => ({
+    id: "demo",
+    name: "Reopening test event",
+    description: "",
+    location: "Zachry",
+    category: "PRT",
+    starts_at: new Date(Date.now() - 3600000).toISOString(),
+    ends_at: end,
+    checkin_open: open,
+    checkin_token: "0".repeat(64),
+  });
+  const dataset = () => ({
+    actor: { id: "sec", username: "sec", display_name: "SEC", role: "admin" },
+    pointCycle: {
+      id: current,
+      started_at: new Date().toISOString(),
+      ended_at: null,
+      is_current: true,
+    },
+    events: [event()],
+    forms: [],
+    accounts: [],
+    credits: [
+      {
+        id: "credit",
+        cycle_id: "initial",
+        account_id: "society",
+        society_name: "Test Society",
+        event_name: "Previous event",
+        event_id: "old",
+        points: 1,
+        category: "PRT",
+        source: "CHECK_IN",
+        created_at: new Date().toISOString(),
+        revoked_at: null,
+      },
+    ],
+    submissions: [],
+    roster: [],
+    audit: [],
+    allowlist: [],
+    environment: "development",
+  });
+  await page.route("**/api/data", (r) => r.fulfill({ json: dataset() }));
+  await page.route("**/api/admin/reset-points", (r) => {
+    expect(r.request().postDataJSON()).toEqual({
+      currentCycleId: "initial",
+      confirmation: "RESET POINTS",
+    });
+    current = "next";
+    return r.fulfill({ json: { id: current } });
+  });
+  await page.route("**/api/admin/event-checkin", (r) => {
+    open = r.request().postDataJSON().open;
+    return r.fulfill({ json: { ok: true } });
+  });
+  await page.route("**/api/admin/events", (r) => {
+    const body = r.request().postDataJSON();
+    expect(body.checkinOpen).toBe(true);
+    end = body.endsAt;
+    open = true;
+    return r.fulfill({ json: { id: "demo" } });
+  });
+  await page.goto("/");
+  await page
+    .getByRole("button", { name: "Settings & audit", exact: true })
+    .click();
+  await page
+    .getByRole("button", { name: "Reset all society points", exact: true })
+    .click();
+  const modal = page.getByRole("dialog", { name: "Reset all society points?" });
+  await expect(modal).toBeVisible();
+  await expect(
+    modal.getByRole("button", { name: "Reset points", exact: true }),
+  ).toBeDisabled();
+  await modal.getByLabel("Type RESET POINTS to confirm").fill("RESET POINTS");
+  await modal
+    .getByRole("button", { name: "Reset points", exact: true })
+    .click();
+  await expect(modal).not.toBeVisible();
+  await page
+    .getByRole("button", { name: "Attendance & points", exact: true })
+    .click();
+  await expect(
+    page.getByRole("heading", { name: "No attendance recorded", exact: true }),
+  ).toBeVisible();
+  await page.locator(".history-disclosure summary").click();
+  await expect(page.getByText("Previous event", { exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "Events", exact: true }).click();
+  await page
+    .getByRole("button", { name: "Close check-in", exact: true })
+    .click();
+  await expect(
+    page.getByRole("button", { name: "Reopen check-in", exact: true }),
+  ).toBeVisible();
+  await page
+    .getByRole("button", { name: "Reopen check-in", exact: true })
+    .click();
+  await expect(
+    page.getByRole("button", { name: "Close check-in", exact: true }),
+  ).toBeVisible();
+  open = false;
+  end = new Date(Date.now() - 60000).toISOString();
+  await page
+    .getByRole("button", { name: "Refresh workspace", exact: true })
+    .click();
+  await page
+    .getByRole("button", { name: "Reopen check-in", exact: true })
+    .click();
+  await expect(
+    page.getByRole("heading", { name: "Reopen event check-in" }),
+  ).toBeVisible();
+  const local = new Date(Date.now() + 3600000);
+  local.setMinutes(local.getMinutes() - local.getTimezoneOffset());
+  await page
+    .getByLabel("Check-in window ends", { exact: true })
+    .fill(local.toISOString().slice(0, 16));
+  await page
+    .getByRole("button", { name: "Reopen check-in", exact: true })
+    .click();
+  await expect(
+    page.getByRole("button", { name: "Close check-in", exact: true }),
+  ).toBeVisible();
 });

@@ -16,11 +16,11 @@ Texas A&M engineering student organizations (ESOs) share society username/passwo
 
 ## Product Purpose
 
-Give ESOs a live, semester-specific record of attendance and society funding points, and a central place to apply to SEC.
+Give ESOs a live record of attendance and society funding points, and a central place to apply to SEC.
 
 ## Capabilities and Constraints
 
-PRT: one point/event and one point minimum/semester. Standard: one point/event, no minimum. High Impact: two points/event, manually awarded by SEC, no minimum. One credit per ESO/event. QR and link check-ins automatically credit PRT and Standard events. Keep semester history. SEC authors application forms and reviews submissions. Initial SEC username/password account has administrative permissions. Google OAuth with an explicit TAMU email whitelist is a future integration. Separate development/production schemas and restricted roles within the existing Neon database. User requirements override Kraken reference behavior.
+PRT: one point/event and one point minimum between manual SEC point resets. Standard: one point/event, no minimum. High Impact: two points/event, manually awarded by SEC, no minimum. One credit per ESO/event. QR and link check-ins automatically credit PRT and Standard events. Chairs manually reset all society totals in Settings & audit using a native confirmation dialog requiring RESET POINTS; there are no visible semester controls/settings or automatic semester gating. Reset preserves prior attendance history, events, forms, applications, and existing QR links. Previous attendance remains accessible in a disclosure with an all-history CSV export. Event check-in can be closed and reopened; an expired window is edited before reopening while retaining the existing QR. SEC authors application forms and reviews submissions. Initial SEC username/password account has administrative permissions. Google OAuth with an explicit TAMU email whitelist is a future integration. Separate development/production schemas and restricted roles within the existing Neon database. User requirements override Kraken reference behavior.
 
 ## Evidence on Hand
 
@@ -31,7 +31,7 @@ Kraken provides reference workflows for check-in, history, form building, drafts
 - Credit belongs to the ESO, not individual officers.
 - A repeat check-in never duplicates points.
 - Preserve historical and submitted records.
-- Make semester, category, and award source visible.
+- Make the current point period, category, and award source visible.
 
 ## Open decisions
 

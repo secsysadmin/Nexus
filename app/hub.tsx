@@ -1,6 +1,9 @@
 "use client";
 import {
   useCallback,
+  useId,
+  cloneElement,
+  isValidElement,
   useEffect,
   useState,
   useRef,
@@ -33,8 +36,7 @@ import {
 } from "lucide-react";
 import QRCode from "qrcode";
 import MaroonRibbons from "./maroon-ribbons";
-import SemesterPoints from "./semester-points";
-import SemesterPicker from "./semester-picker";
+import PointsSummary from "./points-summary";
 import EventCalendar from "./event-calendar";
 import { dashboardItems } from "../lib/dashboard";
 import { defaultConfirmationEmail } from "../lib/application-email";
@@ -92,12 +94,38 @@ function Field({
   children: ReactNode;
   hint?: string;
 }) {
+  const generatedId = useId();
+  const control = isValidElement<{
+    id?: string;
+    required?: boolean;
+    "aria-describedby"?: string;
+  }>(children)
+    ? children
+    : null;
+  const id = control?.props.id ?? generatedId;
+  const hintId = hint ? `${id}-hint` : undefined;
   return (
-    <label className="field">
-      <span>{label}</span>
-      {children}
-      {hint && <small>{hint}</small>}
-    </label>
+    <div className="field">
+      <div className="field-label">
+        <label htmlFor={id}>{label}</label>
+        {control?.props.required && !label.endsWith("*") && (
+          <span className="required-mark" aria-hidden="true">
+            {" "}
+            *
+          </span>
+        )}
+      </div>
+      {control
+        ? cloneElement(control, {
+            id,
+            "aria-describedby":
+              [control.props["aria-describedby"], hintId]
+                .filter(Boolean)
+                .join(" ") || undefined,
+          })
+        : children}
+      {hint && <small id={hintId}>{hint}</small>}
+    </div>
   );
 }
 function Empty({ title, children }: { title: string; children: ReactNode }) {
@@ -231,7 +259,50 @@ function FormActions({
   );
 }
 function ContactInfo({ contacts }: { contacts: Record<string, unknown> }) {
-  return <pre className="contacts">{JSON.stringify(contacts, null, 2)}</pre>;
+  const readable = (key: string) =>
+    key.replaceAll("_", " ").replace(/\b\w/g, (c) => c.toUpperCase());
+  const flatten = (value: unknown, path: string[] = []): [string, string][] => {
+    if (Array.isArray(value))
+      return value.flatMap((v, i) => flatten(v, [...path, `Entry ${i + 1}`]));
+    if (value && typeof value === "object")
+      return Object.entries(value).flatMap(([key, v]) =>
+        flatten(v, [...path, readable(key)]),
+      );
+    return value === null || value === undefined || String(value).trim() === ""
+      ? []
+      : [[path.join(" · "), String(value)]];
+  };
+  const responses = Array.isArray(contacts.responses)
+    ? contacts.responses
+    : [contacts];
+  const groups = responses
+    .map((response) => flatten(response))
+    .filter((rows) => rows.length);
+  return groups.length ? (
+    <div className="contact-details">
+      {groups.map((rows, index) => (
+        <dl key={index}>
+          {rows.map(([label, value], i) => (
+            <div key={i}>
+              <dt>{label}</dt>
+              <dd>
+                {/email/i.test(label) &&
+                /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(value) ? (
+                  <a href={`mailto:${value}`}>{value}</a>
+                ) : /phone/i.test(label) && /^[+()\d.\s-]{7,}$/.test(value) ? (
+                  <a href={`tel:${value.replace(/[^+\d]/g, "")}`}>{value}</a>
+                ) : (
+                  value
+                )}
+              </dd>
+            </div>
+          ))}
+        </dl>
+      ))}
+    </div>
+  ) : (
+    <p className="contact-empty">No contact details are on file.</p>
+  );
 }
 export default function Hub() {
   const menuButtonRef = useRef<HTMLButtonElement>(null);
@@ -243,7 +314,6 @@ export default function Hub() {
     [notice, setNotice] = useState(""),
     [busy, setBusy] = useState(false),
     [tab, setTab] = useState("overview"),
-    [semester, setSemester] = useState(""),
     [mobile, setMobile] = useState(false);
   const [route, setRoute] = useState<{
     mode: string;
@@ -251,6 +321,9 @@ export default function Hub() {
     eventId: string;
   }>({ mode: "home", token: "", eventId: "" });
   const greetingSeen = useRef(false);
+  const [directorySearch, setDirectorySearch] = useState("");
+  const [rosterSearch, setRosterSearch] = useState("");
+  const [refreshing, setRefreshing] = useState(false);
   const [eventsView, setEventsView] = useState<"list" | "calendar">("list");
   const [editingEvent, setEditingEvent] = useState<Event | null | undefined>(),
     [editingForm, setEditingForm] = useState<Form | null | undefined>(),
@@ -268,18 +341,16 @@ export default function Hub() {
       event: string;
       points: number;
     } | null>(null);
+  useEffect(() => {
+    if (checkResult) document.getElementById("checkin-result-heading")?.focus();
+  }, [checkResult]);
+  const [reopenEventId, setReopenEventId] = useState<string | null>(null);
   const refresh = useCallback(async () => {
+    setRefreshing(true);
     try {
       const d = await api<HubData>("data");
       setData(d);
       setAuthNeeded(false);
-      setSemester(
-        (s) =>
-          s ||
-          d.semesters.find((s) => s.is_current)?.id ||
-          d.semesters[0]?.id ||
-          "",
-      );
     } catch (e) {
       if ((e as Error & { status?: number }).status === 401) {
         setData(null);
@@ -288,6 +359,7 @@ export default function Hub() {
       } else setError((e as Error).message);
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   }, []);
   useEffect(() => {
@@ -301,10 +373,42 @@ export default function Hub() {
     return () => window.removeEventListener("keydown", escape);
   }, [mobile]);
   useEffect(() => {
-    if (mobile)
-      sidebarRef.current
-        ?.querySelector<HTMLButtonElement>(".sidebar-close")
-        ?.focus();
+    if (!mobile) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    sidebarRef.current
+      ?.querySelector<HTMLButtonElement>(".sidebar-close")
+      ?.focus();
+    const keyboard = (event: KeyboardEvent) => {
+      if (event.key !== "Tab") return;
+      const controls = Array.from(
+        sidebarRef.current?.querySelectorAll<HTMLElement>(
+          "a[href],button:not(:disabled)",
+        ) ?? [],
+      ).filter((n) => n.getClientRects().length);
+      const first = controls[0],
+        last = controls.at(-1);
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last?.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first?.focus();
+      }
+    };
+    const resize = () => {
+      if (window.innerWidth > 760) setMobile(false);
+    };
+    window.addEventListener("keydown", keyboard);
+    window.addEventListener("resize", resize);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", keyboard);
+      window.removeEventListener("resize", resize);
+      queueMicrotask(() => {
+        if (window.innerWidth <= 760) menuButtonRef.current?.focus();
+      });
+    };
   }, [mobile]);
   useEffect(() => {
     const path = window.location.pathname;
@@ -376,6 +480,7 @@ export default function Hub() {
     if (mobile) menuButtonRef.current?.focus();
     setMobile(false);
     setEditingEvent(undefined);
+    setReopenEventId(null);
     setEditingForm(undefined);
     setApplication(null);
     setReview(null);
@@ -443,19 +548,62 @@ export default function Hub() {
     );
   }
   const admin = data.actor.role === "admin";
-  const current = data.semesters.find((s) => s.id === semester);
-  const events = data.events.filter((e) => e.semester_id === semester);
-  const credits = data.credits.filter((c) => c.semester_id === semester);
+  const current = data.pointCycle;
+  const events = data.events;
+  const credits = data.credits.filter((c) => c.cycle_id === current.id);
   const activeCredits = credits.filter((c) => !c.revoked_at);
-  const forms = data.forms.filter((f) => f.semester_id === semester);
+  const forms = data.forms;
   const societies = data.accounts.filter((a) => a.role === "society");
+  const visibleSocieties = societies.filter((a) =>
+    `${a.display_name} ${a.username}`
+      .toLowerCase()
+      .includes(directorySearch.trim().toLowerCase()),
+  );
+  const visibleRoster = data.roster.filter((r) =>
+    `${r.name} ${JSON.stringify(r.contacts)}`
+      .toLowerCase()
+      .includes(rosterSearch.trim().toLowerCase()),
+  );
+  const societyActions = (a: Account) => (
+    <div className="actions society-actions">
+      <Button
+        secondary
+        disabled={busy || !a.enabled}
+        aria-label={`Issue setup or reset link for ${a.display_name}`}
+        onClick={async () => {
+          const result = await run<{ username: string; activation: string }>(
+            "admin/activation",
+            { accountId: a.id },
+          );
+          if (result) setActivation(result);
+        }}
+      >
+        Issue setup / reset link
+      </Button>
+      <Button
+        secondary
+        disabled={busy}
+        aria-label={`${a.enabled ? "Disable" : "Enable"} ${a.display_name}`}
+        onClick={() =>
+          void run(
+            "admin/account-status",
+            { accountId: a.id, enabled: !a.enabled },
+            a.enabled ? "Society disabled." : "Society enabled.",
+          )
+        }
+      >
+        {a.enabled ? "Disable" : "Enable"}
+      </Button>
+    </div>
+  );
+
   const totals = (id?: string) =>
     ["PRT", "STANDARD", "HIGH_IMPACT"].map((category) =>
       activeCredits
         .filter((c) => c.category === category && (!id || c.account_id === id))
         .reduce((s, c) => s + c.points, 0),
     );
-  const dashboard = dashboardItems(data, semester, Date.now());
+  const dashboard = dashboardItems(data, Date.now());
   const title: Record<string, string> = {
     overview: admin ? "SEC dashboard" : `Hello, ${data.actor.display_name}`,
     events: "Events & check-in",
@@ -491,6 +639,9 @@ export default function Hub() {
         id="workspace-navigation"
         ref={sidebarRef}
         className={"sidebar " + (mobile ? "open" : "")}
+        role={mobile ? "dialog" : undefined}
+        aria-modal={mobile || undefined}
+        aria-label="Workspace navigation"
       >
         <a href="/" className="brand">
           <img
@@ -563,7 +714,15 @@ export default function Hub() {
           </p>
         </div>
       </aside>
-      <div className="main">
+      {mobile && (
+        <button
+          className="navigation-backdrop"
+          aria-label="Close navigation backdrop"
+          tabIndex={-1}
+          onClick={() => setMobile(false)}
+        />
+      )}
+      <div className="main" inert={mobile}>
         <header className="topbar">
           <button
             ref={menuButtonRef}
@@ -582,15 +741,14 @@ export default function Hub() {
             </span>
           </span>
           <div className="topbar-actions">
-            <SemesterPicker
-              semesters={data.semesters}
-              value={semester}
-              onChange={setSemester}
-            />
             <button
-              className="icon-button"
+              className={"icon-button" + (refreshing ? " is-refreshing" : "")}
+              disabled={refreshing || busy}
+              aria-busy={refreshing}
               onClick={() => void refresh()}
-              aria-label="Refresh workspace"
+              aria-label={
+                refreshing ? "Refreshing workspace" : "Refresh workspace"
+              }
               title="Reload the latest workspace data"
             >
               <RefreshCw size={17} />
@@ -599,6 +757,7 @@ export default function Hub() {
         </header>
         <main
           id="main-content"
+          tabIndex={-1}
           className={tab === "overview" ? "content is-dashboard" : "content"}
         >
           <div className="page-heading">
@@ -628,8 +787,34 @@ export default function Hub() {
               {(admin || tab !== "overview") && (
                 <p>
                   {admin
-                    ? "Manage your societies, events, and funding cycle."
-                    : `${data.actor.display_name} · Your home for SEC events and society funding.`}
+                    ? (
+                        {
+                          overview:
+                            "Review applications, events, and society requirements.",
+                          events:
+                            "Manage events, check-in windows, and QR codes.",
+                          applications:
+                            "Create and publish funding and collaboration forms.",
+                          activity: "Review attendance and point records.",
+                          societies:
+                            "Manage society access and reconcile contact responses.",
+                          reviews:
+                            "Read applications and send decisions or feedback.",
+                          settings:
+                            "Manage point resets, access, and your SEC password.",
+                        } as Record<string, string>
+                      )[tab]
+                    : (
+                        {
+                          events:
+                            "Find SEC events and check-in windows for your society.",
+                          applications:
+                            "Complete funding and collaboration applications.",
+                          activity:
+                            "Your society’s attendance and earned points.",
+                          settings: "Manage your society’s shared password.",
+                        } as Record<string, string>
+                      )[tab]}
                 </p>
               )}
             </div>
@@ -686,7 +871,14 @@ export default function Hub() {
           {notice && (
             <div className="alert success" role="status">
               <Check size={18} />
-              {notice}
+              <span className="alert-message">{notice}</span>
+              <button
+                className="icon-button"
+                aria-label="Dismiss confirmation"
+                onClick={() => setNotice("")}
+              >
+                <X size={16} />
+              </button>
             </div>
           )}
           {activation && (
@@ -710,12 +902,16 @@ export default function Hub() {
               {checkResult ? (
                 <div className="checkin-result">
                   <ShieldCheck size={36} />
-                  <h3>
+                  <h3
+                    id="checkin-result-heading"
+                    tabIndex={-1}
+                    aria-describedby="checkin-result-detail"
+                  >
                     {checkResult.already
                       ? "You’re already checked in."
                       : "You’re checked in."}
                   </h3>
-                  <p>
+                  <p id="checkin-result-detail">
                     {checkResult.event} ·{" "}
                     {checkResult.already
                       ? "No additional points awarded."
@@ -764,24 +960,20 @@ export default function Hub() {
             <>
               <div className="dashboard-context">
                 <p>
-                  {current?.name ?? "Choose a semester"} ·{" "}
+                  {`Points since ${when(current.started_at)} CT`} ·{" "}
                   {admin
                     ? `${societies.filter((s) => s.enabled).length} active societies`
                     : "Points update automatically after check-in."}
                 </p>
-                <span>
-                  {current?.is_current
-                    ? "Current semester"
-                    : "Semester history"}
-                </span>
+                <span>Current points</span>
               </div>
               {!admin ? (
                 <>
                   {current && (
-                    <SemesterPoints
+                    <PointsSummary
                       key={current.id}
                       credits={credits}
-                      semester={current}
+                      cycleId={current.id}
                       accountId={data.actor.id}
                       onHistory={() => navigate("activity")}
                     />
@@ -789,7 +981,7 @@ export default function Hub() {
                   <DashboardSection
                     title="Upcoming & ongoing events"
                     count={dashboard.upcomingEvents.length}
-                    emptyText="No upcoming events in this semester"
+                    emptyText="No upcoming events"
                     action={
                       <button
                         className="text-button"
@@ -819,7 +1011,7 @@ export default function Hub() {
                     ) : (
                       <Empty title="No upcoming events">
                         SEC events will appear here when they are scheduled for
-                        this semester.
+                        the current point period.
                       </Empty>
                     )}
                   </DashboardSection>
@@ -865,7 +1057,7 @@ export default function Hub() {
                     <DashboardSection
                       title="Applications"
                       count={forms.length}
-                      emptyText="No applications published for this semester"
+                      emptyText="No published applications"
                       action={
                         <button
                           className="text-button"
@@ -924,7 +1116,7 @@ export default function Hub() {
                     }
                   >
                     <p className="section-intro">
-                      For {current?.name}. Oldest submissions appear first.
+                      Oldest submissions appear first.
                     </p>
                     {dashboard.pendingReviews.length ? (
                       dashboard.pendingReviews.slice(0, 5).map((item) => (
@@ -951,7 +1143,7 @@ export default function Hub() {
                     ) : (
                       <Empty title="The review queue is clear">
                         No submitted applications are waiting for review in this
-                        semester.
+                        point period.
                       </Empty>
                     )}
                     {dashboard.pendingReviews.length > 5 && (
@@ -965,7 +1157,7 @@ export default function Hub() {
                     <DashboardSection
                       title="Upcoming & ongoing events"
                       count={dashboard.upcomingEvents.length}
-                      emptyText="No upcoming events in this semester"
+                      emptyText="No upcoming events"
                       action={
                         <button
                           className="text-button"
@@ -990,13 +1182,11 @@ export default function Hub() {
                               <small>
                                 {event.category === "HIGH_IMPACT"
                                   ? "High Impact · SEC awards points manually"
-                                  : !current?.is_current
-                                    ? "Self check-in unavailable in an inactive semester"
-                                    : event.checkin_open
-                                      ? Date.parse(event.starts_at) > Date.now()
-                                        ? "Check-in scheduled for the event window"
-                                        : "Check-in is live"
-                                      : "Check-in disabled"}
+                                  : event.checkin_open
+                                    ? Date.parse(event.starts_at) > Date.now()
+                                      ? "Check-in scheduled for the event window"
+                                      : "Check-in is live"
+                                    : "Check-in disabled"}
                               </small>
                             </div>
                             <button
@@ -1013,8 +1203,8 @@ export default function Hub() {
                         ))
                       ) : (
                         <Empty title="No upcoming events">
-                          There are no ongoing or upcoming events in this
-                          semester. Add or manage events from the Events tab.
+                          There are no ongoing or upcoming events in this point
+                          period. Add or manage events from the Events tab.
                         </Empty>
                       )}
                       {dashboard.upcomingEvents.length > 5 && (
@@ -1038,9 +1228,8 @@ export default function Hub() {
                       }
                     >
                       <p className="section-intro">
-                        Enabled societies with less than 1 PRT point in{" "}
-                        {current?.name}. Each society needs 1 PRT point per
-                        semester.
+                        Enabled societies with less than 1 PRT point. Each
+                        society needs 1 PRT point per point period.
                       </p>
                       {dashboard.missingPrt.length ? (
                         dashboard.missingPrt.slice(0, 5).map((account) => (
@@ -1080,7 +1269,7 @@ export default function Hub() {
                     }
                   >
                     <p className="section-intro">
-                      Across all semesters. These enabled society accounts have
+                      Across all records. These enabled society accounts have
                       not set their password.
                     </p>
                     {dashboard.awaitingSetup.length ? (
@@ -1199,13 +1388,25 @@ export default function Hub() {
             (editingEvent !== undefined ? (
               <EventEditor
                 initial={editingEvent}
-                semesters={data.semesters}
-                selectedSemester={semester}
+                reopening={reopenEventId === editingEvent?.id}
                 busy={busy}
-                cancel={() => setEditingEvent(undefined)}
+                cancel={() => {
+                  setEditingEvent(undefined);
+                  setReopenEventId(null);
+                }}
                 save={async (body) => {
-                  if (await run("admin/events", body, "Event saved."))
+                  if (
+                    await run(
+                      "admin/events",
+                      body,
+                      reopenEventId
+                        ? "Check-in reopened within the updated window. Existing QR links still work."
+                        : "Event saved.",
+                    )
+                  ) {
                     setEditingEvent(undefined);
+                    setReopenEventId(null);
+                  }
                 }}
               />
             ) : (
@@ -1231,14 +1432,11 @@ export default function Hub() {
                     </button>
                   </div>
                 </div>
-                <Panel
-                  title={admin ? "Semester events" : "Events this semester"}
-                >
+                <Panel title={admin ? "Society events" : "Society events"}>
                   {eventsView === "calendar" && current ? (
                     <EventCalendar
                       key={current.id}
                       events={events}
-                      semester={current}
                       onEdit={admin ? setEditingEvent : undefined}
                       onQr={admin ? setQrEvent : undefined}
                     />
@@ -1300,21 +1498,41 @@ export default function Hub() {
                                   </Button>
                                   <button
                                     className="event-checkin-toggle"
-                                    aria-pressed={e.checkin_open}
+                                    aria-pressed={
+                                      e.checkin_open &&
+                                      Date.parse(e.ends_at) > Date.now()
+                                    }
                                     disabled={busy}
-                                    onClick={() =>
+                                    onClick={() => {
+                                      const now = Date.now();
+                                      const enabled =
+                                        e.checkin_open &&
+                                        Date.parse(e.ends_at) > now;
+                                      if (
+                                        !enabled &&
+                                        (Date.parse(e.starts_at) > now ||
+                                          Date.parse(e.ends_at) <= now)
+                                      ) {
+                                        setReopenEventId(e.id);
+                                        setEditingEvent({
+                                          ...e,
+                                          checkin_open: true,
+                                        });
+                                        return;
+                                      }
                                       void run(
                                         "admin/event-checkin",
-                                        { id: e.id, open: !e.checkin_open },
-                                        e.checkin_open
-                                          ? "Check-in disabled."
-                                          : "Check-in enabled within the event window.",
-                                      )
-                                    }
+                                        { id: e.id, open: !enabled },
+                                        enabled
+                                          ? "Check-in closed. You can reopen it from this event."
+                                          : "Check-in reopened. Existing QR links still work.",
+                                      );
+                                    }}
                                   >
-                                    {e.checkin_open
+                                    {e.checkin_open &&
+                                    Date.parse(e.ends_at) > Date.now()
                                       ? "Close check-in"
-                                      : "Open check-in"}
+                                      : "Reopen check-in"}
                                   </button>
                                 </>
                               )}
@@ -1324,7 +1542,7 @@ export default function Hub() {
                       ))}
                     </div>
                   ) : (
-                    <Empty title="No events in this semester">
+                    <Empty title="No events yet">
                       {admin
                         ? "Create a PRT, Standard, or High Impact event to get started."
                         : "SEC will add upcoming society events here."}
@@ -1395,7 +1613,7 @@ export default function Hub() {
                         .reduce((sum, c) => sum + c.points, 0) === 1
                         ? "point"
                         : "points"}{" "}
-                      recorded in this semester
+                      recorded in the current point period
                     </p>
                     {credits.map((c) => (
                       <article
@@ -1469,14 +1687,38 @@ export default function Hub() {
                   </Empty>
                 )}
               </Panel>
+              {data.credits.some((c) => c.cycle_id !== current.id) && (
+                <details className="history-disclosure">
+                  <summary>Previous attendance records</summary>
+                  <div className="record-list">
+                    {data.credits
+                      .filter((c) => c.cycle_id !== current.id)
+                      .map((c) => (
+                        <div className="record" key={c.id}>
+                          <div>
+                            <strong>{c.event_name}</strong>
+                            <small>
+                              {admin ? c.society_name + " · " : ""}
+                              {when(c.created_at)} CT · {labels[c.category]}
+                            </small>
+                          </div>
+                          <Pill>
+                            {c.revoked_at ? "Removed" : `+${c.points} archived`}
+                          </Pill>
+                        </div>
+                      ))}
+                  </div>
+                  <Button secondary onClick={() => exportCredits(data.credits)}>
+                    Export all history
+                  </Button>
+                </details>
+              )}
             </>
           )}
           {tab === "applications" &&
             (editingForm !== undefined ? (
               <FormEditor
                 initial={editingForm}
-                semesters={data.semesters}
-                selectedSemester={semester}
                 busy={busy}
                 cancel={() => setEditingForm(undefined)}
                 save={async (b) => {
@@ -1623,7 +1865,7 @@ export default function Hub() {
                     })}
                   </div>
                 ) : (
-                  <Empty title="No applications in this semester">
+                  <Empty title="No applications yet">
                     {admin
                       ? "Create a form for Society Funding or Cross-collaboration High Impact event approval."
                       : "SEC will publish application forms here when they are ready."}
@@ -1708,81 +1950,92 @@ export default function Hub() {
                   </Button>
                 }
               >
-                {societies.length ? (
-                  <div
-                    className="table-wrap"
-                    tabIndex={0}
-                    role="region"
-                    aria-label="Scrollable data table"
-                  >
-                    <table>
-                      <thead>
-                        <tr>
-                          <th>Society</th>
-                          <th>Account</th>
-                          <th>Actions</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {societies.map((a) => (
-                          <tr key={a.id}>
-                            <td>
-                              <strong>{a.display_name}</strong>
-                              <small>@{a.username}</small>
-                              <details>
-                                <summary>Contact responses</summary>
-                                <ContactInfo contacts={a.contacts} />
-                              </details>
-                            </td>
-                            <td>
-                              <Pill tone={a.enabled ? "green" : "neutral"}>
-                                {a.enabled
-                                  ? a.activated
-                                    ? "Active"
-                                    : "Awaiting setup"
-                                  : "Disabled"}
-                              </Pill>
-                            </td>
-                            <td>
-                              <div className="actions">
-                                <Button
-                                  secondary
-                                  disabled={busy || !a.enabled}
-                                  onClick={async () => {
-                                    const r = await run<{
-                                      username: string;
-                                      activation: string;
-                                    }>("admin/activation", { accountId: a.id });
-                                    if (r) setActivation(r);
-                                  }}
-                                >
-                                  Issue setup / reset link
-                                </Button>
-                                <Button
-                                  secondary
-                                  disabled={busy}
-                                  onClick={() =>
-                                    void run(
-                                      "admin/account-status",
-                                      { accountId: a.id, enabled: !a.enabled },
-                                      a.enabled
-                                        ? "Society disabled."
-                                        : "Society enabled.",
-                                    )
-                                  }
-                                >
-                                  {a.enabled ? "Disable" : "Enable"}
-                                </Button>
-                              </div>
-                            </td>
+                {societies.length > 0 && (
+                  <Field label="Search society accounts">
+                    <input
+                      type="search"
+                      value={directorySearch}
+                      onChange={(e) => setDirectorySearch(e.target.value)}
+                      placeholder="Search name or username"
+                    />
+                  </Field>
+                )}
+                {visibleSocieties.length ? (
+                  <>
+                    <div
+                      className="table-wrap directory-table"
+                      tabIndex={0}
+                      role="region"
+                      aria-label="Society account directory"
+                    >
+                      <table>
+                        <thead>
+                          <tr>
+                            <th scope="col">Society</th>
+                            <th scope="col">Account</th>
+                            <th scope="col">Actions</th>
                           </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
+                        </thead>
+                        <tbody>
+                          {visibleSocieties.map((a) => (
+                            <tr key={a.id}>
+                              <td>
+                                <strong>{a.display_name}</strong>
+                                <small>@{a.username}</small>
+                                <details>
+                                  <summary>Contact responses</summary>
+                                  <ContactInfo contacts={a.contacts} />
+                                </details>
+                              </td>
+                              <td>
+                                <Pill tone={a.enabled ? "green" : "neutral"}>
+                                  {a.enabled
+                                    ? a.activated
+                                      ? "Active"
+                                      : "Awaiting setup"
+                                    : "Disabled"}
+                                </Pill>
+                              </td>
+                              <td>{societyActions(a)}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                    <ul className="mobile-society-list">
+                      {visibleSocieties.map((a) => (
+                        <li key={a.id}>
+                          <div className="mobile-society-heading">
+                            <h3>{a.display_name}</h3>
+                            <Pill tone={a.enabled ? "green" : "neutral"}>
+                              {a.enabled
+                                ? a.activated
+                                  ? "Active"
+                                  : "Awaiting setup"
+                                : "Disabled"}
+                            </Pill>
+                          </div>
+                          <small>@{a.username}</small>
+                          <details>
+                            <summary>Contact responses</summary>
+                            <ContactInfo contacts={a.contacts} />
+                          </details>
+                          {societyActions(a)}
+                        </li>
+                      ))}
+                    </ul>
+                  </>
                 ) : (
-                  <Empty title="No society accounts yet">
-                    Select roster responses below or add a society manually.
+                  <Empty
+                    title={
+                      societies.length
+                        ? "No matching society accounts"
+                        : "No society accounts yet"
+                    }
+                  >
+                    {societies.length
+                      ? "Try another name or username."
+                      : "Select roster responses below or add a society manually."}
                   </Empty>
                 )}
               </Panel>
@@ -1796,8 +2049,20 @@ export default function Hub() {
                 </p>
                 {data.roster.length ? (
                   <>
+                    <Field label="Search contact roster">
+                      <input
+                        type="search"
+                        value={rosterSearch}
+                        onChange={(e) => setRosterSearch(e.target.value)}
+                        placeholder="Search society name or contact"
+                      />
+                    </Field>
                     <div className="roster-toolbar">
-                      <span>{selectedRoster.length} selected</span>
+                      <span aria-live="polite">
+                        {selectedRoster.length} selected ·{" "}
+                        {visibleRoster.length} of {data.roster.length} responses
+                        shown
+                      </span>
                       <Button
                         disabled={!selectedRoster.length}
                         onClick={() => setProvision(true)}
@@ -1806,13 +2071,20 @@ export default function Hub() {
                       </Button>
                       <button
                         className="text-button"
+                        disabled={!selectedRoster.length}
                         onClick={() => setSelectedRoster([])}
                       >
                         Clear selection
                       </button>
                     </div>
+                    {!visibleRoster.length && (
+                      <Empty title="No matching contact responses">
+                        Try another society name or contact email. Your selected
+                        responses are preserved.
+                      </Empty>
+                    )}
                     <div className="roster-list">
-                      {data.roster.map((r) => (
+                      {visibleRoster.map((r) => (
                         <div className="roster-row" key={r.id}>
                           <label>
                             <input
@@ -1885,7 +2157,7 @@ export default function Hub() {
               />
               {admin && (
                 <>
-                  <SemesterManager data={data} busy={busy} run={run} />
+                  <PointReset data={data} busy={busy} run={run} />
                   <Allowlist data={data} busy={busy} run={run} />
                   <details className="panel audit-disclosure">
                     <summary>
@@ -2105,15 +2377,13 @@ function CopyLink({ value }: { value: string }) {
 }
 function EventEditor({
   initial,
-  semesters,
-  selectedSemester,
+  reopening = false,
   busy,
   cancel,
   save,
 }: {
   initial: Event | null;
-  semesters: HubData["semesters"];
-  selectedSemester: string;
+  reopening?: boolean;
   busy: boolean;
   cancel: () => void;
   save: (b: unknown) => Promise<void>;
@@ -2122,34 +2392,60 @@ function EventEditor({
     [description, setDescription] = useState(initial?.description ?? ""),
     [location, setLocation] = useState(initial?.location ?? ""),
     [category, setCategory] = useState(initial?.category ?? "PRT"),
-    [semester, setSemester] = useState(
-      initial?.semester_id ?? selectedSemester,
-    ),
     [start, setStart] = useState(initial ? localDate(initial.starts_at) : ""),
     [end, setEnd] = useState(initial ? localDate(initial.ends_at) : ""),
     [open, setOpen] = useState(initial?.checkin_open ?? false);
+  const [windowError, setWindowError] = useState("");
   return (
-    <Panel title={initial ? "Edit event" : "Create event"}>
+    <Panel
+      title={
+        reopening
+          ? "Reopen event check-in"
+          : initial
+            ? "Edit event"
+            : "Create event"
+      }
+    >
+      {reopening && (
+        <p className="section-intro">
+          Choose a window that includes the current time to reopen check-in.
+          Existing QR links and earned points are preserved.
+        </p>
+      )}
+      {windowError && (
+        <p className="alert error" role="alert">
+          {windowError}
+        </p>
+      )}
       <form
         className="editor-form"
         onSubmit={(e) => {
           e.preventDefault();
+          setWindowError("");
+          if (
+            reopening &&
+            (Date.parse(start) > Date.now() || Date.parse(end) <= Date.now())
+          ) {
+            setWindowError(
+              "To reopen now, choose a start time at or before now and an end time in the future.",
+            );
+            return;
+          }
           void save({
             id: initial?.id,
-            semesterId: semester,
             name,
             description,
             location,
             category,
             startsAt: new Date(start).toISOString(),
             endsAt: new Date(end).toISOString(),
-            checkinOpen: open,
+            checkinOpen: reopening || open,
           });
         }}
       >
         <Field label="Event name">
           <input
-            autoFocus
+            autoFocus={!reopening}
             required
             maxLength={200}
             value={name}
@@ -2157,20 +2453,6 @@ function EventEditor({
           />
         </Field>
         <div className="form-grid">
-          <Field label="Semester">
-            <select
-              disabled={!!initial}
-              value={semester}
-              onChange={(e) => setSemester(e.target.value)}
-              required
-            >
-              {semesters.map((s) => (
-                <option key={s.id} value={s.id}>
-                  {s.name}
-                </option>
-              ))}
-            </select>
-          </Field>
           <Field label="Event category">
             <select
               disabled={!!initial}
@@ -2208,21 +2490,34 @@ function EventEditor({
             <input
               required
               type="datetime-local"
+              max={reopening ? localDate(new Date().toISOString()) : undefined}
               value={start}
               onChange={(e) => setStart(e.target.value)}
             />
           </Field>
-          <Field label="Check-in window ends">
+          <Field
+            label="Check-in window ends"
+            hint={reopening ? "Choose an end time in the future." : undefined}
+          >
             <input
               required
               type="datetime-local"
-              min={start}
+              autoFocus={reopening}
+              min={
+                reopening
+                  ? localDate(
+                      new Date(
+                        Math.max(Date.parse(start) || 0, Date.now()),
+                      ).toISOString(),
+                    )
+                  : start
+              }
               value={end}
               onChange={(e) => setEnd(e.target.value)}
             />
           </Field>
         </div>
-        {category !== "HIGH_IMPACT" && (
+        {category !== "HIGH_IMPACT" && !reopening && (
           <label className="check-field">
             <input
               type="checkbox"
@@ -2235,7 +2530,13 @@ function EventEditor({
         <FormActions
           busy={busy}
           onCancel={cancel}
-          label={initial ? "Save event" : "Create event"}
+          label={
+            reopening
+              ? "Reopen check-in"
+              : initial
+                ? "Save event"
+                : "Create event"
+          }
         />
       </form>
     </Panel>
@@ -2545,15 +2846,11 @@ function CreditCorrection({
 }
 function FormEditor({
   initial,
-  semesters,
-  selectedSemester,
   busy,
   cancel,
   save,
 }: {
   initial: Form | null;
-  semesters: HubData["semesters"];
-  selectedSemester: string;
   busy: boolean;
   cancel: () => void;
   save: (b: unknown) => Promise<void>;
@@ -2561,9 +2858,6 @@ function FormEditor({
   const [title, setTitle] = useState(initial?.title ?? ""),
     [description, setDescription] = useState(initial?.description ?? ""),
     [kind, setKind] = useState(initial?.kind ?? "FUNDING"),
-    [semester, setSemester] = useState(
-      initial?.semester_id ?? selectedSemester,
-    ),
     [deadline, setDeadline] = useState(
       initial?.deadline ? localDate(initial.deadline) : "",
     ),
@@ -2602,7 +2896,6 @@ function FormEditor({
             : !!initial?.published;
           void save({
             id: initial?.id,
-            semesterId: semester,
             title,
             description,
             kind,
@@ -2625,20 +2918,6 @@ function FormEditor({
           />
         </Field>
         <div className="form-grid">
-          <Field label="Semester">
-            <select
-              required
-              disabled={!!initial}
-              value={semester}
-              onChange={(e) => setSemester(e.target.value)}
-            >
-              {semesters.map((s) => (
-                <option key={s.id} value={s.id}>
-                  {s.name}
-                </option>
-              ))}
-            </select>
-          </Field>
           <Field label="Application type">
             <select
               disabled={!!initial}
@@ -3375,7 +3654,7 @@ function PasswordForm({
   );
 }
 type Run = (path: string, body: unknown, message?: string) => Promise<unknown>;
-function SemesterManager({
+function PointReset({
   data,
   busy,
   run,
@@ -3384,100 +3663,89 @@ function SemesterManager({
   busy: boolean;
   run: Run;
 }) {
-  const [name, setName] = useState(""),
-    [start, setStart] = useState(""),
-    [end, setEnd] = useState(""),
-    [current, setCurrent] = useState(false);
+  const dialog = useRef<HTMLDialogElement>(null);
+  const [confirmation, setConfirmation] = useState("");
+  const [failure, setFailure] = useState("");
+  const records = data.credits.filter(
+    (c) => c.cycle_id === data.pointCycle.id && !c.revoked_at,
+  );
+  const close = () => dialog.current?.close();
   return (
-    <Panel title="Semesters">
-      <div className="record-list">
-        {data.semesters.map((s) => (
-          <div className="record" key={s.id}>
-            <div>
-              <strong>{s.name}</strong>
-              <small>
-                {String(s.starts_on).slice(0, 10)} –{" "}
-                {String(s.ends_on).slice(0, 10)}
-              </small>
-            </div>
-            {s.is_current ? (
-              <Pill tone="green">Current</Pill>
-            ) : (
-              <Button
-                secondary
-                disabled={busy}
-                onClick={() =>
-                  void run(
-                    "admin/current-semester",
-                    { id: s.id },
-                    "Current semester changed. Historical points are preserved.",
-                  )
-                }
-              >
-                Make current
-              </Button>
-            )}
-          </div>
-        ))}
-      </div>
-      <form
-        className="editor-form"
-        onSubmit={async (e) => {
-          e.preventDefault();
-          if (
-            await run(
-              "admin/semesters",
-              { name, startsOn: start, endsOn: end, current },
-              "Semester created.",
-            )
-          ) {
-            setName("");
-            setStart("");
-            setEnd("");
-          }
+    <Panel title="Reset society points">
+      <p className="section-intro">
+        Start a new point period when SEC is ready. All societies return to
+        zero; attendance history, events, applications, and existing QR links
+        are preserved.
+      </p>
+      <Button
+        secondary
+        onClick={() => {
+          setConfirmation("");
+          setFailure("");
+          dialog.current?.showModal();
         }}
       >
-        <h3>Add semester</h3>
-        <Field label="Semester name">
-          <input
-            required
-            placeholder="Spring 2027"
-            value={name}
-            maxLength={200}
-            onChange={(e) => setName(e.target.value)}
-          />
-        </Field>
-        <div className="form-grid">
-          <Field label="Start date">
+        Reset all society points
+      </Button>
+      <dialog
+        ref={dialog}
+        className="reset-modal"
+        aria-labelledby="reset-title"
+        onCancel={(e) => {
+          if (busy) e.preventDefault();
+        }}
+        onClick={(e) => {
+          if (e.target === e.currentTarget && !busy) close();
+        }}
+      >
+        <h2 id="reset-title">Reset all society points?</h2>
+        <p>
+          This archives {records.length} attendance records worth{" "}
+          {records.reduce((sum, c) => sum + c.points, 0)} points. Every society
+          starts at zero. Archived records remain available in attendance
+          history.
+        </p>
+        <form
+          onSubmit={async (e) => {
+            e.preventDefault();
+            const result = await run(
+              "admin/reset-points",
+              { currentCycleId: data.pointCycle.id, confirmation },
+              "Society points reset. Previous attendance is preserved.",
+            );
+            if (result) close();
+            else
+              setFailure(
+                "Couldn’t confirm the reset. Close and refresh before retrying.",
+              );
+          }}
+        >
+          <Field label="Type RESET POINTS to confirm">
             <input
-              required
-              type="date"
-              value={start}
-              onChange={(e) => setStart(e.target.value)}
+              autoComplete="off"
+              value={confirmation}
+              onChange={(e) => setConfirmation(e.target.value)}
+              disabled={busy}
             />
           </Field>
-          <Field label="End date">
-            <input
-              required
-              type="date"
-              min={start}
-              value={end}
-              onChange={(e) => setEnd(e.target.value)}
-            />
-          </Field>
-        </div>
-        <label className="check-field">
-          <input
-            type="checkbox"
-            checked={current}
-            onChange={(e) => setCurrent(e.target.checked)}
-          />
-          Make this the current semester
-        </label>
-        <Button type="submit" disabled={busy}>
-          Add semester
-        </Button>
-      </form>
+          {failure && (
+            <p role="alert" className="alert error">
+              {failure}
+            </p>
+          )}
+          <div className="button-row">
+            <Button secondary type="button" disabled={busy} onClick={close}>
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              disabled={busy || confirmation !== "RESET POINTS"}
+            >
+              Reset points
+            </Button>
+          </div>
+        </form>
+      </dialog>
     </Panel>
   );
 }

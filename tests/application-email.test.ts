@@ -104,7 +104,7 @@ test("receipt templates escape user content and distinguish receipt from approva
   const r = receiptContent({
     societyName: "<script>alert(1)</script>",
     formTitle: "Funding\r\nInjected",
-    semester: "Fall 2026",
+
     submissionId: "receipt-id",
     submittedAt: "2026-11-02T19:00:00Z",
     resubmission: false,

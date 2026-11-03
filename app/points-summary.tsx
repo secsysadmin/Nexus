@@ -1,21 +1,21 @@
 "use client";
 import { Check, Circle, ArrowUpRight } from "lucide-react";
 import { labels } from "../lib/domain";
-import { pointHistory, pointCategories } from "../lib/point-history";
-import type { Credit, Semester } from "../lib/types";
+import { pointTotals, pointCategories } from "../lib/points";
+import type { Credit } from "../lib/types";
 const colors = { PRT: "#500000", STANDARD: "#a64b64", HIGH_IMPACT: "#5f6682" };
-export default function SemesterPoints({
+export default function PointsSummary({
   credits,
-  semester,
+  cycleId,
   accountId,
   onHistory,
 }: {
   credits: Credit[];
-  semester: Semester;
+  cycleId: string;
   accountId: string;
   onHistory: () => void;
 }) {
-  const { totals } = pointHistory(credits, semester, accountId);
+  const totals = pointTotals(credits, cycleId, accountId);
   const total = pointCategories.reduce(
     (sum, category) => sum + totals[category],
     0,
@@ -23,11 +23,11 @@ export default function SemesterPoints({
   const met = totals.PRT >= 1;
   return (
     <section
-      className="semester-points"
-      aria-label="Semester points visualization"
+      className="points-summary"
+      aria-label="Society points visualization"
     >
       <div className="section-head">
-        <h2>Semester points</h2>
+        <h2>Society points</h2>
         <button className="text-button" onClick={onHistory}>
           Attendance history <ArrowUpRight size={16} />
         </button>
@@ -79,7 +79,7 @@ export default function SemesterPoints({
                     </div>
                     <div className="points-share-track" aria-hidden="true">
                       <span
-                        key={`${accountId}-${semester.id}-${category}-${totals[category]}-${total}`}
+                        key={`${accountId}-${cycleId}-${category}-${totals[category]}-${total}`}
                         className={
                           totals[category] > 0 ? "points-share-fill" : undefined
                         }
@@ -113,7 +113,7 @@ export default function SemesterPoints({
             <svg viewBox="0 0 180 180" aria-hidden="true">
               <circle className="prt-ring-track" cx="90" cy="90" r="76" />
               <circle
-                key={`${accountId}-${semester.id}-${met}`}
+                key={`${accountId}-${cycleId}-${met}`}
                 className={"prt-ring-fill" + (met ? " prt-ring-draw" : "")}
                 cx="90"
                 cy="90"
@@ -133,15 +133,15 @@ export default function SemesterPoints({
           <strong className="prt-requirement-status">
             {met ? (
               <>
-                <Check size={17} /> Semester minimum met
+                <Check size={17} /> Minimum met
               </>
             ) : (
-              "1 PRT point still needed"
+              "1 PRT point needed"
             )}
           </strong>
           <p>
-            Only PRT has a semester minimum. Standard and High Impact points
-            have no minimum.
+            Only PRT has a minimum between point resets. Standard and High
+            Impact points have no minimum.
           </p>
         </div>
       </div>

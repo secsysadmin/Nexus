@@ -1,11 +1,12 @@
 import type { Event } from "./types";
+const centralDayFormatter = new Intl.DateTimeFormat("en-US", {
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+  timeZone: "America/Chicago",
+});
 export function centralDay(value: string | number) {
-  const parts = new Intl.DateTimeFormat("en-US", {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    timeZone: "America/Chicago",
-  }).formatToParts(new Date(value));
+  const parts = centralDayFormatter.formatToParts(new Date(value));
   return ["year", "month", "day"]
     .map((t) => parts.find((p) => p.type === t)!.value)
     .join("-");

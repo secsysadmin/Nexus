@@ -5,6 +5,7 @@ import type { HubData } from "../lib/types";
 const now = Date.parse("2026-11-02T20:00:00Z");
 function fixture(): HubData {
   return {
+    pointCycle: { id: "fall" },
     accounts: [
       { id: "met", role: "society", enabled: true, activated: true },
       { id: "revoked", role: "society", enabled: true, activated: true },
@@ -15,25 +16,25 @@ function fixture(): HubData {
     events: [
       {
         id: "prt",
-        semester_id: "fall",
+        cycle_id: "fall",
         starts_at: "2026-11-02T19:00:00Z",
         ends_at: "2026-11-02T21:00:00Z",
       },
       {
         id: "future",
-        semester_id: "fall",
+        cycle_id: "fall",
         starts_at: "2026-11-03T19:00:00Z",
         ends_at: "2026-11-03T21:00:00Z",
       },
       {
         id: "ended",
-        semester_id: "fall",
+        cycle_id: "fall",
         starts_at: "2026-11-01T19:00:00Z",
         ends_at: "2026-11-01T21:00:00Z",
       },
       {
         id: "old",
-        semester_id: "spring",
+        cycle_id: "fall",
         starts_at: "2026-11-03T19:00:00Z",
         ends_at: "2026-11-03T21:00:00Z",
       },
@@ -45,6 +46,7 @@ function fixture(): HubData {
         category: "PRT",
         points: 1,
         revoked_at: null,
+        cycle_id: "fall",
       },
       {
         account_id: "revoked",
@@ -52,6 +54,7 @@ function fixture(): HubData {
         category: "PRT",
         points: 1,
         revoked_at: "2026-11-02",
+        cycle_id: "fall",
       },
       {
         account_id: "new",
@@ -59,6 +62,7 @@ function fixture(): HubData {
         category: "PRT",
         points: 1,
         revoked_at: null,
+        cycle_id: "spring",
       },
       {
         account_id: "revoked",
@@ -66,11 +70,12 @@ function fixture(): HubData {
         category: "STANDARD",
         points: 1,
         revoked_at: null,
+        cycle_id: "fall",
       },
     ],
     forms: [
-      { id: "fall-form", semester_id: "fall" },
-      { id: "spring-form", semester_id: "spring" },
+      { id: "fall-form", cycle_id: "fall" },
+      { id: "spring-form", cycle_id: "spring" },
     ],
     submissions: [
       {
@@ -87,23 +92,28 @@ function fixture(): HubData {
       },
       { id: "draft", form_id: "fall-form", status: "DRAFT" },
       { id: "approved", form_id: "fall-form", status: "APPROVED" },
-      { id: "other", form_id: "spring-form", status: "SUBMITTED" },
+      {
+        id: "other",
+        form_id: "spring-form",
+        status: "SUBMITTED",
+        submitted_at: "2026-11-03T10:00:00Z",
+      },
     ],
-  } as HubData;
+  } as unknown as HubData;
 }
-test("dashboard prioritizes oldest submitted applications in the selected semester and future/ongoing events", () => {
-  const result = dashboardItems(fixture(), "fall", now);
+test("dashboard prioritizes oldest submitted applications in the all records and future/ongoing events", () => {
+  const result = dashboardItems(fixture(), now);
   assert.deepEqual(
     result.pendingReviews.map((s) => s.id),
-    ["first", "later"],
+    ["first", "later", "other"],
   );
   assert.deepEqual(
     result.upcomingEvents.map((e) => e.id),
-    ["prt", "future"],
+    ["prt", "future", "old"],
   );
 });
-test("PRT follow-up excludes disabled/admin accounts and ignores revoked, wrong-category, and other-semester credit", () => {
-  const result = dashboardItems(fixture(), "fall", now);
+test("PRT follow-up excludes disabled/admin accounts and ignores revoked, wrong-category, and archived-cycle credit", () => {
+  const result = dashboardItems(fixture(), now);
   assert.deepEqual(
     result.missingPrt.map((a) => a.id),
     ["revoked", "new"],
@@ -113,7 +123,7 @@ test("PRT follow-up excludes disabled/admin accounts and ignores revoked, wrong-
     ["new"],
   );
   assert.deepEqual(
-    dashboardItems(fixture(), "spring", now).awaitingSetup.map((a) => a.id),
+    dashboardItems(fixture(), now).awaitingSetup.map((a) => a.id),
     ["new"],
   );
 });

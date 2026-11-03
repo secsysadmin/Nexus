@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight, Clock, MapPin } from "lucide-react";
-import type { Event, Semester } from "../lib/types";
+import type { Event } from "../lib/types";
 import { labels } from "../lib/domain";
 import {
   calendarDays,
@@ -29,12 +29,10 @@ const when = (time: string) =>
   }).format(new Date(time));
 export default function EventCalendar({
   events,
-  semester,
   onEdit,
   onQr,
 }: {
   events: Event[];
-  semester: Semester;
   onEdit?: (event: Event) => void;
   onQr?: (event: Event) => void;
 }) {
@@ -42,11 +40,11 @@ export default function EventCalendar({
     id = useId(),
     focusDay = useRef(false);
   const min = [
-    semester.starts_on.slice(0, 7),
+    today.slice(0, 7),
     ...events.map((e) => centralDay(e.starts_at).slice(0, 7)),
   ].sort()[0];
   const max = [
-    semester.ends_on.slice(0, 7),
+    today.slice(0, 7),
     ...events.map((e) => centralDay(e.ends_at).slice(0, 7)),
   ]
     .sort()

@@ -237,7 +237,7 @@ async function handle(
     if (error && typeof error === "object" && "code" in error) {
       if (error.code === "23505")
         return json(
-          { error: "That username, semester, or event credit already exists." },
+          { error: "That username or event credit already exists." },
           409,
         );
       if (error.code === "23503")
