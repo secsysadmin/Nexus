@@ -38,6 +38,7 @@ import QRCode from "qrcode";
 import MaroonRibbons from "./maroon-ribbons";
 import PointsSummary from "./points-summary";
 import LoadingSkeleton from "./loading-skeleton";
+import { useUnsavedChanges, confirmDiscard } from "./unsaved-changes";
 import { checkinStatus } from "../lib/checkin-status";
 import EventCalendar from "./event-calendar";
 import { dashboardItems } from "../lib/dashboard";
@@ -67,26 +68,83 @@ const localDate = (s: string) => {
     .toISOString()
     .slice(0, 16);
 };
+const pendingRequestKeys = new Map<string, string>();
 async function api<T = Record<string, unknown>>(
   path: string,
   body?: unknown,
 ): Promise<T> {
-  const res = await fetch("/api/" + path, {
-    method: body === undefined ? "GET" : "POST",
-    headers:
-      body === undefined ? undefined : { "Content-Type": "application/json" },
-    body: body === undefined ? undefined : JSON.stringify(body),
-    cache: "no-store",
-  });
-  const data = await res.json();
-  if (!res.ok) {
-    const err = new Error(data.error ?? "Request failed.") as Error & {
-      status: number;
-    };
-    err.status = res.status;
-    throw err;
+  const create =
+    body &&
+    ["admin/events", "admin/forms"].includes(path) &&
+    !(body as { id?: string }).id;
+  let storageKey: string | undefined, key: string | undefined;
+  if (create) {
+    const bytes = await crypto.subtle.digest(
+      "SHA-256",
+      new TextEncoder().encode(JSON.stringify(body)),
+    );
+    storageKey =
+      "societyhub.pending:" +
+      path +
+      ":" +
+      Array.from(new Uint8Array(bytes), (b) =>
+        b.toString(16).padStart(2, "0"),
+      ).join("");
+    try {
+      key = sessionStorage.getItem(storageKey) ?? undefined;
+    } catch {}
+    key = key ?? pendingRequestKeys.get(storageKey) ?? crypto.randomUUID();
+    pendingRequestKeys.set(storageKey, key);
+    try {
+      sessionStorage.setItem(storageKey, key);
+    } catch {}
   }
-  return data;
+  const controller = new AbortController(),
+    timer = setTimeout(() => controller.abort(), 20000);
+  try {
+    const res = await fetch("/api/" + path, {
+      method: body === undefined ? "GET" : "POST",
+      headers:
+        body === undefined
+          ? undefined
+          : {
+              "Content-Type": "application/json",
+              ...(key ? { "X-Idempotency-Key": key } : {}),
+            },
+      body: body === undefined ? undefined : JSON.stringify(body),
+      cache: "no-store",
+      signal: controller.signal,
+    });
+    const data = await res.json().catch(() => {
+      throw new Error(
+        "The server returned an unreadable response. Refresh to check your changes before retrying.",
+      );
+    });
+    if (!res.ok)
+      throw Object.assign(new Error(data.error ?? "Request failed."), {
+        status: res.status,
+      });
+    if (storageKey) {
+      pendingRequestKeys.delete(storageKey);
+      try {
+        sessionStorage.removeItem(storageKey);
+      } catch {}
+    }
+    return data;
+  } catch (error) {
+    if (controller.signal.aborted || error instanceof TypeError)
+      throw Object.assign(
+        new Error(
+          body === undefined
+            ? "The workspace took too long to respond. Try refreshing."
+            : "Couldn’t confirm whether your changes were saved. Refresh to check before retrying.",
+        ),
+        { outcomeUnknown: body !== undefined },
+      );
+    throw error;
+  } finally {
+    clearTimeout(timer);
+  }
 }
 function Field({
   label,
@@ -347,7 +405,94 @@ export default function Hub() {
   useEffect(() => {
     if (checkResult) document.getElementById("checkin-result-heading")?.focus();
   }, [checkResult]);
+  const [conflict, setConflict] = useState(false);
+  const [editorGeneration, setEditorGeneration] = useState(0);
   const [reopenEventId, setReopenEventId] = useState<string | null>(null);
+  const [applicationSubmission, setApplicationSubmission] = useState<
+    Submission | undefined
+  >();
+  const [archivedCredits, setArchivedCredits] = useState<HubData["credits"]>(
+    [],
+  );
+  const [historyMore, setHistoryMore] = useState(true);
+  useEffect(() => {
+    setArchivedCredits([]);
+    setHistoryMore(true);
+  }, [data?.pointCycle.id]);
+  const openApplication = async (form: Form) => {
+    setBusy(true);
+    setError("");
+    try {
+      const detail = await api<{ form: Form; submission?: Submission }>(
+        "forms/" + form.id,
+      );
+      setApplication(detail.form);
+      setApplicationSubmission(detail.submission);
+    } catch (e) {
+      setError((e as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  };
+  const openFormEditor = async (form: Form) => {
+    setBusy(true);
+    setError("");
+    try {
+      setEditingForm((await api<{ form: Form }>("forms/" + form.id)).form);
+    } catch (e) {
+      setError((e as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  };
+  const openReview = async (submission: Submission) => {
+    setBusy(true);
+    setError("");
+    try {
+      setReview(await api<Submission>("submissions/" + submission.id));
+    } catch (e) {
+      setError((e as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  };
+  const loadHistory = async () => {
+    setBusy(true);
+    setError("");
+    try {
+      const page = await api<{ items: HubData["credits"]; hasMore: boolean }>(
+        "activity/history?offset=" + archivedCredits.length,
+      );
+      setArchivedCredits((old) => [...old, ...page.items]);
+      setHistoryMore(page.hasMore);
+    } catch (e) {
+      setError((e as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  };
+  const exportHistory = async () => {
+    setBusy(true);
+    setError("");
+    try {
+      let all = [...(data?.credits ?? [])],
+        offset = 0;
+      while (true) {
+        const page = await api<{ items: HubData["credits"]; hasMore: boolean }>(
+          "activity/history?offset=" + offset,
+        );
+        all.push(...page.items);
+        if (!page.hasMore) break;
+        offset += page.items.length;
+      }
+      exportCredits(all);
+    } catch (e) {
+      setError((e as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  };
+
   const refresh = useCallback(async () => {
     setRefreshing(true);
     try {
@@ -466,6 +611,7 @@ export default function Hub() {
     setBusy(true);
     setError("");
     setNotice("");
+    setConflict(false);
     try {
       const result = await api<T>(path, body);
       if (message) setNotice(message);
@@ -473,12 +619,47 @@ export default function Hub() {
       return result;
     } catch (e) {
       setError((e as Error).message);
+      setConflict((e as { status?: number }).status === 409);
       return undefined;
     } finally {
       setBusy(false);
     }
   };
+  const reloadSavedVersion = async () => {
+    if (busy || !confirmDiscard()) return;
+    setBusy(true);
+    try {
+      const fresh = await api<HubData>("data");
+      setData(fresh);
+      if (editingEvent?.id) {
+        const latest = fresh.events.find((e) => e.id === editingEvent.id);
+        if (!latest) throw Error("This event is no longer available.");
+        setEditingEvent(latest);
+      }
+      if (editingForm?.id)
+        setEditingForm(
+          (await api<{ form: Form }>("forms/" + editingForm.id)).form,
+        );
+      if (application) {
+        const detail = await api<{ form: Form; submission?: Submission }>(
+          "forms/" + application.id,
+        );
+        setApplication(detail.form);
+        setApplicationSubmission(detail.submission);
+      }
+      if (review) setReview(await api<Submission>("submissions/" + review.id));
+      setEditorGeneration((n) => n + 1);
+      setConflict(false);
+      setError("");
+      setNotice("Loaded the latest saved version.");
+    } catch (e) {
+      setError((e as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  };
   const navigate = (next: string) => {
+    if (busy || !confirmDiscard()) return;
     setTab(next);
     if (mobile) menuButtonRef.current?.focus();
     setMobile(false);
@@ -812,7 +993,7 @@ export default function Hub() {
                 onClick={() => {
                   if (dashboard.pendingReviews.length) {
                     navigate("reviews");
-                    setReview(dashboard.pendingReviews[0]);
+                    void openReview(dashboard.pendingReviews[0]);
                   } else {
                     navigate("events");
                     setEditingEvent(dashboard.upcomingEvents[0] ?? null);
@@ -847,7 +1028,16 @@ export default function Hub() {
           )}
           {error && (
             <div className="alert error" role="alert">
-              {error}
+              <span className="alert-message">{error}</span>
+              {conflict && (
+                <Button
+                  secondary
+                  disabled={busy}
+                  onClick={() => void reloadSavedVersion()}
+                >
+                  Reload saved version
+                </Button>
+              )}
               <button
                 className="icon-button"
                 aria-label="Dismiss error"
@@ -857,6 +1047,26 @@ export default function Hub() {
               </button>
             </div>
           )}
+          {admin &&
+            data.outboxHealth &&
+            data.outboxHealth.uncertain +
+              data.outboxHealth.exhausted +
+              data.outboxHealth.delayed >
+              0 && (
+              <div className="alert error" role="status">
+                <span className="alert-message">
+                  Some application receipts need attention. Applications are
+                  saved; review delivery status before resending.
+                </span>
+                <Button
+                  secondary
+                  disabled={busy}
+                  onClick={() => navigate("reviews")}
+                >
+                  Review receipts
+                </Button>
+              </div>
+            )}
           {notice && (
             <div className="alert success" role="status">
               <Check size={18} />
@@ -1063,7 +1273,7 @@ export default function Hub() {
                             key={f.id}
                             onClick={() => {
                               navigate("applications");
-                              setApplication(f);
+                              void openApplication(f);
                             }}
                           >
                             <span>
@@ -1121,7 +1331,7 @@ export default function Hub() {
                             secondary
                             onClick={() => {
                               navigate("reviews");
-                              setReview(item);
+                              void openReview(item);
                             }}
                             aria-label={`Review ${item.form_title} from ${item.society_name}`}
                           >
@@ -1372,6 +1582,7 @@ export default function Hub() {
           {tab === "events" &&
             (editingEvent !== undefined ? (
               <EventEditor
+                key={editorGeneration}
                 initial={editingEvent}
                 reopening={reopenEventId === editingEvent?.id}
                 busy={busy}
@@ -1506,7 +1717,11 @@ export default function Hub() {
                                       }
                                       void run(
                                         "admin/event-checkin",
-                                        { id: e.id, open: !enabled },
+                                        {
+                                          id: e.id,
+                                          open: !enabled,
+                                          expectedVersion: e.revision,
+                                        },
                                         enabled
                                           ? "Check-in paused. Use Enable check-in on this event to turn it back on."
                                           : "Check-in enabled. Existing QR links still work.",
@@ -1545,6 +1760,10 @@ export default function Hub() {
                           "admin/event-checkin",
                           {
                             id: qrEvent.id,
+                            expectedVersion: (
+                              data.events.find((e) => e.id === qrEvent.id) ??
+                              qrEvent
+                            ).revision,
                             open: qrEvent.checkin_open,
                             rotate: true,
                           },
@@ -1671,28 +1890,52 @@ export default function Hub() {
                   </Empty>
                 )}
               </Panel>
-              {data.credits.some((c) => c.cycle_id !== current.id) && (
-                <details className="history-disclosure">
+              {(data.historyCount ??
+                data.credits.filter((c) => c.cycle_id !== current.id).length) >
+                0 && (
+                <details
+                  className="history-disclosure"
+                  onToggle={(e) => {
+                    if (
+                      e.currentTarget.open &&
+                      !archivedCredits.length &&
+                      historyMore &&
+                      !busy
+                    )
+                      void loadHistory();
+                  }}
+                >
                   <summary>Previous attendance records</summary>
                   <div className="record-list">
-                    {data.credits
-                      .filter((c) => c.cycle_id !== current.id)
-                      .map((c) => (
-                        <div className="record" key={c.id}>
-                          <div>
-                            <strong>{c.event_name}</strong>
-                            <small>
-                              {admin ? c.society_name + " · " : ""}
-                              {when(c.created_at)} CT · {labels[c.category]}
-                            </small>
-                          </div>
-                          <Pill>
-                            {c.revoked_at ? "Removed" : `+${c.points} archived`}
-                          </Pill>
+                    {archivedCredits.map((c) => (
+                      <div className="record" key={c.id}>
+                        <div>
+                          <strong>{c.event_name}</strong>
+                          <small>
+                            {admin ? c.society_name + " · " : ""}
+                            {when(c.created_at)} CT · {labels[c.category]}
+                          </small>
                         </div>
-                      ))}
+                        <Pill>
+                          {c.revoked_at ? "Removed" : `+${c.points} archived`}
+                        </Pill>
+                      </div>
+                    ))}
                   </div>
-                  <Button secondary onClick={() => exportCredits(data.credits)}>
+                  {historyMore && (
+                    <Button
+                      secondary
+                      disabled={busy}
+                      onClick={() => void loadHistory()}
+                    >
+                      Load more history
+                    </Button>
+                  )}
+                  <Button
+                    secondary
+                    disabled={busy}
+                    onClick={() => void exportHistory()}
+                  >
                     Export all history
                   </Button>
                 </details>
@@ -1702,6 +1945,7 @@ export default function Hub() {
           {tab === "applications" &&
             (editingForm !== undefined ? (
               <FormEditor
+                key={editorGeneration}
                 initial={editingForm}
                 busy={busy}
                 cancel={() => setEditingForm(undefined)}
@@ -1720,15 +1964,13 @@ export default function Hub() {
               />
             ) : application ? (
               <ApplicationView
-                key={application.id}
+                key={application.id + ":" + editorGeneration}
                 form={application}
                 defaultEmail={defaultConfirmationEmail(
                   data.accounts.find((a) => a.id === data.actor.id)?.contacts ??
                     {},
                 )}
-                existing={data.submissions.find(
-                  (s) => s.form_id === application.id,
-                )}
+                existing={applicationSubmission}
                 admin={admin}
                 busy={busy}
                 cancel={() => setApplication(null)}
@@ -1740,6 +1982,7 @@ export default function Hub() {
                       ? "Application submitted."
                       : "Draft saved.",
                   );
+                  if (r) setApplicationSubmission(r);
                   return r;
                 }}
               />
@@ -1825,14 +2068,14 @@ export default function Hub() {
                             {admin && (
                               <Button
                                 secondary
-                                onClick={() => setEditingForm(f)}
+                                onClick={() => void openFormEditor(f)}
                               >
                                 Edit form
                               </Button>
                             )}
                             <Button
                               secondary={admin}
-                              onClick={() => setApplication(f)}
+                              onClick={() => void openApplication(f)}
                             >
                               {admin
                                 ? "Preview"
@@ -1861,16 +2104,26 @@ export default function Hub() {
             admin &&
             (review ? (
               <ReviewView
+                key={review.id + ":" + editorGeneration}
                 retryEmail={async (id) => {
-                  await run(
+                  const uncertain =
+                    data.submissions.find((s) => s.confirmation_email_id === id)
+                      ?.confirmation_status === "UNCERTAIN";
+                  if (
+                    uncertain &&
+                    !window.confirm(
+                      "This email may already have been delivered. Resend and risk a duplicate?",
+                    )
+                  )
+                    return;
+                  const result = await run(
                     "admin/email-retry",
-                    { id },
+                    { id, acknowledgeDuplicate: uncertain },
                     "Confirmation email queued for retry.",
                   );
+                  if (result && review) await openReview(review);
                 }}
-                submission={
-                  data.submissions.find((s) => s.id === review.id) ?? review
-                }
+                submission={review}
                 busy={busy}
                 cancel={() => setReview(null)}
                 save={async (b) => {
@@ -1905,7 +2158,7 @@ export default function Hub() {
                           >
                             {status(s.status)}
                           </Pill>
-                          <Button secondary onClick={() => setReview(s)}>
+                          <Button secondary onClick={() => void openReview(s)}>
                             Review
                           </Button>
                         </div>
@@ -2319,7 +2572,7 @@ function AuthScreen({
                   required
                   type="password"
                   autoComplete="new-password"
-                  minLength={12}
+                  minLength={15}
                   maxLength={128}
                   value={confirm}
                   onChange={(e) => setConfirm(e.target.value)}
@@ -2410,6 +2663,9 @@ function EventEditor({
     [end, setEnd] = useState(initial ? localDate(initial.ends_at) : ""),
     [open, setOpen] = useState(initial?.checkin_open ?? false);
   const [windowError, setWindowError] = useState("");
+  const { dirty } = useUnsavedChanges(
+    JSON.stringify({ name, description, location, category, start, end, open }),
+  );
   return (
     <Panel
       title={
@@ -2433,6 +2689,7 @@ function EventEditor({
       )}
       <form
         className="editor-form"
+        data-unsaved-changes={dirty ? "true" : undefined}
         onSubmit={(e) => {
           e.preventDefault();
           setWindowError("");
@@ -2447,6 +2704,7 @@ function EventEditor({
           }
           void save({
             id: initial?.id,
+            expectedVersion: initial?.revision,
             name,
             description,
             location,
@@ -2568,7 +2826,9 @@ function EventEditor({
         )}
         <FormActions
           busy={busy}
-          onCancel={cancel}
+          onCancel={() => {
+            if (confirmDiscard()) cancel();
+          }}
           label={
             reopening
               ? "Enable check-in"
@@ -2929,12 +3189,16 @@ function FormEditor({
       return result;
     });
   };
+  const { dirty } = useUnsavedChanges(
+    JSON.stringify({ title, description, kind, deadline, questions }),
+  );
   return (
     <Panel
       title={initial ? "Edit application form" : "Create application form"}
     >
       <form
         className="editor-form"
+        data-unsaved-changes={dirty ? "true" : undefined}
         onSubmit={(e) => {
           e.preventDefault();
           const submitter = (e.nativeEvent as SubmitEvent)
@@ -2944,6 +3208,7 @@ function FormEditor({
             : !!initial?.published;
           void save({
             id: initial?.id,
+            expectedVersion: initial?.current_version,
             title,
             description,
             kind,
@@ -3186,7 +3451,13 @@ function FormEditor({
                 </Button>
               </>
             )}
-            <Button secondary onClick={cancel} disabled={busy}>
+            <Button
+              secondary
+              onClick={() => {
+                if (confirmDiscard()) cancel();
+              }}
+              disabled={busy}
+            >
               Cancel
             </Button>
           </div>
@@ -3300,13 +3571,18 @@ function ApplicationView({
     [revision, setRevision] = useState(existing?.revision ?? 0),
     [savedAt, setSavedAt] = useState(existing?.updated_at ?? "");
   const closed =
-    !form.published ||
-    !!(form.deadline && Date.parse(form.deadline) < Date.now());
+    existing?.status !== "CHANGES_REQUESTED" &&
+    (!form.published ||
+      !!(form.deadline && Date.parse(form.deadline) < Date.now()));
   const readOnly =
     admin ||
     closed ||
     !!(existing && !["DRAFT", "CHANGES_REQUESTED"].includes(existing.status));
   const questions = existing?.questions ?? form.questions;
+  const { dirty, markSaved } = useUnsavedChanges(
+    JSON.stringify({ answers, confirmationEmail }),
+    !readOnly,
+  );
   const persist = async (submit: boolean) => {
     const r = await save({
       formId: form.id,
@@ -3316,6 +3592,7 @@ function ApplicationView({
       confirmationEmail,
     });
     if (r) {
+      markSaved();
       setRevision(r.revision);
       setSavedAt(r.updated_at);
     }
@@ -3324,7 +3601,12 @@ function ApplicationView({
     <Panel
       title={form.title}
       action={
-        <Button secondary onClick={cancel}>
+        <Button
+          secondary
+          onClick={() => {
+            if (confirmDiscard()) cancel();
+          }}
+        >
           Back to applications
         </Button>
       }
@@ -3419,6 +3701,7 @@ function ApplicationView({
           </div>
         ) : (
           <form
+            data-unsaved-changes={dirty ? "true" : undefined}
             className="editor-form"
             onSubmit={(e) => {
               e.preventDefault();
@@ -3514,7 +3797,9 @@ function ReviewView({
             disabled={busy}
             onClick={() => void retryEmail(s.confirmation_email_id!)}
           >
-            Retry confirmation email
+            {s.confirmation_status === "UNCERTAIN"
+              ? "Review and resend confirmation"
+              : "Retry confirmation email"}
           </Button>
         )}
       <div className="review-answers">
@@ -3673,7 +3958,7 @@ function PasswordForm({
               required
               type="password"
               autoComplete="new-password"
-              minLength={12}
+              minLength={15}
               maxLength={128}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -3684,7 +3969,7 @@ function PasswordForm({
               required
               type="password"
               autoComplete="new-password"
-              minLength={12}
+              minLength={15}
               maxLength={128}
               value={confirm}
               onChange={(e) => setConfirm(e.target.value)}
@@ -3906,9 +4191,11 @@ function ReceiptStatus({ submission: s }: { submission?: Submission }) {
     <p className="receipt-status">
       {s.confirmation_status === "SENT"
         ? `Confirmation email sent to ${s.confirmation_email}.`
-        : s.confirmation_status === "FAILED"
-          ? `Your application is saved. The confirmation email to ${s.confirmation_email} could not be sent; SEC can retry it.`
-          : `Confirmation email to ${s.confirmation_email} is queued for sending.`}
+        : s.confirmation_status === "UNCERTAIN"
+          ? `Your application is saved. Email delivery is unconfirmed; SEC can review its status.`
+          : s.confirmation_status === "FAILED"
+            ? `Your application is saved. The confirmation email to ${s.confirmation_email} could not be sent; SEC can retry it.`
+            : `Confirmation email to ${s.confirmation_email} is queued for sending.`}
     </p>
   );
 }

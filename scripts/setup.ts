@@ -141,7 +141,7 @@ try {
     await mkdir(out.slice(0, out.lastIndexOf("/")) || ".", { recursive: true });
     await writeFile(
       out,
-      "# Nexus initial account access\n\nKeep these one-time links private. Set a password of at least 12 characters.\n\n" +
+      "# SocietyHub initial account access\n\nKeep these one-time links private. Set a password of at least 15 characters.\n\n" +
         access.join("\n"),
       { mode: 0o600 },
     );

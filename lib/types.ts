@@ -16,6 +16,7 @@ export type PointCycle = {
 };
 export type Event = {
   id: string;
+  revision: number;
   name: string;
   description: string;
   location: string;
@@ -52,7 +53,7 @@ export type Form = {
 export type Submission = {
   confirmation_email: string;
   confirmation_email_id?: string;
-  confirmation_status?: "PENDING" | "SENDING" | "SENT" | "FAILED";
+  confirmation_status?: "PENDING" | "SENDING" | "SENT" | "FAILED" | "UNCERTAIN";
   confirmation_attempts?: number;
   id: string;
   form_id: string;
@@ -83,6 +84,8 @@ export type Audit = {
   created_at: string;
 };
 export type HubData = {
+  outboxHealth?: { uncertain: number; exhausted: number; delayed: number };
+  historyCount?: number;
   environment: "development" | "production";
   actor: Pick<Account, "id" | "username" | "display_name" | "role">;
   pointCycle: PointCycle;

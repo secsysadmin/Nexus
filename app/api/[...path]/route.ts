@@ -1,53 +1,42 @@
 import { NextRequest, NextResponse, after } from "next/server";
-import { deliverApplicationEmail } from "../../../lib/email-outbox";
+import { maintenanceAuthorized } from "../../../lib/maintenance-auth";
+import {
+  deliverApplicationEmail,
+  runMaintenance,
+  outboxHealth,
+} from "../../../lib/email-outbox";
 import { z } from "zod";
 import { transaction, audit } from "../../../lib/db";
+import { digest, sessionCookie } from "../../../lib/security";
 import {
-  token,
-  digest,
-  sessionCookie,
-  verifyPassword,
-  hashPassword,
-} from "../../../lib/security";
+  authenticate,
+  consumeLoginRequest,
+  login,
+  redeemActivation,
+  changePassword,
+} from "../../../lib/auth";
+import { idempotentMutation } from "../../../lib/idempotency";
 import {
   adminMutation,
   checkIn,
   saveSubmission,
   AppError,
-  type Actor,
 } from "../../../lib/service";
-import { getData } from "../../../lib/data";
-import type { PoolClient } from "pg";
+import {
+  getData,
+  getFormDetail,
+  getSubmissionDetail,
+  getHistory,
+} from "../../../lib/data";
 export const runtime = "nodejs";
 export const maxDuration = 60;
 export const dynamic = "force-dynamic";
-const password = z.string().min(12, "Use at least 12 characters.").max(128);
+const password = z.string().min(15, "Use at least 15 characters.").max(128);
 function json(body: unknown, status = 200) {
   return NextResponse.json(body, {
     status,
     headers: { "Cache-Control": "no-store" },
   });
-}
-async function authenticate(db: PoolClient, req: NextRequest): Promise<Actor> {
-  const raw = req.cookies.get(sessionCookie)?.value;
-  if (!raw) throw new AppError("Please sign in.", 401);
-  const {
-    rows: [actor],
-  } = await db.query(
-    "SELECT a.id,a.username,a.display_name,a.role FROM accounts a JOIN sessions s ON s.account_id=a.id WHERE s.token_hash=$1 AND s.expires_at>now() AND a.enabled",
-    [digest(raw)],
-  );
-  if (!actor)
-    throw new AppError("Your session has expired. Please sign in again.", 401);
-  return actor;
-}
-async function session(db: PoolClient, id: string) {
-  const raw = token();
-  await db.query("INSERT INTO sessions VALUES($1,$2,now()+interval '7 days')", [
-    digest(raw),
-    id,
-  ]);
-  return raw;
 }
 function withSession(body: unknown, raw: string) {
   const res = json(body);
@@ -68,10 +57,54 @@ async function handle(
     const path = (await ctx.params).path.join("/");
     if (req.method === "GET") {
       if (path === "health") return json({ ok: true });
+      if (path === "cron/maintenance" || path === "readiness") {
+        if (!(await maintenanceAuthorized(req.headers.get("authorization"))))
+          throw new AppError("Unauthorized.", 401);
+        if (path === "cron/maintenance") {
+          const result = await runMaintenance();
+          return json(result, result.ok ? 200 : 503);
+        }
+        const health = await transaction(async (db) => {
+          await db.query("SELECT 1");
+          return outboxHealth(db);
+        });
+        return json(
+          {
+            ok: !health.uncertain && !health.exhausted && !health.delayed,
+            ...health,
+          },
+          health.uncertain || health.exhausted || health.delayed ? 503 : 200,
+        );
+      }
+
+      if (path.startsWith("forms/") || path.startsWith("submissions/")) {
+        const id = z.string().uuid().parse(path.split("/")[1]);
+        const detail = await transaction(async (db) => {
+          const actor = await authenticate(db, req);
+          return path.startsWith("forms/")
+            ? getFormDetail(db, actor, id)
+            : getSubmissionDetail(db, actor, id);
+        });
+        if (!detail) throw new AppError("Not found.", 404);
+        return json(detail);
+      }
+      if (path === "activity/history") {
+        const offset = z.coerce
+          .number()
+          .int()
+          .nonnegative()
+          .max(1000000)
+          .parse(req.nextUrl.searchParams.get("offset") ?? 0);
+        return json(
+          await transaction(async (db) =>
+            getHistory(db, await authenticate(db, req), offset),
+          ),
+        );
+      }
       if (path !== "data") throw new AppError("Not found.", 404);
       return json(
         await transaction(async (db) =>
-          getData(db, await authenticate(db, req)),
+          getData(db, await authenticate(db, req), { compact: true }),
         ),
       );
     }
@@ -98,79 +131,29 @@ async function handle(
           password: z.string().min(1).max(128),
         })
         .parse(body);
-      // The limiter commits independently of authentication failures and works across Vercel instances.
       const address = process.env.VERCEL
         ? (req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
           "unknown")
         : "local";
-      const limited = await transaction(async (db) => {
-        let denied = false;
-        for (const [key, max] of [
-          [digest("user:" + b.username), 10],
-          [digest("ip:" + address), 60],
-        ] as const) {
-          const {
-            rows: [r],
-          } = await db.query(
-            "INSERT INTO login_attempts(key,attempts) VALUES($1,1) ON CONFLICT(key) DO UPDATE SET attempts=CASE WHEN login_attempts.window_start<now()-interval '15 minutes' THEN 1 ELSE login_attempts.attempts+1 END,window_start=CASE WHEN login_attempts.window_start<now()-interval '15 minutes' THEN now() ELSE login_attempts.window_start END RETURNING attempts",
-            [key],
-          );
-          if (r.attempts > max) denied = true;
-        }
-        return denied;
-      });
-      if (limited)
+      if (!(await transaction((db) => consumeLoginRequest(db, address))))
         throw new AppError(
-          "Too many sign-in attempts. Try again in 15 minutes.",
+          "Too many sign-in requests from this connection. Try again later.",
           429,
         );
-      const result = await transaction(async (db) => {
-        const {
-          rows: [a],
-        } = await db.query(
-          "SELECT * FROM accounts WHERE username=$1 FOR UPDATE",
-          [b.username],
-        );
-        const valid = verifyPassword(
-          b.password,
-          a?.password_hash ?? "scrypt:dummy:00",
-        );
-        if (!a || !valid || !a.enabled)
-          throw new AppError("Username or password is incorrect.", 401);
-        await audit(db, a.id, "SIGNED_IN", a.id);
-        return { raw: await session(db, a.id) };
-      });
-      return withSession({ ok: true }, result.raw);
+      const result = await transaction((db) =>
+        login(db, b.username, b.password, address),
+      );
+      if (result.error) throw new AppError(result.error, result.status);
+      return withSession({ ok: true }, result.raw!);
     }
     if (path === "auth/activate") {
       const b = z
         .object({ token: z.string().length(64), password })
         .parse(body);
-      const result = await transaction(async (db) => {
-        const {
-          rows: [t],
-        } = await db.query(
-          "SELECT t.account_id FROM activation_tokens t JOIN accounts a ON a.id=t.account_id WHERE t.token_hash=$1 AND t.expires_at>now() AND a.enabled FOR UPDATE OF t,a",
-          [digest(b.token)],
-        );
-        if (!t)
-          throw new AppError(
-            "This setup link is invalid or expired. Ask SEC for a new one.",
-          );
-        await db.query("UPDATE accounts SET password_hash=$1 WHERE id=$2", [
-          hashPassword(b.password),
-          t.account_id,
-        ]);
-        await db.query("DELETE FROM activation_tokens WHERE account_id=$1", [
-          t.account_id,
-        ]);
-        await db.query("DELETE FROM sessions WHERE account_id=$1", [
-          t.account_id,
-        ]);
-        await audit(db, t.account_id, "PASSWORD_SET", t.account_id);
-        return { raw: await session(db, t.account_id) };
-      });
-      return withSession({ ok: true }, result.raw);
+      const raw = await transaction((db) =>
+        redeemActivation(db, b.token, b.password),
+      );
+      return withSession({ ok: true }, raw);
     }
     const result = await transaction(async (db) => {
       const actor = await authenticate(db, req);
@@ -184,28 +167,21 @@ async function handle(
         const b = z
           .object({ currentPassword: z.string().min(1).max(128), password })
           .parse(body);
-        const {
-          rows: [a],
-        } = await db.query(
-          "SELECT password_hash FROM accounts WHERE id=$1 FOR UPDATE",
-          [actor.id],
-        );
-        if (!verifyPassword(b.currentPassword, a.password_hash))
-          throw new AppError("Current password is incorrect.");
-        await db.query("UPDATE accounts SET password_hash=$1 WHERE id=$2", [
-          hashPassword(b.password),
-          actor.id,
-        ]);
-        await db.query("DELETE FROM sessions WHERE account_id=$1", [actor.id]);
-        await db.query("DELETE FROM activation_tokens WHERE account_id=$1", [
-          actor.id,
-        ]);
-        await audit(db, actor.id, "PASSWORD_CHANGED", actor.id);
-        return { ok: true };
+        return changePassword(db, actor, b.currentPassword, b.password);
       }
       if (path === "checkin") return checkIn(db, actor, body);
       if (path === "submissions/save") return saveSubmission(db, actor, body);
-      return adminMutation(db, actor, path, body);
+      const perform = () => adminMutation(db, actor, path, body);
+      if (["admin/events", "admin/forms"].includes(path) && !body.id)
+        return idempotentMutation(
+          db,
+          actor,
+          path,
+          req.headers.get("x-idempotency-key") ?? "",
+          body,
+          perform,
+        );
+      return perform();
     });
     if (
       result?.confirmation_email_id &&
@@ -235,6 +211,14 @@ async function handle(
         400,
       );
     if (error && typeof error === "object" && "code" in error) {
+      if (["57014", "55P03", "40P01", "40001"].includes(String(error.code)))
+        return json(
+          {
+            error:
+              "The operation could not finish in time. Refresh to check its status before retrying.",
+          },
+          503,
+        );
       if (error.code === "23505")
         return json(
           { error: "That username or event credit already exists." },
@@ -249,6 +233,17 @@ async function handle(
           409,
         );
     }
+    if (
+      error instanceof Error &&
+      /timeout|connection|socket|terminated/i.test(error.message)
+    )
+      return json(
+        {
+          error:
+            "The database is temporarily unavailable. Refresh to check your changes before retrying.",
+        },
+        503,
+      );
     console.error(
       "SocietyHub request failed",
       error instanceof Error ? error.message : "Unknown error",

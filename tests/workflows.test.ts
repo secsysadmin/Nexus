@@ -192,6 +192,7 @@ test("form edits preserve existing drafts; revisions prevent officer overwrites;
     await adminMutation(f.client, f.admin, "admin/forms", {
       ...input,
       id: form.id,
+      expectedVersion:1,
       questions: [
         {
           id: "new",

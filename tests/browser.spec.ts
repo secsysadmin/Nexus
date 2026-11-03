@@ -4,7 +4,7 @@ import pg from "pg";
 import { randomUUID } from "node:crypto";
 import { mkdir, readFile } from "node:fs/promises";
 import { hashPassword, token, digest } from "../lib/security";
-dotenv.config({ path: ".env.local", quiet: true });
+// The test runner injects an isolated schema; never load developer credentials.
 const suffix = randomUUID().slice(0, 8),
   adminName = `qa-sec-${suffix}`,
   societyName = `qa-society-${suffix}`,
@@ -23,22 +23,29 @@ const base = process.env.NEXUS_TEST_BASE_URL ?? "http://localhost:3100";
 async function post(request: APIRequestContext, path: string, body: unknown) {
   return request.post("/api/" + path, {
     data: body,
-    headers: { Origin: base },
+    headers: { Origin: base, "X-Idempotency-Key": randomUUID() },
   });
 }
 test.beforeAll(async () => {
-  if (process.env.DATABASE_SCHEMA !== "nexus_dev")
-    throw new Error("Browser tests may only run against nexus_dev.");
+  if (
+    process.env.ISOLATED_TEST_DATABASE !== "true" ||
+    !/^nexus_test_[a-f0-9]{12}$/.test(process.env.DATABASE_SCHEMA ?? "")
+  )
+    throw new Error("Run npm run test:e2e to use an isolated test database.");
   db = new pg.Client({
     connectionString: process.env.DATABASE_URL!.replace("-pooler.", "."),
+    statement_timeout: 10000,
+    query_timeout: 12000,
   });
   await db.connect();
-  await db.query("SET search_path TO nexus_dev,pg_catalog");
+  await db.query(
+    `SET search_path TO ${process.env.DATABASE_SCHEMA},pg_catalog`,
+  );
   const create = async (username: string, name: string, role: string) =>
     (
       await db.query(
         "INSERT INTO accounts(username,display_name,role,password_hash) VALUES($1,$2,$3,$4) RETURNING id",
-        [username, name, role, hashPassword(password)],
+        [username, name, role, await hashPassword(password)],
       )
     ).rows[0].id;
   adminId = await create(adminName, "SEC Browser Test", "admin");
@@ -1044,6 +1051,9 @@ test("manual reset is explicit, preserves history, and event check-in can reopen
     environment: "development",
   });
   await page.route("**/api/data", (r) => r.fulfill({ json: dataset() }));
+  await page.route("**/api/activity/history?*", (r) =>
+    r.fulfill({ json: { items: dataset().credits, hasMore: false } }),
+  );
   await page.route("**/api/admin/reset-points", (r) => {
     expect(r.request().postDataJSON()).toEqual({
       currentCycleId: "initial",
@@ -1183,4 +1193,72 @@ test("workspace skeleton announces loading and the desktop login footer stays on
       ),
     ).toBe(true);
   }
+});
+
+test("stale admin edits preserve input, offer reload, and warn before discarding work", async ({
+  page,
+}) => {
+  const event = {
+    id: randomUUID(),
+    revision: 1,
+    name: "Original event",
+    description: "",
+    location: "Zachry",
+    category: "PRT",
+    starts_at: new Date(Date.now() - 60000).toISOString(),
+    ends_at: new Date(Date.now() + 3600000).toISOString(),
+    checkin_open: true,
+    checkin_token: "0".repeat(64),
+  };
+  const dataset = () => ({
+    actor: { id: "sec", username: "sec", display_name: "SEC", role: "admin" },
+    pointCycle: {
+      id: "current",
+      started_at: new Date().toISOString(),
+      ended_at: null,
+      is_current: true,
+    },
+    events: [event],
+    credits: [],
+    forms: [],
+    submissions: [],
+    accounts: [],
+    roster: [],
+    audit: [],
+    allowlist: [],
+    environment: "development",
+  });
+  await page.route("**/api/data", (r) => r.fulfill({ json: dataset() }));
+  await page.route("**/api/admin/events", (r) => {
+    expect(r.request().postDataJSON().expectedVersion).toBe(1);
+    event.revision = 2;
+    event.name = "Latest saved event";
+    return r.fulfill({
+      status: 409,
+      json: { error: "This event changed. Reload before saving." },
+    });
+  });
+  await page.goto("/");
+  await page.getByRole("button", { name: "Events", exact: true }).click();
+  await page.getByRole("button", { name: "Edit", exact: true }).click();
+  await page.getByLabel("Event name", { exact: true }).fill("My unsaved edit");
+  page.once("dialog", (d) => d.dismiss());
+  await page.getByRole("button", { name: "Applications", exact: true }).click();
+  await expect(page.getByLabel("Event name", { exact: true })).toHaveValue(
+    "My unsaved edit",
+  );
+  await page.getByRole("button", { name: "Save event", exact: true }).click();
+  await expect(page.locator(".alert.error[role='alert']")).toContainText(
+    "This event changed",
+  );
+  await expect(page.getByLabel("Event name", { exact: true })).toHaveValue(
+    "My unsaved edit",
+  );
+  page.once("dialog", (d) => d.accept());
+  await page
+    .getByRole("button", { name: "Reload saved version", exact: true })
+    .click();
+  await expect(page.getByLabel("Event name", { exact: true })).toHaveValue(
+    "Latest saved event",
+  );
 });

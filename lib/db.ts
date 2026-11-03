@@ -1,35 +1,57 @@
 import pg, { type PoolClient } from "pg";
 import { resolveEnvironment } from "./domain";
 const globalDb = globalThis as unknown as { nexusPool?: pg.Pool };
-function pool() {
-  const connectionString = process.env.NEXUS_DATABASE_URL || process.env.DATABASE_URL;
-  if (!connectionString)
-    throw new Error("Database is not configured. See README setup.");
-  return (globalDb.nexusPool ??= new pg.Pool({
-    connectionString,
-    max: 2,
-    idleTimeoutMillis: 10000,
-    connectionTimeoutMillis: 10000,
-  }));
+export function databasePool() {
+  const connectionString =
+    process.env.NEXUS_DATABASE_URL || process.env.DATABASE_URL;
+  if (!connectionString) throw Error("Database is not configured.");
+  if (!globalDb.nexusPool) {
+    const pool = new pg.Pool({
+      connectionString,
+      max: 2,
+      idleTimeoutMillis: 10000,
+      connectionTimeoutMillis: 5000,
+      query_timeout: 12000,
+      maxLifetimeSeconds: 300,
+    });
+    pool.on("error", () =>
+      console.error(
+        "Database idle connection failed; it was removed from the pool.",
+      ),
+    );
+    globalDb.nexusPool = pool;
+  }
+  return globalDb.nexusPool;
 }
 export async function transaction<T>(
   fn: (db: PoolClient) => Promise<T>,
 ): Promise<T> {
-  const schema = resolveEnvironment(process.env);
-  const db = await pool().connect();
+  const schema = resolveEnvironment(process.env),
+    db = await databasePool().connect();
+  let discard = false;
   try {
     await db.query("BEGIN");
-    await db.query("SELECT set_config('search_path',$1,true)", [
-      schema + ",pg_catalog",
-    ]);
+    await db.query(
+      "SELECT set_config('search_path',$1,true),set_config('statement_timeout','10000',true),set_config('lock_timeout','3000',true),set_config('idle_in_transaction_session_timeout','15000',true)",
+      [schema + ",pg_catalog"],
+    );
     const result = await fn(db);
     await db.query("COMMIT");
     return result;
-  } catch (e) {
-    await db.query("ROLLBACK");
-    throw e;
+  } catch (error) {
+    try {
+      await db.query("ROLLBACK");
+    } catch {
+      discard = true;
+    }
+    if (
+      error instanceof Error &&
+      /connection|socket|terminated|timeout|query read/i.test(error.message)
+    )
+      discard = true;
+    throw error;
   } finally {
-    db.release();
+    db.release(discard);
   }
 }
 export async function audit(

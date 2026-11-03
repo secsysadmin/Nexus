@@ -4,6 +4,7 @@ export default defineConfig({
   testDir: "./tests",
   testMatch: "browser.spec.ts",
   workers: 1,
+  expect: { timeout: 15000 },
   timeout: 90000,
   use: {
     baseURL: external ?? "http://localhost:3100",

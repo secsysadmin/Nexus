@@ -32,12 +32,10 @@ export async function issueActivation(
   accountId: string,
   actor: string | null,
 ) {
+  await db.query("SELECT id FROM accounts WHERE id=$1 FOR UPDATE", [accountId]);
   const raw = token();
-  await db.query("DELETE FROM activation_tokens WHERE account_id=$1", [
-    accountId,
-  ]);
   await db.query(
-    "INSERT INTO activation_tokens VALUES($1,$2,now()+interval '7 days')",
+    "INSERT INTO activation_tokens(token_hash,account_id,expires_at) VALUES($1,$2,now()+interval '7 days') ON CONFLICT(account_id) DO UPDATE SET token_hash=excluded.token_hash,expires_at=excluded.expires_at",
     [digest(raw), accountId],
   );
   await audit(db, actor, "ACCOUNT_ACTIVATION_ISSUED", accountId);
@@ -122,18 +120,20 @@ export async function saveSubmission(
   const {
     rows: [form],
   } = await db.query("SELECT * FROM forms WHERE id=$1 FOR SHARE", [b.formId]);
-  if (
-    !form ||
-    !form.published ||
-    (form.deadline && new Date(form.deadline).getTime() < Date.now())
-  )
+  if (!form)
     throw new AppError("This application is closed. Contact SEC for help.");
   const {
     rows: [existing],
   } = await db.query(
-    "SELECT * FROM submissions WHERE form_id=$1 AND account_id=$2",
+    "SELECT * FROM submissions WHERE form_id=$1 AND account_id=$2 FOR UPDATE",
     [form.id, actor.id],
   );
+  if (
+    existing?.status !== "CHANGES_REQUESTED" &&
+    (!form.published ||
+      (form.deadline && Date.parse(form.deadline) < Date.now()))
+  )
+    throw new AppError("This application is closed. Contact SEC for help.");
   if (existing && !["DRAFT", "CHANGES_REQUESTED"].includes(existing.status))
     throw new AppError("This application has already been submitted.", 409);
   if ((existing?.revision ?? 0) !== b.revision)
@@ -166,7 +166,7 @@ export async function saveSubmission(
     rows: [saved],
   } = await db.query(
     `INSERT INTO submissions(form_id,form_version,account_id,answers,status,submitted_at,confirmation_email) VALUES($1,$2,$3,$4,$5,CASE WHEN $6 THEN now() ELSE NULL END,$7)
- ON CONFLICT(form_id,account_id) DO UPDATE SET answers=excluded.answers,status=excluded.status,confirmation_email=excluded.confirmation_email,submitted_at=CASE WHEN $6 THEN now() ELSE submissions.submitted_at END,revision=submissions.revision+1,updated_at=now() RETURNING *`,
+ ON CONFLICT(form_id,account_id) DO UPDATE SET answers=excluded.answers,status=excluded.status,confirmation_email=excluded.confirmation_email,submitted_at=CASE WHEN $6 THEN now() ELSE submissions.submitted_at END,revision=submissions.revision+1,updated_at=now() WHERE submissions.revision=$8 AND submissions.status IN ('DRAFT','CHANGES_REQUESTED') RETURNING *`,
     [
       form.id,
       version,
@@ -175,8 +175,11 @@ export async function saveSubmission(
       b.submit ? "SUBMITTED" : (existing?.status ?? "DRAFT"),
       b.submit,
       confirmationEmail,
+      b.revision,
     ],
   );
+  if (!saved)
+    throw new AppError("Submission changed. Reload before saving.", 409);
   await audit(
     db,
     actor.id,
@@ -207,6 +210,7 @@ export async function saveSubmission(
     saved.confirmation_email_id = email.id;
     saved.confirmation_status = "PENDING";
   }
+  saved.questions = fv.questions;
   return saved;
 }
 export async function adminMutation(
@@ -219,7 +223,9 @@ export async function adminMutation(
     throw new AppError("SEC administrator access is required.", 403);
   switch (path) {
     case "admin/email-retry": {
-      const b = z.object({ id: uuid }).parse(input);
+      const b = z
+        .object({ id: uuid, acknowledgeDuplicate: z.boolean().default(false) })
+        .parse(input);
       const {
         rows: [email],
       } = await db.query(
@@ -235,13 +241,18 @@ export async function adminMutation(
         new Date(email.lease_until).getTime() > Date.now()
       )
         throw new AppError("This email is currently being sent.", 409);
+      if (email.status === "UNCERTAIN" && !b.acknowledgeDuplicate)
+        throw new AppError(
+          "This receipt may already have been delivered. Confirm the duplicate-delivery risk before resending.",
+          409,
+        );
       if (email.attempts >= 5)
         throw new AppError(
           "Retry limit reached. Check the provider configuration before contacting support.",
           409,
         );
       await db.query(
-        "UPDATE application_emails SET status='PENDING',lease_token=NULL,lease_until=NULL WHERE id=$1",
+        "UPDATE application_emails SET status='PENDING',next_attempt_at=now(),accepted_at=NULL,provider_id=NULL,lease_token=NULL,lease_until=NULL WHERE id=$1",
         [email.id],
       );
       await audit(
@@ -384,6 +395,7 @@ export async function adminMutation(
       const b = z
         .object({
           id: uuid.optional(),
+          expectedVersion: z.number().int().positive().optional(),
           name,
           description: z.string().max(5000),
           location: z.string().max(300),
@@ -403,12 +415,14 @@ export async function adminMutation(
           b.id,
         ]);
         if (!old) throw new AppError("Event not found.", 404);
+        if (old.revision !== b.expectedVersion)
+          throw new AppError("This event changed. Reload before saving.", 409);
         if (old.category !== b.category)
           throw new AppError(
             "Event category cannot change. Create a new event instead.",
           );
         await db.query(
-          "UPDATE events SET name=$1,description=$2,location=$3,starts_at=$4,ends_at=$5,checkin_open=$6 WHERE id=$7",
+          "UPDATE events SET name=$1,description=$2,location=$3,starts_at=$4,ends_at=$5,checkin_open=$6,revision=revision+1 WHERE id=$7",
           [
             b.name,
             b.description,
@@ -446,16 +460,20 @@ export async function adminMutation(
       const b = z
         .object({
           id: uuid,
+          expectedVersion: z.number().int().positive(),
           open: z.boolean(),
           rotate: z.boolean().default(false),
         })
         .parse(input);
       const result = await db.query(
-        "UPDATE events SET checkin_open=$1,checkin_token=CASE WHEN $2 THEN $3 ELSE checkin_token END WHERE id=$4 AND category!='HIGH_IMPACT' RETURNING id",
-        [b.open, b.rotate, token(), b.id],
+        "UPDATE events SET checkin_open=$1,checkin_token=CASE WHEN $2 THEN $3 ELSE checkin_token END,revision=revision+1 WHERE id=$4 AND revision=$5 AND category!='HIGH_IMPACT' RETURNING id",
+        [b.open, b.rotate, token(), b.id, b.expectedVersion],
       );
       if (!result.rowCount)
-        throw new AppError("Check-in event not found.", 404);
+        throw new AppError(
+          "This event changed. Refresh before changing check-in.",
+          409,
+        );
       await audit(db, actor.id, "EVENT_CHECKIN_CHANGED", b.id, {
         open: b.open,
         rotated: b.rotate,
@@ -559,6 +577,7 @@ export async function adminMutation(
       const b = z
         .object({
           id: uuid.optional(),
+          expectedVersion: z.number().int().positive().optional(),
           title: name,
           description: z.string().max(5000),
           kind: z.enum(["FUNDING", "HIGH_IMPACT"]),
@@ -581,6 +600,11 @@ export async function adminMutation(
           rows: [f],
         } = await db.query("SELECT * FROM forms WHERE id=$1 FOR UPDATE", [id]);
         if (!f) throw new AppError("Application not found.", 404);
+        if (f.current_version !== b.expectedVersion)
+          throw new AppError(
+            "This application changed. Reload before saving.",
+            409,
+          );
         if (
           !f.published &&
           b.published &&

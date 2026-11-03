@@ -35,13 +35,13 @@ test("environment guards reject preview to production and local production by de
   assert.throws(() => resolveEnvironment({ DATABASE_SCHEMA: "public" }));
   assert.throws(() => resolveEnvironment({ DATABASE_SCHEMA: "nexus_prod" }));
 });
-test("password hashes are salted and verify without storing the password", () => {
-  const a = hashPassword("A long society password");
-  const b = hashPassword("A long society password");
+test("password hashes are salted and verify without storing the password", async () => {
+  const a = await hashPassword("A long society password");
+  const b = await hashPassword("A long society password");
   assert.notEqual(a, b);
-  assert(verifyPassword("A long society password", a));
-  assert(!verifyPassword("incorrect", a));
-  assert(!verifyPassword("x", "invalid"));
+  assert(await verifyPassword("A long society password", a));
+  assert(!await verifyPassword("incorrect", a));
+  assert(!await verifyPassword("x", "invalid"));
 });
 test("drafts allow incomplete answers; submission validates required fields, types and choices", () => {
   const q: Question[] = [

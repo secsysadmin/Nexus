@@ -1,5 +1,5 @@
 // Adapted from SysAd/Delphi/lib/email.ts: SES/Resend selection, MIME encoding,
-// authenticated sender, and throttling retries. Registration-specific content is excluded.
+// authenticated sender and MIME encoding. Durable retries live in the outbox worker.
 import { SESClient, SendRawEmailCommand } from "@aws-sdk/client-ses";
 import { Resend } from "resend";
 export type Mail = { to: string; subject: string; html: string; body: string };
@@ -86,13 +86,14 @@ export async function sendMail(
     throw new Error("Email provider is not configured.");
   if (!["ses", "resend"].includes(provider))
     throw new Error("Unsupported email provider.");
-  for (let attempt = 1; attempt <= 3; attempt++) {
+  const signal = AbortSignal.timeout(12000);
+  {
     try {
       if (provider === "ses") {
         const client = new SESClient({
           region: process.env.AWS_REGION || "us-east-1",
-          maxAttempts: 2,
-          requestHandler: { connectionTimeout: 5000, requestTimeout: 10000 },
+          maxAttempts: 1,
+          requestHandler: { connectionTimeout: 5000, requestTimeout: 8000 },
         });
         try {
           const response = await client.send(
@@ -101,6 +102,7 @@ export async function sendMail(
               Destinations: [mail.to],
               RawMessage: { Data: Buffer.from(rawMessage(mail, from)) },
             }),
+            { abortSignal: signal },
           );
           if (!response.MessageId)
             throw new Error("Provider returned no message ID.");
@@ -119,22 +121,31 @@ export async function sendMail(
           html: mail.html,
           text: mail.body,
         },
-        { idempotencyKey },
+        { idempotencyKey, signal },
       );
       if (error)
-        throw Object.assign(new Error(error.message), { name: error.name });
+        throw Object.assign(new Error(error.message), {
+          name: error.name,
+          deliveryUncertain:
+            signal.aborted || /internal|application_error/i.test(error.name),
+        });
       if (!data?.id) throw new Error("Provider returned no message ID.");
       return data.id;
     } catch (e) {
       const err = e as Error;
-      if (
-        attempt >= 3 ||
-        !/throttl|rate.?limit|too many|rate exceeded/i.test(
+      // Rejections are retried by the durable worker with backoff. Network failures
+      // can follow acceptance, so they require review instead of an automatic resend.
+      const uncertain =
+        signal.aborted ||
+        !!(err as Error & { deliveryUncertain?: boolean }).deliveryUncertain ||
+        /timeout|abort|network|socket|fetch failed|no message ID/i.test(
           err.name + " " + err.message,
-        )
-      )
-        throw e;
-      await new Promise((r) => setTimeout(r, attempt * 1000));
+        ) ||
+        Number(
+          (e as { $metadata?: { httpStatusCode?: number } }).$metadata
+            ?.httpStatusCode,
+        ) >= 500;
+      throw Object.assign(err, { deliveryUncertain: uncertain });
     }
   }
   throw new Error("Email delivery failed.");

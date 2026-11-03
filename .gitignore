@@ -9,3 +9,5 @@ playwright-report/
 *.tsbuildinfo
 .impeccable/review/
 .impeccable/mocks/
+
+.next-test-*/
