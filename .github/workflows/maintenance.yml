@@ -1,0 +1,25 @@
+name: Receipt recovery and readiness
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+permissions:
+  id-token: write
+  contents: read
+concurrency:
+  group: receipt-maintenance
+  cancel-in-progress: false
+jobs:
+  recover:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Run authenticated recovery and check health
+        env:
+          APP_URL: https://nexus-beryl-one-60.vercel.app
+        run: |
+          set -euo pipefail
+          OIDC_RESPONSE=$(curl --fail --silent --show-error --max-time 15 -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=${APP_URL}")
+          OIDC_TOKEN=$(printf '%s' "$OIDC_RESPONSE" | node -e "let s='';process.stdin.on('data',c=>s+=c).on('end',()=>process.stdout.write(JSON.parse(s).value))")
+          echo "::add-mask::$OIDC_TOKEN"
+          curl --fail-with-body --silent --show-error --max-time 65 -H "Authorization: Bearer $OIDC_TOKEN" "$APP_URL/api/cron/maintenance"
