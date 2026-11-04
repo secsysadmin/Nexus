@@ -1,27 +1,34 @@
 import pg, { type PoolClient } from "pg";
 import { resolveEnvironment } from "./domain";
-const globalDb = globalThis as unknown as { nexusPool?: pg.Pool };
+const POOL_MAX_CONNECTIONS = 2;
+const POOL_IDLE_TIMEOUT_MS = 10000;
+const POOL_CONNECT_TIMEOUT_MS = 5000;
+const POOL_QUERY_TIMEOUT_MS = 12000;
+const POOL_MAX_LIFETIME_SECONDS = 300;
+declare global {
+  var nexusPool: pg.Pool | undefined;
+}
+function createPool(connectionString: string) {
+  const pool = new pg.Pool({
+    connectionString,
+    max: POOL_MAX_CONNECTIONS,
+    idleTimeoutMillis: POOL_IDLE_TIMEOUT_MS,
+    connectionTimeoutMillis: POOL_CONNECT_TIMEOUT_MS,
+    query_timeout: POOL_QUERY_TIMEOUT_MS,
+    maxLifetimeSeconds: POOL_MAX_LIFETIME_SECONDS,
+  });
+  pool.on("error", () =>
+    console.error(
+      "Database idle connection failed; it was removed from the pool.",
+    ),
+  );
+  return pool;
+}
 export function databasePool() {
   const connectionString =
     process.env.NEXUS_DATABASE_URL || process.env.DATABASE_URL;
   if (!connectionString) throw Error("Database is not configured.");
-  if (!globalDb.nexusPool) {
-    const pool = new pg.Pool({
-      connectionString,
-      max: 2,
-      idleTimeoutMillis: 10000,
-      connectionTimeoutMillis: 5000,
-      query_timeout: 12000,
-      maxLifetimeSeconds: 300,
-    });
-    pool.on("error", () =>
-      console.error(
-        "Database idle connection failed; it was removed from the pool.",
-      ),
-    );
-    globalDb.nexusPool = pool;
-  }
-  return globalDb.nexusPool;
+  return (globalThis.nexusPool ??= createPool(connectionString));
 }
 export async function transaction<T>(
   fn: (db: PoolClient) => Promise<T>,

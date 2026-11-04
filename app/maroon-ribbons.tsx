@@ -1,4 +1,3 @@
-// Static SEC ribbon artwork, adapted to the left side of the split login.
 export default function MaroonRibbons() {
   return (
     <div className="maroon-ribbons" aria-hidden="true">

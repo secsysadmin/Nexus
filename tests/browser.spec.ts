@@ -446,7 +446,6 @@ test("society hub end-to-end: admin, concurrent check-in, drafts, review, QR and
     animations: "disabled",
   });
   await society.setViewportSize({ width: 1440, height: 1000 });
-  // First-time society setup consumes its token exactly once and the new account is never an admin.
   const provision = await post(adminContext.request, "admin/societies", {
     username: `qa-provision-${suffix}`,
     displayName: "Provisioned test society",
@@ -573,7 +572,6 @@ test("society hub end-to-end: admin, concurrent check-in, drafts, review, QR and
   const nonAdmin = await post(activationContext.request, "admin/forms", {});
   expect(nonAdmin.status()).toBe(403);
   await activationContext.close();
-  // Capture both workspaces at desktop and mobile in the same QA round.
   await mkdir(".impeccable/review", { recursive: true });
   await society.getByRole("button", { name: "Dashboard", exact: true }).click();
   await society.getByRole("button", { name: "Refresh workspace" }).click();

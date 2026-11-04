@@ -9,10 +9,35 @@ import {
   Check,
 } from "lucide-react";
 import type { Form, Submission } from "../lib/types";
-import type { Question, Answers } from "../lib/domain";
+import {
+  formKinds,
+  questionTypes,
+  isOneOf,
+  MAX_EMAIL_ATTEMPTS,
+  MAX_QUESTIONS,
+  type Question,
+  type Answers,
+} from "../lib/domain";
 import { useUnsavedChanges, confirmDiscard } from "./unsaved-changes";
 import { Button, Panel, Field, FormActions, Pill } from "./ui";
 import { when, status, localDate } from "./format";
+type FormSave = {
+  id?: string;
+  expectedVersion?: number;
+  title: string;
+  description: string;
+  kind: Form["kind"];
+  published: boolean;
+  deadline: string | null;
+  questions: Question[];
+};
+type SubmissionSave = {
+  formId: string;
+  answers: Answers;
+  submit: boolean;
+  revision: number;
+  confirmationEmail: string;
+};
 export function FormEditor({
   initial,
   busy,
@@ -22,7 +47,7 @@ export function FormEditor({
   initial: Form | null;
   busy: boolean;
   cancel: () => void;
-  save: (b: unknown) => Promise<void>;
+  save: (b: FormSave) => Promise<void>;
 }) {
   const [title, setTitle] = useState(initial?.title ?? ""),
     [description, setDescription] = useState(initial?.description ?? ""),
@@ -96,7 +121,9 @@ export function FormEditor({
             <select
               disabled={!!initial}
               value={kind}
-              onChange={(e) => setKind(e.target.value as Form["kind"])}
+              onChange={(e) => {
+                if (isOneOf(formKinds, e.target.value)) setKind(e.target.value);
+              }}
             >
               <option value="FUNDING">Society Funding</option>
               <option value="HIGH_IMPACT">
@@ -145,7 +172,8 @@ export function FormEditor({
                   <select
                     value={q.type}
                     onChange={(e) =>
-                      update(i, { type: e.target.value as Question["type"] })
+                      isOneOf(questionTypes, e.target.value) &&
+                      update(i, { type: e.target.value })
                     }
                   >
                     <option value="short">Short answer</option>
@@ -269,7 +297,7 @@ export function FormEditor({
         </div>
         <Button
           secondary
-          disabled={questions.length >= 50}
+          disabled={questions.length >= MAX_QUESTIONS}
           onClick={() =>
             setQuestions([
               ...questions,
@@ -423,7 +451,7 @@ export function ApplicationView({
   admin: boolean;
   busy: boolean;
   cancel: () => void;
-  save: (b: unknown) => Promise<Submission | undefined>;
+  save: (b: SubmissionSave) => Promise<Submission | undefined>;
 }) {
   const [confirmationEmail, setConfirmationEmail] = useState(
     existing?.confirmation_email || defaultEmail,
@@ -658,11 +686,14 @@ export function ReviewView({
       )}
       {s.confirmation_email_id &&
         s.confirmation_status !== "SENT" &&
-        (s.confirmation_attempts ?? 0) < 5 && (
+        (s.confirmation_attempts ?? 0) < MAX_EMAIL_ATTEMPTS && (
           <Button
             secondary
             disabled={busy}
-            onClick={() => void retryEmail(s.confirmation_email_id!)}
+            onClick={() =>
+              s.confirmation_email_id &&
+              void retryEmail(s.confirmation_email_id)
+            }
           >
             {s.confirmation_status === "UNCERTAIN"
               ? "Review and resend confirmation"

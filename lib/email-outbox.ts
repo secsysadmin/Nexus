@@ -2,6 +2,7 @@ import { operationalHealth } from "./observability";
 import type { PoolClient } from "pg";
 import { transaction, audit } from "./db";
 import { token } from "./security";
+import { MAX_EMAIL_ATTEMPTS } from "./domain";
 import { emailDeliveryEnabled, sendMail, type Mail } from "./email";
 type Transact = <T>(fn: (db: PoolClient) => Promise<T>) => Promise<T>;
 export async function deliverApplicationEmail(
@@ -26,8 +27,8 @@ export async function deliverApplicationEmail(
     async (db) =>
       (
         await db.query(
-          "UPDATE application_emails SET status='SENDING',attempts=attempts+1,lease_token=$2,lease_until=now()+interval '2 minutes',last_error=NULL WHERE id=$1 AND attempts<5 AND next_attempt_at<=now() AND status IN('PENDING','FAILED') RETURNING *",
-          [id, lease],
+          "UPDATE application_emails SET status='SENDING',attempts=attempts+1,lease_token=$2,lease_until=now()+interval '2 minutes',last_error=NULL WHERE id=$1 AND attempts<$3 AND next_attempt_at<=now() AND status IN('PENDING','FAILED') RETURNING *",
+          [id, lease, MAX_EMAIL_ATTEMPTS],
         )
       ).rows[0],
   );
@@ -117,7 +118,8 @@ export async function deliverApplicationEmail(
 export async function outboxHealth(db: PoolClient) {
   return (
     await db.query(
-      "SELECT count(*) FILTER(WHERE status='UNCERTAIN')::int uncertain,count(*) FILTER(WHERE status IN('PENDING','FAILED') AND attempts>=5)::int exhausted,count(*) FILTER(WHERE status IN('PENDING','FAILED','SENDING') AND created_at<now()-interval '2 hours')::int delayed FROM application_emails",
+      "SELECT count(*) FILTER(WHERE status='UNCERTAIN')::int uncertain,count(*) FILTER(WHERE status IN('PENDING','FAILED') AND attempts>=$1)::int exhausted,count(*) FILTER(WHERE status IN('PENDING','FAILED','SENDING') AND created_at<now()-interval '2 hours')::int delayed FROM application_emails",
+      [MAX_EMAIL_ATTEMPTS],
     )
   ).rows[0];
 }
@@ -145,7 +147,8 @@ export async function runMaintenance(
     async (db) =>
       (
         await db.query(
-          "SELECT id FROM application_emails WHERE status IN('PENDING','FAILED') AND attempts<5 AND next_attempt_at<=now() ORDER BY next_attempt_at LIMIT 10",
+          "SELECT id FROM application_emails WHERE status IN('PENDING','FAILED') AND attempts<$1 AND next_attempt_at<=now() ORDER BY next_attempt_at LIMIT 10",
+          [MAX_EMAIL_ATTEMPTS],
         )
       ).rows,
   );

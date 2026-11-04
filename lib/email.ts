@@ -1,5 +1,3 @@
-// Adapted from SysAd/Delphi/lib/email.ts: SES/Resend selection, MIME encoding,
-// authenticated sender and MIME encoding. Durable retries live in the outbox worker.
 import { SESClient, SendRawEmailCommand } from "@aws-sdk/client-ses";
 import { Resend } from "resend";
 export type Mail = { to: string; subject: string; html: string; body: string };
@@ -133,8 +131,7 @@ export async function sendMail(
       return data.id;
     } catch (e) {
       const err = e as Error;
-      // Rejections are retried by the durable worker with backoff. Network failures
-      // can follow acceptance, so they require review instead of an automatic resend.
+      // A network failure can follow SES acceptance, so it needs review instead of a resend.
       const uncertain =
         signal.aborted ||
         !!(err as Error & { deliveryUncertain?: boolean }).deliveryUncertain ||

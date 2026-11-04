@@ -1,4 +1,12 @@
 import { z } from "zod";
+const RECEIPT_TIME_ZONE = "America/Chicago";
+const HTML_ESCAPES: Record<string, string> = {
+  "&": "&amp;",
+  "<": "&lt;",
+  ">": "&gt;",
+  '"': "&quot;",
+  "'": "&#039;",
+};
 export type ReceiptInput = {
   societyName: string;
   formTitle: string;
@@ -40,25 +48,27 @@ export function defaultConfirmationEmail(
   }
   return "";
 }
-const escape = (s: string) =>
-  s.replace(
-    /[&<>"']/g,
-    (c) =>
-      ({
-        "&": "&amp;",
-        "<": "&lt;",
-        ">": "&gt;",
-        '"': "&quot;",
-        "'": "&#039;",
-      })[c]!,
-  );
+function escape(s: string) {
+  return s.replace(/[&<>"']/g, (c) => HTML_ESCAPES[c] ?? c);
+}
+// Server configuration decides this URL, never the request Host header.
+function configuredAppOrigin() {
+  const configured =
+    process.env.SOCIETYHUB_APP_URL ||
+    (process.env.VERCEL_PROJECT_PRODUCTION_URL
+      ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+      : "");
+  if (!URL.canParse(configured)) return "";
+  const url = new URL(configured);
+  return url.protocol === "https:" ? url.origin : "";
+}
 export function receiptContent(input: ReceiptInput) {
   const subject = `SocietyHub: ${input.resubmission ? "Updated application received" : "Application received"} — ${input.formTitle.replace(/[\r\n]+/g, " ")}`;
   const when =
     new Intl.DateTimeFormat("en-US", {
       dateStyle: "medium",
       timeStyle: "short",
-      timeZone: "America/Chicago",
+      timeZone: RECEIPT_TIME_ZONE,
     }).format(new Date(input.submittedAt)) + " CT";
   const title = input.resubmission
     ? "Updated application received"
@@ -71,19 +81,7 @@ export function receiptContent(input: ReceiptInput) {
     `Reference: ${input.submissionId}`,
     "This confirms receipt, not approval or a point award. Sign in to SocietyHub to view your application and SEC feedback.",
   ];
-  // This URL is controlled by server configuration, never the request Host header.
-  const configured =
-    process.env.SOCIETYHUB_APP_URL ||
-    (process.env.VERCEL_PROJECT_PRODUCTION_URL
-      ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
-      : "");
-  let link = "";
-  try {
-    const u = new URL(configured);
-    if (u.protocol === "https:") link = u.origin;
-  } catch {
-    /* Receipt remains useful without a link. */
-  }
+  const link = configuredAppOrigin();
   const applicationLink = link
     ? link + "/?submission=" + encodeURIComponent(input.submissionId)
     : "";

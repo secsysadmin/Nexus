@@ -56,7 +56,63 @@ import type {
   Account,
 } from "../lib/types";
 import { labels } from "../lib/domain";
+type Run = (path: string, body: unknown, message?: string) => Promise<unknown>;
+type ContactInfoProps = {
+  contacts: Record<string, unknown>;
+};
+type CreditCorrectionProps = {
+  id: string;
+  revoked: boolean;
+  busy: boolean;
+  save: (b: unknown) => Promise<boolean>;
+};
+type PasswordFormProps = {
+  busy: boolean;
+  save: (b: unknown) => Promise<void>;
+};
+type PointResetProps = {
+  data: HubData;
+  busy: boolean;
+  run: Run;
+};
+type AllowlistProps = {
+  data: HubData;
+  busy: boolean;
+  run: Run;
+};
+type AuthScreenProps = {
+  activate?: boolean;
+  token?: string;
+  checkin?: boolean;
+  error: string;
+  busy: boolean;
+  onSubmit: (b: unknown) => Promise<void>;
+};
+type ManualAwardProps = {
+  events: Event[];
+  societies: Account[];
+  busy: boolean;
+  save: (b: unknown) => Promise<boolean>;
+};
+type ProvisionFormProps = {
+  selected: Candidate[];
+  busy: boolean;
+  cancel: () => void;
+  save: (b: unknown) => Promise<void>;
+};
+const REFRESH_INTERVAL_MS = 30000;
+const REQUEST_TIMEOUT_MS = 20000;
 const pendingRequestKeys = new Map<string, string>();
+class RequestError extends Error {
+  constructor(
+    message: string,
+    public status: number,
+  ) {
+    super(message);
+  }
+}
+const errorMessage = (e: unknown) =>
+  e instanceof Error ? e.message : "Request failed.";
 async function api<T = Record<string, unknown>>(
   path: string,
   body?: unknown,
@@ -88,7 +144,7 @@ async function api<T = Record<string, unknown>>(
     } catch {}
   }
   const controller = new AbortController(),
-    timer = setTimeout(() => controller.abort(), 20000);
+    timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
   try {
     const res = await fetch("/api/" + path, {
       method: body === undefined ? "GET" : "POST",
@@ -109,9 +165,7 @@ async function api<T = Record<string, unknown>>(
       );
     });
     if (!res.ok)
-      throw Object.assign(new Error(data.error ?? "Request failed."), {
-        status: res.status,
-      });
+      throw new RequestError(data.error ?? "Request failed.", res.status);
     if (storageKey) {
       pendingRequestKeys.delete(storageKey);
       try {
@@ -134,7 +188,7 @@ async function api<T = Record<string, unknown>>(
     clearTimeout(timer);
   }
 }
-function ContactInfo({ contacts }: { contacts: Record<string, unknown> }) {
+function ContactInfo({ contacts }: ContactInfoProps) {
   const readable = (key: string) =>
     key.replaceAll("_", " ").replace(/\b\w/g, (c) => c.toUpperCase());
   const flatten = (value: unknown, path: string[] = []): [string, string][] => {
@@ -267,7 +321,7 @@ export default function Hub() {
       setApplication(detail.form);
       setApplicationSubmission(detail.submission);
     } catch (e) {
-      setError((e as Error).message);
+      setError(errorMessage(e));
     } finally {
       setBusy(false);
     }
@@ -278,7 +332,7 @@ export default function Hub() {
     try {
       setEditingForm((await api<{ form: Form }>("forms/" + form.id)).form);
     } catch (e) {
-      setError((e as Error).message);
+      setError(errorMessage(e));
     } finally {
       setBusy(false);
     }
@@ -289,7 +343,7 @@ export default function Hub() {
     try {
       setReview(await api<Submission>("submissions/" + submission.id));
     } catch (e) {
-      setError((e as Error).message);
+      setError(errorMessage(e));
     } finally {
       setBusy(false);
     }
@@ -304,7 +358,7 @@ export default function Hub() {
       setArchivedCredits((old) => [...old, ...page.items]);
       setHistoryMore(page.hasMore);
     } catch (e) {
-      setError((e as Error).message);
+      setError(errorMessage(e));
     } finally {
       setBusy(false);
     }
@@ -325,7 +379,7 @@ export default function Hub() {
       }
       exportCredits(all);
     } catch (e) {
-      setError((e as Error).message);
+      setError(errorMessage(e));
     } finally {
       setBusy(false);
     }
@@ -366,7 +420,7 @@ export default function Hub() {
           : old,
       );
     } catch (e) {
-      setError((e as Error).message);
+      setError(errorMessage(e));
     } finally {
       setBusy(false);
     }
@@ -393,7 +447,7 @@ export default function Hub() {
       }
       throw Error("Too many events for this month. Use the event list.");
     } catch (e) {
-      if (request === calendarRequest.current) setError((e as Error).message);
+      if (request === calendarRequest.current) setError(errorMessage(e));
     } finally {
       if (request === calendarRequest.current) setCalendarLoading(false);
     }
@@ -442,11 +496,11 @@ export default function Hub() {
         void loadCalendar(calendarMonth.current);
       setAuthNeeded(false);
     } catch (e) {
-      if ((e as Error & { status?: number }).status === 401) {
+      if (e instanceof RequestError && e.status === 401) {
         setData(null);
         greetingSeen.current = false;
         setAuthNeeded(true);
-      } else setError((e as Error).message);
+      } else setError(errorMessage(e));
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -475,7 +529,7 @@ export default function Hub() {
           setApplicationSubmission(detail.submission);
         }
       })
-      .catch((e) => setError((e as Error).message))
+      .catch((e) => setError(errorMessage(e)))
       .finally(() => setBusy(false));
   }, [data?.actor.id]);
   useEffect(() => {
@@ -555,7 +609,7 @@ export default function Hub() {
         !document.querySelector('[data-unsaved-changes="true"]')
       )
         void refresh();
-    }, 30000);
+    }, REFRESH_INTERVAL_MS);
     const visible = () => {
       if (
         document.visibilityState === "visible" &&
@@ -592,8 +646,8 @@ export default function Hub() {
       await refresh();
       return result;
     } catch (e) {
-      setError((e as Error).message);
-      setConflict((e as { status?: number }).status === 409);
+      setError(errorMessage(e));
+      setConflict(e instanceof RequestError && e.status === 409);
       return undefined;
     } finally {
       setBusy(false);
@@ -626,7 +680,7 @@ export default function Hub() {
       setError("");
       setNotice("Loaded the latest saved version.");
     } catch (e) {
-      setError((e as Error).message);
+      setError(errorMessage(e));
     } finally {
       setBusy(false);
     }
@@ -1969,7 +2023,7 @@ export default function Hub() {
                     await run(
                       "admin/forms",
                       b,
-                      (b as { published: boolean }).published
+                      b.published
                         ? "Application published. Societies can now view and submit."
                         : "Draft saved. Publish it from this list when ready.",
                     )
@@ -1993,9 +2047,7 @@ export default function Hub() {
                   const r = await run<Submission>(
                     "submissions/save",
                     b,
-                    (b as { submit: boolean }).submit
-                      ? "Application submitted."
-                      : "Draft saved.",
+                    b.submit ? "Application submitted." : "Draft saved.",
                   );
                   if (r) setApplicationSubmission(r);
                   return r;
@@ -2585,14 +2637,7 @@ function AuthScreen({
   error,
   busy,
   onSubmit,
-}: {
-  activate?: boolean;
-  token?: string;
-  checkin?: boolean;
-  error: string;
-  busy: boolean;
-  onSubmit: (b: unknown) => Promise<void>;
-}) {
+}: AuthScreenProps) {
   const [username, setUsername] = useState(""),
     [password, setPassword] = useState(""),
     [confirm, setConfirm] = useState(""),
@@ -2720,17 +2765,7 @@ function AuthScreen({
     </main>
   );
 }
-function ManualAward({
-  events,
-  societies,
-  busy,
-  save,
-}: {
-  events: Event[];
-  societies: Account[];
-  busy: boolean;
-  save: (b: unknown) => Promise<boolean>;
-}) {
+function ManualAward({ events, societies, busy, save }: ManualAwardProps) {
   const [event, setEvent] = useState(""),
     [account, setAccount] = useState(""),
     [note, setNote] = useState("");
@@ -2796,17 +2831,7 @@ function ManualAward({
     </Panel>
   );
 }
-function CreditCorrection({
-  id,
-  revoked,
-  busy,
-  save,
-}: {
-  id: string;
-  revoked: boolean;
-  busy: boolean;
-  save: (b: unknown) => Promise<boolean>;
-}) {
+function CreditCorrection({ id, revoked, busy, save }: CreditCorrectionProps) {
   const [open, setOpen] = useState(false),
     [note, setNote] = useState("");
   return (
@@ -2846,17 +2871,7 @@ function CreditCorrection({
     </div>
   );
 }
-function ProvisionForm({
-  selected,
-  busy,
-  cancel,
-  save,
-}: {
-  selected: Candidate[];
-  busy: boolean;
-  cancel: () => void;
-  save: (b: unknown) => Promise<void>;
-}) {
+function ProvisionForm({ selected, busy, cancel, save }: ProvisionFormProps) {
   const [name, setName] = useState(groupSocietyRoster(selected)[0]?.name ?? ""),
     [username, setUsername] = useState("");
   return (
@@ -2912,13 +2927,7 @@ function ProvisionForm({
     </Panel>
   );
 }
-function PasswordForm({
-  busy,
-  save,
-}: {
-  busy: boolean;
-  save: (b: unknown) => Promise<void>;
-}) {
+function PasswordForm({ busy, save }: PasswordFormProps) {
   const [current, setCurrent] = useState(""),
     [password, setPassword] = useState(""),
     [confirm, setConfirm] = useState(""),
@@ -2983,16 +2992,7 @@ function PasswordForm({
     </Panel>
   );
 }
-type Run = (path: string, body: unknown, message?: string) => Promise<unknown>;
-function PointReset({
-  data,
-  busy,
-  run,
-}: {
-  data: HubData;
-  busy: boolean;
-  run: Run;
-}) {
+function PointReset({ data, busy, run }: PointResetProps) {
   const dialog = useRef<HTMLDialogElement>(null);
   const [confirmation, setConfirmation] = useState("");
   const [failure, setFailure] = useState("");
@@ -3079,15 +3079,7 @@ function PointReset({
     </Panel>
   );
 }
-function Allowlist({
-  data,
-  busy,
-  run,
-}: {
-  data: HubData;
-  busy: boolean;
-  run: Run;
-}) {
+function Allowlist({ data, busy, run }: AllowlistProps) {
   const [email, setEmail] = useState("");
   return (
     <Panel title="Future Google admin access">

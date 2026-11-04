@@ -5,6 +5,7 @@ import QRCode from "qrcode";
 import type { Event } from "../lib/types";
 import { useUnsavedChanges, confirmDiscard } from "./unsaved-changes";
 import { checkinStatus } from "../lib/checkin-status";
+import { categories, isOneOf } from "../lib/domain";
 import { Button, Panel, Field, FormActions, Pill } from "./ui";
 import { when, localDate } from "./format";
 export function CopyLink({ value }: { value: string }) {
@@ -143,7 +144,10 @@ export function EventEditor({
             <select
               disabled={!!initial}
               value={category}
-              onChange={(e) => setCategory(e.target.value as Event["category"])}
+              onChange={(e) => {
+                if (isOneOf(categories, e.target.value))
+                  setCategory(e.target.value);
+              }}
             >
               <option value="PRT">PRT · 1 point</option>
               <option value="STANDARD">Standard · 1 point</option>

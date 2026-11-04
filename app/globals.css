@@ -1411,7 +1411,6 @@ td strong {
   overflow-wrap: anywhere;
 }
 
-/* The login is one white surface; maroon is reserved for the ribbons and actions. */
 .auth-page {
   background: #fff;
   --ground: #fff;
@@ -1446,7 +1445,6 @@ td strong {
   outline-color: #8c4658;
 }
 
-/* Shared white and maroon workspace, continuing the sign-in surface. */
 .sidebar .brand {
   color: var(--maroon);
 }
@@ -1476,7 +1474,6 @@ td strong {
   }
 }
 
-/* Preserve the white sign-in fields when browsers fill saved credentials. */
 .auth-form input:is(:autofill, :-webkit-autofill) {
   background-color: #fff !important;
   color: var(--ink) !important;
@@ -1489,7 +1486,6 @@ td strong {
   mask-image: linear-gradient(90deg, #000 82%, transparent 100%);
 }
 
-/* Dashboard sections follow the login's open, ruled composition. */
 .is-dashboard .page-heading {
   margin-bottom: 22px;
   align-items: center;
@@ -2098,7 +2094,6 @@ td strong {
   }
 }
 
-/* A quiet design panel, separated from the sign-in workspace. */
 .auth-page {
   grid-template-columns: 1fr 1fr;
 }
@@ -2655,7 +2650,6 @@ td strong {
   }
 }
 
-/* Draw earned progress once on arrival or when its value changes. */
 .points-share-fill {
   transform-origin: left center;
   animation: points-bar-fill 460ms cubic-bezier(0.16, 1, 0.3, 1) both;
@@ -2686,7 +2680,6 @@ td strong {
   }
 }
 
-/* Audit refinements: readable metadata, deliberate controls, and protected mobile navigation. */
 :root {
   --control-hit: 44px;
   --focus: #8c4658;
@@ -2938,7 +2931,6 @@ summary {
   }
 }
 
-/* One family; distinct roles for orientation, reading, labels, and data. */
 :root {
   --type-display: clamp(2.25rem, 3.6vw, 3.5rem);
   --type-section: 1.375rem;
