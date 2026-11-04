@@ -246,7 +246,7 @@ Initial workspace and route loading use a white, branded skeleton shell with rul
 
 ## Operational workflow additions
 
-Event editing presents calendar start/end fields first, followed by an explicitly independent check-in window and a secondary “Use event times for check-in” action. Calendar bars represent event duration; day details separately label check-in availability. Contact management uses the existing panel, field, and button system, with ruled native fieldsets for president and SEC representative, a preferred notification email, and explicit chair-controlled access guidance. Current contacts are distinct from preserved import responses. Paged lists have written Load more actions and server-search buttons. Operational health uses a compact definition list of labeled values, tabular numerals, shared type sizes, and responsive columns. Existing white/maroon surfaces, focus rings, control radii, and reduced-motion behavior are preserved.
+Event editing presents calendar start/end fields first, followed by an explicitly independent check-in window and a secondary “Use event times for check-in” action. Calendar bars represent event duration; day details separately label check-in availability. Contact management uses the existing panel, field, and button system, with ruled native fieldsets for president and SEC representative, a preferred notification email, and explicit chair-controlled access guidance. Current contacts are distinct from preserved import responses. Paged lists have written Load more actions and server-search buttons. Operational monitoring runs in the background without a Workspace settings panel. Existing white/maroon surfaces, focus rings, control radii, and reduced-motion behavior are preserved.
 
 ## SEC visual overview
 

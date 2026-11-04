@@ -2469,34 +2469,6 @@ export default function Hub() {
           )}
           {tab === "settings" && (
             <>
-              {admin && data.operations && (
-                <Panel title="Operational health">
-                  <p className="section-intro">
-                    Last hour · Request timings are sampled. No application
-                    answers, contact details, or exception messages are
-                    collected.
-                  </p>
-                  <dl className="operations-summary">
-                    <div>
-                      <dt>Server failures</dt>
-                      <dd>{data.operations.errors}</dd>
-                    </div>
-                    <div>
-                      <dt>Browser errors</dt>
-                      <dd>{data.operations.client_errors}</dd>
-                    </div>
-                    <div>
-                      <dt>API response time (p95)</dt>
-                      <dd>{data.operations.p95_ms} ms</dd>
-                    </div>
-                    <div>
-                      <dt>Sampled requests</dt>
-                      <dd>{data.operations.sampled_requests}</dd>
-                    </div>
-                  </dl>
-                </Panel>
-              )}
-
               {!admin && data.accounts.find((a) => a.id === data.actor.id) && (
                 <ContactEditor
                   key={data.actor.id + ":" + editorGeneration}
