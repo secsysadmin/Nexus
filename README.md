@@ -112,7 +112,7 @@ SEC chairs use **Settings & audit → Reset all society points** and type `RESET
 
 Closed check-in can be reopened from Events. If its window has passed, **Reopen check-in** opens the event editor to choose a window that includes now. The existing QR code remains valid. High Impact events continue to require manual SEC awards.
 
-The interface uses a locally hosted Geist variable font, distinct heading/label/metadata roles, and reduced-motion alternatives for the greeting and point animations. Confirmation emails use table-based inline styling and email-safe sans-serif fallbacks.
+The interface uses a locally hosted Instrument Sans variable font, distinct heading/label/metadata roles, and reduced-motion alternatives for the greeting and point animations. Confirmation emails use table-based inline styling and email-safe sans-serif fallbacks.
 
 ## Contacts, decisions, and event schedules
 

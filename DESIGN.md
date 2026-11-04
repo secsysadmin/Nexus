@@ -33,40 +33,40 @@ colors:
   skeleton-highlight: "#f8f5f6"
 typography:
   headline:
-    fontFamily: '"Geist Variable", "Segoe UI", Arial, sans-serif'
+    fontFamily: '"Instrument Sans Variable", "Segoe UI", Arial, sans-serif'
     fontSize: "clamp(2.25rem, 3.6vw, 3.5rem)"
-    fontWeight: 760
+    fontWeight: 700
     lineHeight: 1.08
-    letterSpacing: "-0.04em"
+    letterSpacing: "-0.035em"
   title:
-    fontFamily: '"Geist Variable", "Segoe UI", Arial, sans-serif'
+    fontFamily: '"Instrument Sans Variable", "Segoe UI", Arial, sans-serif'
     fontSize: "1.375rem"
-    fontWeight: 680
+    fontWeight: 650
     lineHeight: 1.3
     letterSpacing: "-0.025em"
   item:
-    fontFamily: '"Geist Variable", "Segoe UI", Arial, sans-serif'
+    fontFamily: '"Instrument Sans Variable", "Segoe UI", Arial, sans-serif'
     fontSize: "1.0625rem"
     fontWeight: 650
     lineHeight: 1.4
     letterSpacing: "-0.012em"
   body:
-    fontFamily: '"Geist Variable", "Segoe UI", Arial, sans-serif'
+    fontFamily: '"Instrument Sans Variable", "Segoe UI", Arial, sans-serif'
     fontSize: "1rem"
     fontWeight: 400
     lineHeight: 1.55
   label:
-    fontFamily: '"Geist Variable", "Segoe UI", Arial, sans-serif'
+    fontFamily: '"Instrument Sans Variable", "Segoe UI", Arial, sans-serif'
     fontSize: "0.875rem"
     fontWeight: 600
   metadata:
-    fontFamily: '"Geist Variable", "Segoe UI", Arial, sans-serif'
+    fontFamily: '"Instrument Sans Variable", "Segoe UI", Arial, sans-serif'
     fontSize: "0.8125rem"
     lineHeight: 1.6
   point-total:
-    fontFamily: '"Geist Variable", "Segoe UI", Arial, sans-serif'
+    fontFamily: '"Instrument Sans Variable", "Segoe UI", Arial, sans-serif'
     fontSize: "32px"
-    fontWeight: 750
+    fontWeight: 700
     lineHeight: 1.2
 rounded:
   panel: "14px"
@@ -149,11 +149,11 @@ Green and its pale background indicate positive status and PRT completion. Amber
 
 ## Typography
 
-**Website Font:** Geist Variable, with Segoe UI, Arial, and sans-serif fallbacks. The website self-hosts this single family through `@fontsource-variable/geist` in `app/layout.tsx`; hierarchy comes from size, weight, and spacing.
+**Website Font:** Instrument Sans Variable, with Segoe UI, Arial, and sans-serif fallbacks. The website self-hosts this single family through `@fontsource-variable/instrument-sans` in `app/layout.tsx`; hierarchy comes from size, weight, and spacing.
 
 The frontmatter records the role scale: display (36–56px), section (22px), item (17px), body (16px), label (14px), and metadata (13px). General page headings use the headline token. Dashboard desktop titles retain their more-specific `clamp(34px, 3.5vw, 52px)` size and (1.12) line height; mobile page/dashboard headings use `clamp(2rem, 7.5vw, 2.75rem)` with (1.12) line height. Mobile section headings are (20px). Controls use (16px) input text, while buttons/navigation use (14px, weight 600). Descriptive copy is generally (15px / 1.65), bounded to (65–70ch). Component-specific data totals retain tabular numerals: the ledger total (32px; 26px mobile), earned values (24px), and PRT ring value (46px).
 
-The form h1 is the login’s primary heading, using `clamp(1.75rem, 2.5vw, 2rem)` (28–32px), weight (720), line height (1.2), and tracking (-0.035em). Its art panel has no separate headline. Login help uses a (14px) bold title and (13px / 1.65) body. Receipt emails use email-safe Arial/Helvetica/sans-serif rather than relying on the website’s self-hosted font.
+The form h1 is the login’s primary heading, using `clamp(1.75rem, 2.5vw, 2rem)` (28–32px), weight (700), line height (1.2), and tracking (-0.035em). Its art panel has no separate headline. Login help uses a (14px) bold title and (13px / 1.65) body. Receipt emails use email-safe Arial/Helvetica/sans-serif rather than relying on the website’s self-hosted font.
 
 ## Layout
 
@@ -183,7 +183,7 @@ Operational form panels retain the panel radius. Dashboard sections, including S
 
 ## Components
 
-`public/sec-logo.png` is copied unchanged from Delphi’s `public/sec_favicon.png`. It replaces the prior network icon on sign-in, loading, navigation, and browser icons. The public name is SocietyHub, including page titles and footers. The sidebar wordmark uses Geist Variable at (21px), weight (750), with a (42px × 42px) logo, (10px) gap, and (6px) horizontal padding. Sign-in retains a single (48px × 48px) logo in the story’s top brand, with a (14px) brand gap; its wordmark is (25px) on desktop and (21px) on mobile. The form column starts directly with its heading, without a duplicated logo. Initial workspace and route loading use the branded skeleton described below. Logos retain their proportions with `object-fit: contain`, do not shrink, and have circular rounding.
+`public/sec-logo.png` is copied unchanged from Delphi’s `public/sec_favicon.png`. It replaces the prior network icon on sign-in, loading, navigation, and browser icons. The public name is SocietyHub, including page titles and footers. The sidebar wordmark uses Instrument Sans Variable at (21px), weight (700), with a (42px × 42px) logo, (10px) gap, and (6px) horizontal padding. Sign-in retains a single (48px × 48px) logo in the story’s top brand, with a (14px) brand gap; its wordmark is (25px) on desktop and (21px) on mobile. The form column starts directly with its heading, without a duplicated logo. Initial workspace and route loading use the branded skeleton described below. Logos retain their proportions with `object-fit: contain`, do not shrink, and have circular rounding.
 
 Primary and secondary buttons share label typography (14px, weight 600), a minimum height of (44px), and an explicit disabled state (pale background, muted text, line border, and not-allowed cursor). Secondary buttons use a paper surface and line border; their hover uses tint. Text actions use maroon and underline on hover.
 
@@ -199,7 +199,7 @@ Dashboard action rows reuse ruled records and existing primary, secondary, or te
 
 The login combines account setup and password-reset help in one pale rose card (#fcf5f5) with a (1px #ead4d8) border, the input-matching (6px) radius, (18px) padding, and a (32px minmax(0, 1fr)) grid with a (12px) gap. A maroon KeyRound icon (17px) sits in a white circular holder (32px). The bold title is (14px) and body is (13px / 1.65); body margins are (7px 0 10px). The “Contact an SEC chair” action is maroon (12px, weight 650), with an ArrowRight icon, (8px) gap, and (36px) minimum height; hover underlines the label. Its mail link targets `society@sec.tamu.edu` with subject “SocietyHub account help.” Autofilled sign-in inputs retain white fill with a (1000px) inset white shadow, ink text and text fill, and a maroon caret through `:is(:autofill, :-webkit-autofill)`.
 
-Dashboard composition uses open sections separated by hairlines, with (26px 0) section padding and (24px 0) on mobile. The page headline is `clamp(34px, 3.5vw, 52px)` with (1.12) line height and (-0.04em) tracking, with mobile title sizing defined by the Typography section. Section headings are (22px), weight (680), reducing to (20px) on mobile; counts sit outside the heading in muted body type (14px, weight 500). Empty sections become one compact status line with a check icon and an optional destination action, using (18px 0) padding, without an extra heading or description. Each section keeps its accessible name and `data-count`. SEC has one primary header action: review the oldest pending application, otherwise manage the earliest upcoming event, otherwise create an event. The collapsed points-register content is also flat. The society greeting has the scoped entrance motion described below; the static login reference artwork remains unchanged.
+Dashboard composition uses open sections separated by hairlines, with (26px 0) section padding and (24px 0) on mobile. The page headline is `clamp(34px, 3.5vw, 52px)` with (1.12) line height and (-0.035em) tracking, with mobile title sizing defined by the Typography section. Section headings are (22px), weight (650), reducing to (20px) on mobile; counts sit outside the heading in muted body type (14px, weight 500). Empty sections become one compact status line with a check icon and an optional destination action, using (18px 0) padding, without an extra heading or description. Each section keeps its accessible name and `data-count`. SEC has one primary header action: review the oldest pending application, otherwise manage the earliest upcoming event, otherwise create an event. The collapsed points-register content is also flat. The society greeting has the scoped entrance motion described below; the static login reference artwork remains unchanged.
 
 Society points is a category ledger with Category, Earned, and Minimum columns, an actual earned-total heading, and an Attendance history action. Each ruled category row has a status icon, its point rate, and a (7px) bar showing that category’s share of total earned points, with no implied target. PRT uses maroon, Standard uses chart-standard rose, and High Impact uses chart-high-impact slate. Only PRT has a minimum of one point; Standard and High Impact display None. A separate (180px) ring shows the PRT requirement capped at 0 / 1 or 1 / 1, with (10px) strokes and an explicit requirement status; the ledger and accessible ring label retain the true PRT total even above one. Completed status uses semantic green. A zero total leaves all share bars empty and states that no points are recorded. Totals use only the selected society/current point period’s nonrevoked credits. The display has no timeline, forecast, category-filter controls, or monthly-data disclosure. Its nonzero share bars and completed requirement ring use a brief draw entrance while text and numbers stay constant.
 
@@ -207,7 +207,7 @@ The workspace has no visible semester selector or semester settings and no autom
 
 Events offer List and Calendar views through native `aria-pressed` buttons in a white, line-bordered (6px) segmented control with a rose active fill. The view toolbar sits outside the content panel. The event month calendar uses Central-time event windows, seven equal columns, and minimum day heights of (110px) desktop and (64px) mobile. Events render as continuous weekly spans in reusable nonoverlapping lanes, labeled once per weekly segment, with continuation arrows at clipped edges. Category fills use maroon, Standard rose, and High Impact slate, with a named legend and readable selected-day details. Date buttons retain roving keyboard focus, arrows and Home/End, a pale rose selected-day state, and a maroon circle for today; month navigation spans the current month and the earliest/latest event windows.
 
-Administrative activity is an admin-only native disclosure, initially collapsed within an operational panel. Its summary uses Geist Variable (18px, weight 650), (17px) on mobile, an activity count, and a maroon chevron that rotates on open; expanded content is separated by (20px). Application authoring explicitly offers Save draft / Publish application, or Save published changes / Unpublish and save draft for published forms. The publication actions follow a top rule, (28px) top margin, and (20px) top padding. Drafts carry an amber label and a written not-published hint; the application list offers a primary Publish application action. Publication changes preserve the existing versioned form and saved submission behavior.
+Administrative activity is an admin-only native disclosure, initially collapsed within an operational panel. Its summary uses Instrument Sans Variable (18px, weight 650), (17px) on mobile, an activity count, and a maroon chevron that rotates on open; expanded content is separated by (20px). Application authoring explicitly offers Save draft / Publish application, or Save published changes / Unpublish and save draft for published forms. The publication actions follow a top rule, (28px) top margin, and (20px) top padding. Drafts carry an amber label and a written not-published hint; the application list offers a primary Publish application action. Publication changes preserve the existing versioned form and saved submission behavior.
 
 Event check-in QR artwork opens in a centered native dialog with a maximum width of (900px), white surface, panel radius, shadow (`0 24px 80px #1d001a30`), and dark backdrop (#21181b66). Its width is `min(900px, calc(100% - 48px))`, with a maximum height of `calc(100dvh - 48px)`; mobile uses (24px) total viewport clearance. The dialog traps Tab focus, restores the opener and page scrolling on close, and closes by its close control, Escape, or backdrop click. It retains a locally generated (1024px) black-on-white PNG download, sanitized event-derived filename, and current-link-bound image. Link replacement reports success locally with role status and explicitly invalidates earlier links/QRs; failure uses role alert and asks the user to reload before sharing. The event row keeps Edit and QR & link together, with an outlined Enable check-in / Pause check-in action below. On mobile, the action grid uses two equal columns and the check-in action spans the full third row. All actions retain (44px) minimum height; the check-in action uses maroon text and an input-line border rather than a switch graphic.
 
@@ -215,7 +215,7 @@ Choice-based application questions use separate required Choice N input rows rat
 
 Application content is aligned to a maximum width of (800px). On mobile, the containing panel header and back action stack with a (14px) gap. A submitted society application displays its saved question version and answers in a read-only definition list, with maroon checkmarks for selected multiple-choice values. Question labels are muted (12px, weight 600), answers are (14px) with (1.65) line height, and responses are separated by rules with (20px) vertical padding. A pale rose submission receipt (#fcf5f5), bordered (#ead4d8) and rounded (6px), uses (18px 20px) padding and a (30px) bottom margin; it shows submitted time, confirmation delivery status, and written metadata. Status remains visible above the responses. Drafts and changes-requested submissions retain editable fields when open; other existing read-only conditions still apply.
 
-Attendance history is a ruled ledger with a compact date block, readable event details, and a prominent point amount rather than a tiny badge. A muted (13px) caption reports the active-record count. Rows use (24px) vertical padding and a (20px) gap; the date block is (56px) wide, and the point amount is Geist Variable (30px, weight 700, line height 1.15). Mobile uses (12px) gaps, a (44px) date block, (13px) event titles, and (26px) amounts, keeping the core row together unless correction controls need wrapping. Removed records retain their written state with muted date styling. The former “One society. One record” funding note is absent from the dashboard.
+Attendance history is a ruled ledger with a compact date block, readable event details, and a prominent point amount rather than a tiny badge. A muted (13px) caption reports the active-record count. Rows use (24px) vertical padding and a (20px) gap; the date block is (56px) wide, and the point amount is Instrument Sans Variable (30px, weight 700, line height 1.15). Mobile uses (12px) gaps, a (44px) date block, (13px) event titles, and (26px) amounts, keeping the core row together unless correction controls need wrapping. Removed records retain their written state with muted date styling. The former “One society. One record” funding note is absent from the dashboard.
 
 Calendar selected-day details begin with a date block, date heading, and event count. Each event has a clear title (17px, weight 650; 15px mobile) beside its point amount, a category label underneath, clock/location facts, description text bounded to (70ch) at (13px / 1.65), and a distinct written check-in status with a dot. The day heading is (20px), reducing to (17px) on mobile. Event rows use (24px) vertical padding and a (24px) gap; mobile stacks details and actions with a (16px) gap and puts facts on separate lines.
 
@@ -223,7 +223,7 @@ Point periods are controlled manually by SEC. Settings & audit provides Reset al
 
 Form labels expose required state and associate hints with their controls. Check-in completion moves focus to its result heading. Notices and errors wrap long text and have accessible dismissal controls. The society directory offers search, readable labeled contact details with email/phone actions, and a ruled mobile list instead of the desktop table; contact detail columns stack on mobile. Primary buttons, icon actions, checkboxes, and event actions retain (44px) interaction targets.
 
-Application receipt email uses table-based structure and inline styling: a white content surface, pale rose surroundings and footer, maroon identity/action, dark ink, and muted descriptive copy. The SEC image is loaded through the configured HTTPS public site URL, rather than an invented mark. It records application and submission time without semester details, and explains that receipt is not approval or a point award. Arial/Helvetica/sans-serif is the intentional email-client fallback; Geist rendering in Gmail is not assumed.
+Application receipt email uses table-based structure and inline styling: a white content surface, pale rose surroundings and footer, maroon identity/action, dark ink, and muted descriptive copy. The SEC image is loaded through the configured HTTPS public site URL, rather than an invented mark. It records application and submission time without semester details, and explains that receipt is not approval or a point award. Arial/Helvetica/sans-serif is the intentional email-client fallback; Custom webfont rendering in Gmail is not assumed.
 
 The account-provisioning roster condenses repeated society names into one ruled row per group, with a canonical name, contact-response count, and one checkbox selecting every original response ID in that group. Grouping uses explicit aliases plus Unicode, case, ampersand, and punctuation normalization; related chapters and parent organizations stay distinct. Search includes the canonical name, original submitted names, and contacts. The native Contacts disclosure preserves each original name, submission date, and contact details, with (16px) vertical response padding and hairlines between responses; original-response metadata is muted (13px), with a (10px) bottom margin. The account-creation summary repeats the condensed canonical name and response count. This presentation groups records without merging or changing database data.
 

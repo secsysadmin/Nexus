@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import "@fontsource-variable/geist";
+import "@fontsource-variable/instrument-sans";
 import "./globals.css";
 export const metadata: Metadata = {
   title: "SocietyHub",
