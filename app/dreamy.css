@@ -1,4 +1,3 @@
-/* SocietyHub / Dreamy. Semantic surfaces shared by every workspace route. */
 :root {
   color-scheme: light;
   --ground: #f4f1eb;
@@ -488,7 +487,6 @@ thead th {
   border-color: var(--line);
 }
 
-/* The workspace has one calm navigation rail across the top. */
 .hub {
   display: block;
 }
@@ -814,7 +812,6 @@ thead th {
   }
 }
 
-/* The sign-in is a continuous atmospheric composition, with a focused form. */
 .auth-page {
   padding: 22px;
   gap: 0;
@@ -1226,7 +1223,6 @@ thead th {
     background: var(--skeleton);
   }
 }
-/* State surfaces also follow the theme, including nested application views. */
 .auth-form input:is(:autofill, :-webkit-autofill) {
   background-color: var(--input) !important;
 }
@@ -1353,7 +1349,6 @@ thead th {
     scroll-margin-top: 12px;
   }
 }
-/* Editors get a deliberate reading width; schedules and directories stay wide. */
 .panel:has(> .editor-form),
 .panel:has(> .application-content) {
   max-width: 980px;
@@ -1362,4 +1357,21 @@ thead th {
 .panel > .editor-form,
 .panel > .application-content {
   max-width: none;
+}
+.theme-control {
+  position: relative;
+  display: inline-flex;
+}
+.theme-storage-note {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 25;
+  width: 240px;
+  padding: 12px 16px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--paper);
+  color: var(--ink);
+  font-size: 12px;
 }

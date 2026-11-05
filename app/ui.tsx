@@ -8,6 +8,8 @@ import {
   type ReactNode,
 } from "react";
 import { Check, Eye, EyeOff } from "lucide-react";
+
+type PasswordInputProps = ComponentProps<"input">;
 export function Field({
   label,
   children,
@@ -188,7 +190,7 @@ export function FormActions({
   );
 }
 
-export function PasswordInput(props: ComponentProps<"input">) {
+export function PasswordInput(props: PasswordInputProps) {
   const [visible, setVisible] = useState(false);
   return (
     <div className="password-input">

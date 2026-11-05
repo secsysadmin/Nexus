@@ -466,11 +466,6 @@
     ],
     "motion": [
       {
-        "name": "greeting-arrive",
-        "value": "520ms cubic-bezier(0.16, 1, 0.3, 1)",
-        "purpose": "Existing once-per-session society greeting."
-      },
-      {
         "name": "earned-share-fill",
         "value": "460ms cubic-bezier(0.16, 1, 0.3, 1)",
         "purpose": "Existing nonzero earned-share bar draw."

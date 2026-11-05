@@ -500,7 +500,10 @@ test("society hub end-to-end: admin, concurrent check-in, drafts, review, QR and
     }),
   ).toBeVisible();
   const setupUrl = await admin.locator(".activation-result input").inputValue();
-  p.activation = new URL(setupUrl).searchParams.get("token");
+  const issuedSetupUrl = new URL(setupUrl);
+  p.activation = new URLSearchParams(issuedSetupUrl.hash.slice(1)).get("token");
+  expect(p.activation).toMatch(/^[a-f0-9]{64}$/);
+  expect(issuedSetupUrl.searchParams.has("token")).toBe(false);
   await admin
     .getByRole("button", { name: "Dismiss link", exact: true })
     .click();
@@ -551,7 +554,7 @@ test("society hub end-to-end: admin, concurrent check-in, drafts, review, QR and
   ).toBe(4);
   const activationContext = await browser.newContext();
   const activationPage = await activationContext.newPage();
-  await activationPage.goto(`/activate#token=${p.activation}`);
+  await activationPage.goto(setupUrl);
   await activationPage.getByLabel("New password").fill(password);
   await activationPage
     .getByLabel("Confirm password", { exact: true })
