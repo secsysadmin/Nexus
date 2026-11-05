@@ -253,7 +253,6 @@ export default function Hub() {
     token: string;
     eventId: string;
   }>({ mode: "home", token: "", eventId: "" });
-  const greetingSeen = useRef(false);
   const deepLinkOpened = useRef(false);
   const currentView = useRef("overview");
   currentView.current = tab;
@@ -498,7 +497,6 @@ export default function Hub() {
     } catch (e) {
       if (e instanceof RequestError && e.status === 401) {
         setData(null);
-        greetingSeen.current = false;
         setAuthNeeded(true);
       } else setError(errorMessage(e));
     } finally {
@@ -978,28 +976,7 @@ export default function Hub() {
         >
           <div className="page-heading">
             <div>
-              <h1 aria-label={title[tab]}>
-                {!admin && tab === "overview"
-                  ? title[tab].split(/\s+/).map((word, index) => (
-                      <span
-                        key={index}
-                        className={
-                          "greeting-word" +
-                          (!greetingSeen.current ? " greeting-enter" : "")
-                        }
-                        style={{
-                          animationDelay: `${Math.min(index, 10) * 60}ms`,
-                        }}
-                        onAnimationEnd={() => {
-                          greetingSeen.current = true;
-                        }}
-                        aria-hidden="true"
-                      >
-                        {word}{" "}
-                      </span>
-                    ))
-                  : title[tab]}
-              </h1>
+              <h1>{title[tab]}</h1>
               {(admin || tab !== "overview") && (
                 <p>
                   {admin
