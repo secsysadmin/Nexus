@@ -11,6 +11,38 @@ import {
   passwordNeedsUpgrade,
   dummyPasswordHash,
 } from "./security";
+const LOGIN_WINDOW_MINUTES = 15;
+const CONNECTION_REQUEST_LIMIT = 120;
+const CONNECTION_FAILURE_LIMIT = 10;
+const ACCOUNT_FAILURE_LIMIT = 50;
+const RECORD_ATTEMPT_SQL =
+  "INSERT INTO login_attempts(key,attempts) VALUES($1,1) ON CONFLICT(key) DO UPDATE SET attempts=CASE WHEN login_attempts.window_start<now()-$2::int*interval '1 minute' THEN 1 ELSE login_attempts.attempts+1 END,window_start=CASE WHEN login_attempts.window_start<now()-$2::int*interval '1 minute' THEN now() ELSE login_attempts.window_start END RETURNING attempts";
+export async function recordAttempt(
+  db: PoolClient,
+  key: string,
+): Promise<number> {
+  const {
+    rows: [r],
+  } = await db.query(RECORD_ATTEMPT_SQL, [key, LOGIN_WINDOW_MINUTES]);
+  return r.attempts;
+}
+async function failuresExceeded(
+  db: PoolClient,
+  key: string,
+  limit: number,
+): Promise<boolean> {
+  const {
+    rows: [fail],
+  } = await db.query(
+    "SELECT attempts,window_start FROM login_attempts WHERE key=$1",
+    [key],
+  );
+  return (
+    !!fail &&
+    fail.attempts >= limit &&
+    Date.now() - Date.parse(fail.window_start) < LOGIN_WINDOW_MINUTES * 60000
+  );
+}
 export async function authenticate(
   db: PoolClient,
   req: NextRequest,
@@ -36,13 +68,10 @@ export async function createSession(db: PoolClient, id: string) {
   return raw;
 }
 export async function consumeLoginRequest(db: PoolClient, address: string) {
-  const {
-    rows: [r],
-  } = await db.query(
-    "INSERT INTO login_attempts(key,attempts) VALUES($1,1) ON CONFLICT(key) DO UPDATE SET attempts=CASE WHEN login_attempts.window_start<now()-interval '15 minutes' THEN 1 ELSE login_attempts.attempts+1 END,window_start=CASE WHEN login_attempts.window_start<now()-interval '15 minutes' THEN now() ELSE login_attempts.window_start END RETURNING attempts",
-    [digest("ip:" + address)],
+  return (
+    (await recordAttempt(db, digest("ip:" + address))) <=
+    CONNECTION_REQUEST_LIMIT
   );
-  return r.attempts <= 120;
 }
 export async function login(
   db: PoolClient,
@@ -51,41 +80,47 @@ export async function login(
   address: string,
 ) {
   const pair = digest("failure:" + username + ":" + address);
+  const accountKey = digest("account-failure:" + username);
   await db.query("SELECT pg_advisory_xact_lock(hashtext($1))", [pair]);
-  const {
-    rows: [fail],
-  } = await db.query(
-    "SELECT attempts,window_start FROM login_attempts WHERE key=$1",
-    [pair],
-  );
-  if (
-    fail &&
-    fail.attempts >= 10 &&
-    Date.now() - Date.parse(fail.window_start) < 15 * 60000
-  )
+  if (await failuresExceeded(db, pair, CONNECTION_FAILURE_LIMIT))
     return {
       error:
-        "Too many failed sign-ins from this connection. Try again in 15 minutes or use an SEC setup link.",
+        `Too many failed sign-ins from this connection. Try again in ${LOGIN_WINDOW_MINUTES} minutes or use an SEC setup link.`,
+      status: 429,
+    };
+  if (await failuresExceeded(db, accountKey, ACCOUNT_FAILURE_LIMIT))
+    return {
+      error:
+        `Too many failed sign-ins for this account. Try again in ${LOGIN_WINDOW_MINUTES} minutes or use an SEC setup link.`,
       status: 429,
     };
   const {
     rows: [a],
-  } = await db.query("SELECT * FROM accounts WHERE username=$1 FOR UPDATE", [
-    username,
-  ]);
+  } = await db.query("SELECT * FROM accounts WHERE username=$1", [username]);
   const valid = await verifyPassword(
     password,
     a?.password_hash ?? dummyPasswordHash,
   );
-  if (!a || !valid || !a.enabled) {
-    await db.query(
-      "INSERT INTO login_attempts(key,attempts) VALUES($1,1) ON CONFLICT(key) DO UPDATE SET attempts=CASE WHEN login_attempts.window_start<now()-interval '15 minutes' THEN 1 ELSE login_attempts.attempts+1 END,window_start=CASE WHEN login_attempts.window_start<now()-interval '15 minutes' THEN now() ELSE login_attempts.window_start END",
-      [pair],
-    );
+  const locked =
+    a && valid
+      ? (
+          await db.query(
+            "SELECT password_hash FROM accounts WHERE id=$1 AND enabled FOR UPDATE",
+            [a.id],
+          )
+        ).rows[0]
+      : undefined;
+  const current =
+    !!locked &&
+    (locked.password_hash === a.password_hash ||
+      (await verifyPassword(password, locked.password_hash)));
+  if (!current) {
+    await recordAttempt(db, pair);
+    await recordAttempt(db, accountKey);
     return { error: "Username or password is incorrect.", status: 401 };
   }
   await db.query("DELETE FROM login_attempts WHERE key=$1", [pair]);
-  if (passwordNeedsUpgrade(a.password_hash))
+  if (passwordNeedsUpgrade(locked.password_hash))
     await db.query("UPDATE accounts SET password_hash=$1 WHERE id=$2", [
       await hashPassword(password),
       a.id,

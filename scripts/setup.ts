@@ -66,6 +66,8 @@ try {
       `GRANT SELECT,INSERT,UPDATE,DELETE ON ALL TABLES IN SCHEMA ${schema} TO ${role}`,
     );
     await db.query(`REVOKE ALL ON ${schema}.schema_migrations FROM ${role}`);
+    await db.query(`REVOKE UPDATE,DELETE ON ${schema}.audit_log FROM ${role}`);
+    await db.query(`REVOKE DELETE ON ${schema}.credits FROM ${role}`);
     await db.query(
       `GRANT USAGE,SELECT ON ALL SEQUENCES IN SCHEMA ${schema} TO ${role}`,
     );
@@ -89,7 +91,7 @@ try {
         [digest(raw), account.id],
       );
       access.push(
-        `## ${stage === "dev" ? "Development" : "Production"} SEC account\nUsername: sec\nOne-time setup path: /activate?token=${raw}\n${stage === "dev" ? "Open http://localhost:3000" : "Use your Vercel production domain"} followed by this path. Expires in seven days.\n`,
+        `## ${stage === "dev" ? "Development" : "Production"} SEC account\nUsername: sec\nOne-time setup path: /activate#token=${raw}\n${stage === "dev" ? "Open http://localhost:3000" : "Use your Vercel production domain"} followed by this path. Expires in seven days.\n`,
       );
     }
     const now = new Date();

@@ -15,6 +15,7 @@ import {
   login,
   redeemActivation,
   changePassword,
+  recordAttempt,
 } from "../../../lib/auth";
 import { getPage, getCalendarPage, collections } from "../../../lib/data-pages";
 import { updateContacts } from "../../../lib/contacts";
@@ -34,6 +35,7 @@ import {
 export const runtime = "nodejs";
 export const maxDuration = 60;
 export const dynamic = "force-dynamic";
+const TELEMETRY_REPORT_LIMIT = 10;
 const password = z.string().min(15, "Use at least 15 characters.").max(128);
 function json(body: unknown, status = 200) {
   return NextResponse.json(body, {
@@ -257,13 +259,7 @@ async function handle(
           })
           .parse(body);
         const key = digest("telemetry:" + actor.id);
-        const count = (
-          await db.query(
-            "INSERT INTO login_attempts(key,attempts) VALUES($1,1) ON CONFLICT(key) DO UPDATE SET attempts=CASE WHEN login_attempts.window_start<now()-interval '15 minutes' THEN 1 ELSE login_attempts.attempts+1 END,window_start=CASE WHEN login_attempts.window_start<now()-interval '15 minutes' THEN now() ELSE login_attempts.window_start END RETURNING attempts",
-            [key],
-          )
-        ).rows[0].attempts;
-        if (count <= 10)
+        if ((await recordAttempt(db, key)) <= TELEMETRY_REPORT_LIMIT)
           await recordMetric(db, {
             route: "telemetry",
             status: 200,

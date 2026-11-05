@@ -588,7 +588,10 @@ export default function Hub() {
           : path.startsWith("/checkin/")
             ? "checkin"
             : "home",
-      token: params.get("token") ?? "",
+      token:
+        new URLSearchParams(window.location.hash.slice(1)).get("token") ??
+        params.get("token") ??
+        "",
       eventId: path.split("/")[2] ?? "",
     });
     void refresh();
@@ -1113,7 +1116,7 @@ export default function Hub() {
                 new password is set.
               </p>
               <CopyLink
-                value={`${window.location.origin}/activate?token=${activation.activation}`}
+                value={`${window.location.origin}/activate#token=${activation.activation}`}
               />
               <Button secondary onClick={() => setActivation(null)}>
                 Dismiss link
@@ -2684,13 +2687,13 @@ function AuthScreen({
             )}
             <Field
               label={activate ? "New password" : "Password"}
-              hint={activate ? "Use at least 12 characters." : undefined}
+              hint={activate ? "Use at least 15 characters." : undefined}
             >
               <input
                 required
                 type="password"
                 autoComplete={activate ? "new-password" : "current-password"}
-                minLength={activate ? 12 : 1}
+                minLength={activate ? 15 : 1}
                 maxLength={128}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}

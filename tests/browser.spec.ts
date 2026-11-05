@@ -313,7 +313,7 @@ test("society hub end-to-end: admin, concurrent check-in, drafts, review, QR and
     (f: { title: string }) =>
       f.title === "Society Funding Application · Test data",
   ).id;
-  await society.goto(`/checkin/${eventId}?token=${eventToken}`);
+  await society.goto(`/checkin/${eventId}#token=${eventToken}`);
   await society
     .getByLabel("Society username", { exact: true })
     .fill(societyName);
@@ -551,7 +551,7 @@ test("society hub end-to-end: admin, concurrent check-in, drafts, review, QR and
   ).toBe(4);
   const activationContext = await browser.newContext();
   const activationPage = await activationContext.newPage();
-  await activationPage.goto(`/activate?token=${p.activation}`);
+  await activationPage.goto(`/activate#token=${p.activation}`);
   await activationPage.getByLabel("New password").fill(password);
   await activationPage
     .getByLabel("Confirm password", { exact: true })

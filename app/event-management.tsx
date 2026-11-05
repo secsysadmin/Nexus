@@ -324,7 +324,7 @@ export function QRPanel({
       ok: boolean;
       message: string;
     } | null>(null);
-  const link = `${window.location.origin}/checkin/${event.id}?token=${event.checkin_token}`;
+  const link = `${window.location.origin}/checkin/${event.id}#token=${event.checkin_token}`;
   const src = qr?.link === link ? qr.src : "";
   const filename = `${
     event.name
