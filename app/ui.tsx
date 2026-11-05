@@ -1,6 +1,13 @@
 "use client";
-import { useId, cloneElement, isValidElement, type ReactNode } from "react";
-import { Check } from "lucide-react";
+import {
+  useId,
+  cloneElement,
+  isValidElement,
+  useState,
+  type ComponentProps,
+  type ReactNode,
+} from "react";
+import { Check, Eye, EyeOff } from "lucide-react";
 export function Field({
   label,
   children,
@@ -177,6 +184,27 @@ export function FormActions({
       <Button secondary onClick={onCancel} disabled={busy}>
         Cancel
       </Button>
+    </div>
+  );
+}
+
+export function PasswordInput(props: ComponentProps<"input">) {
+  const [visible, setVisible] = useState(false);
+  return (
+    <div className="password-input">
+      <input {...props} type={visible ? "text" : "password"} />
+      <button
+        type="button"
+        aria-label={visible ? "Hide password" : "Show password"}
+        aria-pressed={visible}
+        onClick={() => setVisible(!visible)}
+      >
+        {visible ? (
+          <EyeOff size={18} aria-hidden="true" />
+        ) : (
+          <Eye size={18} aria-hidden="true" />
+        )}
+      </button>
     </div>
   );
 }

@@ -1,1019 +1,522 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-11-03T15:43:56.425393+00:00",
+  "generatedAt": "2026-11-05T22:49:02.401289+00:00",
   "title": "Design System: SocietyHub",
   "extensions": {
     "colorMeta": {
-      "maroon": {
-        "role": "primary",
-        "displayName": "Maroon",
-        "tonalRamp": [
-          "oklch(15% 0.11113 29.23)",
-          "oklch(26% 0.11113 29.23)",
-          "oklch(38% 0.11113 29.23)",
-          "oklch(49% 0.11113 29.23)",
-          "oklch(61% 0.11113 29.23)",
-          "oklch(72% 0.11113 29.23)",
-          "oklch(84% 0.11113 29.23)",
-          "oklch(95% 0.11113 29.23)"
-        ]
-      },
-      "button-hover": {
-        "role": "primary",
-        "displayName": "Button Hover",
-        "tonalRamp": [
-          "oklch(15% 0.10509 23.45)",
-          "oklch(26% 0.10509 23.45)",
-          "oklch(38% 0.10509 23.45)",
-          "oklch(49% 0.10509 23.45)",
-          "oklch(61% 0.10509 23.45)",
-          "oklch(72% 0.10509 23.45)",
-          "oklch(84% 0.10509 23.45)",
-          "oklch(95% 0.10509 23.45)"
-        ]
-      },
-      "ink": {
-        "role": "neutral",
-        "displayName": "Ink",
-        "tonalRamp": [
-          "oklch(15% 0.00828 334.46)",
-          "oklch(26% 0.00828 334.46)",
-          "oklch(38% 0.00828 334.46)",
-          "oklch(49% 0.00828 334.46)",
-          "oklch(61% 0.00828 334.46)",
-          "oklch(72% 0.00828 334.46)",
-          "oklch(84% 0.00828 334.46)",
-          "oklch(95% 0.00828 334.46)"
-        ]
-      },
-      "muted": {
-        "role": "neutral",
-        "displayName": "Muted",
-        "tonalRamp": [
-          "oklch(15% 0.01187 335.73)",
-          "oklch(26% 0.01187 335.73)",
-          "oklch(38% 0.01187 335.73)",
-          "oklch(49% 0.01187 335.73)",
-          "oklch(61% 0.01187 335.73)",
-          "oklch(72% 0.01187 335.73)",
-          "oklch(84% 0.01187 335.73)",
-          "oklch(95% 0.01187 335.73)"
-        ]
-      },
       "ground": {
         "role": "neutral",
         "displayName": "Ground",
+        "canonical": "#f4f1eb",
+        "darkCanonical": "#0c0d0e",
         "tonalRamp": [
-          "oklch(15% 0.00000 89.88)",
-          "oklch(26% 0.00000 89.88)",
-          "oklch(38% 0.00000 89.88)",
-          "oklch(49% 0.00000 89.88)",
-          "oklch(61% 0.00000 89.88)",
-          "oklch(72% 0.00000 89.88)",
-          "oklch(84% 0.00000 89.88)",
-          "oklch(95% 0.00000 89.88)"
+          "oklch(15% 0.00861 84.57)",
+          "oklch(26% 0.00861 84.57)",
+          "oklch(38% 0.00861 84.57)",
+          "oklch(49% 0.00861 84.57)",
+          "oklch(61% 0.00861 84.57)",
+          "oklch(72% 0.00861 84.57)",
+          "oklch(84% 0.00861 84.57)",
+          "oklch(95% 0.00861 84.57)"
         ]
       },
       "paper": {
         "role": "neutral",
         "displayName": "Paper",
+        "canonical": "#fffdf8",
+        "darkCanonical": "#171819",
         "tonalRamp": [
-          "oklch(15% 0.00000 89.88)",
-          "oklch(26% 0.00000 89.88)",
-          "oklch(38% 0.00000 89.88)",
-          "oklch(49% 0.00000 89.88)",
-          "oklch(61% 0.00000 89.88)",
-          "oklch(72% 0.00000 89.88)",
-          "oklch(84% 0.00000 89.88)",
-          "oklch(95% 0.00000 89.88)"
+          "oklch(15% 0.00693 88.64)",
+          "oklch(26% 0.00693 88.64)",
+          "oklch(38% 0.00693 88.64)",
+          "oklch(49% 0.00693 88.64)",
+          "oklch(61% 0.00693 88.64)",
+          "oklch(72% 0.00693 88.64)",
+          "oklch(84% 0.00693 88.64)",
+          "oklch(95% 0.00693 88.64)"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Ink",
+        "canonical": "#252321",
+        "darkCanonical": "#f3ebdd",
+        "tonalRamp": [
+          "oklch(15% 0.00477 67.61)",
+          "oklch(26% 0.00477 67.61)",
+          "oklch(38% 0.00477 67.61)",
+          "oklch(49% 0.00477 67.61)",
+          "oklch(61% 0.00477 67.61)",
+          "oklch(72% 0.00477 67.61)",
+          "oklch(84% 0.00477 67.61)",
+          "oklch(95% 0.00477 67.61)"
+        ]
+      },
+      "muted": {
+        "role": "neutral",
+        "displayName": "Muted",
+        "canonical": "#69625a",
+        "darkCanonical": "#bcb4a6",
+        "tonalRamp": [
+          "oklch(15% 0.01532 71.16)",
+          "oklch(26% 0.01532 71.16)",
+          "oklch(38% 0.01532 71.16)",
+          "oklch(49% 0.01532 71.16)",
+          "oklch(61% 0.01532 71.16)",
+          "oklch(72% 0.01532 71.16)",
+          "oklch(84% 0.01532 71.16)",
+          "oklch(95% 0.01532 71.16)"
         ]
       },
       "line": {
         "role": "neutral",
         "displayName": "Line",
+        "canonical": "#ded9cf",
+        "darkCanonical": "#343431",
         "tonalRamp": [
-          "oklch(15% 0.00521 67.76)",
-          "oklch(26% 0.00521 67.76)",
-          "oklch(38% 0.00521 67.76)",
-          "oklch(49% 0.00521 67.76)",
-          "oklch(61% 0.00521 67.76)",
-          "oklch(72% 0.00521 67.76)",
-          "oklch(84% 0.00521 67.76)",
-          "oklch(95% 0.00521 67.76)"
+          "oklch(15% 0.01459 84.59)",
+          "oklch(26% 0.01459 84.59)",
+          "oklch(38% 0.01459 84.59)",
+          "oklch(49% 0.01459 84.59)",
+          "oklch(61% 0.01459 84.59)",
+          "oklch(72% 0.01459 84.59)",
+          "oklch(84% 0.01459 84.59)",
+          "oklch(95% 0.01459 84.59)"
         ]
       },
       "tint": {
         "role": "neutral",
         "displayName": "Tint",
+        "canonical": "#ece7de",
+        "darkCanonical": "#242524",
         "tonalRamp": [
-          "oklch(15% 0.00551 3.34)",
-          "oklch(26% 0.00551 3.34)",
-          "oklch(38% 0.00551 3.34)",
-          "oklch(49% 0.00551 3.34)",
-          "oklch(61% 0.00551 3.34)",
-          "oklch(72% 0.00551 3.34)",
-          "oklch(84% 0.00551 3.34)",
-          "oklch(95% 0.00551 3.34)"
+          "oklch(15% 0.01321 82.40)",
+          "oklch(26% 0.01321 82.40)",
+          "oklch(38% 0.01321 82.40)",
+          "oklch(49% 0.01321 82.40)",
+          "oklch(61% 0.01321 82.40)",
+          "oklch(72% 0.01321 82.40)",
+          "oklch(84% 0.01321 82.40)",
+          "oklch(95% 0.01321 82.40)"
         ]
       },
-      "green": {
-        "role": "semantic",
-        "displayName": "Green",
-        "tonalRamp": [
-          "oklch(15% 0.07152 161.06)",
-          "oklch(26% 0.07152 161.06)",
-          "oklch(38% 0.07152 161.06)",
-          "oklch(49% 0.07152 161.06)",
-          "oklch(61% 0.07152 161.06)",
-          "oklch(72% 0.07152 161.06)",
-          "oklch(84% 0.07152 161.06)",
-          "oklch(95% 0.07152 161.06)"
-        ]
-      },
-      "green-bg": {
-        "role": "semantic",
-        "displayName": "Green Bg",
-        "tonalRamp": [
-          "oklch(15% 0.01240 157.00)",
-          "oklch(26% 0.01240 157.00)",
-          "oklch(38% 0.01240 157.00)",
-          "oklch(49% 0.01240 157.00)",
-          "oklch(61% 0.01240 157.00)",
-          "oklch(72% 0.01240 157.00)",
-          "oklch(84% 0.01240 157.00)",
-          "oklch(95% 0.01240 157.00)"
-        ]
-      },
-      "amber": {
-        "role": "semantic",
-        "displayName": "Amber",
-        "tonalRamp": [
-          "oklch(15% 0.09251 75.69)",
-          "oklch(26% 0.09251 75.69)",
-          "oklch(38% 0.09251 75.69)",
-          "oklch(49% 0.09251 75.69)",
-          "oklch(61% 0.09251 75.69)",
-          "oklch(72% 0.09251 75.69)",
-          "oklch(84% 0.09251 75.69)",
-          "oklch(95% 0.09251 75.69)"
-        ]
-      },
-      "amber-bg": {
-        "role": "semantic",
-        "displayName": "Amber Bg",
-        "tonalRamp": [
-          "oklch(15% 0.03732 88.46)",
-          "oklch(26% 0.03732 88.46)",
-          "oklch(38% 0.03732 88.46)",
-          "oklch(49% 0.03732 88.46)",
-          "oklch(61% 0.03732 88.46)",
-          "oklch(72% 0.03732 88.46)",
-          "oklch(84% 0.03732 88.46)",
-          "oklch(95% 0.03732 88.46)"
-        ]
-      },
-      "red": {
-        "role": "semantic",
-        "displayName": "Red",
-        "tonalRamp": [
-          "oklch(15% 0.14301 25.79)",
-          "oklch(26% 0.14301 25.79)",
-          "oklch(38% 0.14301 25.79)",
-          "oklch(49% 0.14301 25.79)",
-          "oklch(61% 0.14301 25.79)",
-          "oklch(72% 0.14301 25.79)",
-          "oklch(84% 0.14301 25.79)",
-          "oklch(95% 0.14301 25.79)"
-        ]
-      },
-      "nav-text": {
+      "maroon": {
         "role": "primary",
-        "displayName": "Nav Text",
+        "displayName": "Maroon",
+        "canonical": "#6b3037",
+        "darkCanonical": "#f3ebdd",
         "tonalRamp": [
-          "oklch(15% 0.01187 335.73)",
-          "oklch(26% 0.01187 335.73)",
-          "oklch(38% 0.01187 335.73)",
-          "oklch(49% 0.01187 335.73)",
-          "oklch(61% 0.01187 335.73)",
-          "oklch(72% 0.01187 335.73)",
-          "oklch(84% 0.01187 335.73)",
-          "oklch(95% 0.01187 335.73)"
+          "oklch(15% 0.08435 14.43)",
+          "oklch(26% 0.08435 14.43)",
+          "oklch(38% 0.08435 14.43)",
+          "oklch(49% 0.08435 14.43)",
+          "oklch(61% 0.08435 14.43)",
+          "oklch(72% 0.08435 14.43)",
+          "oklch(84% 0.08435 14.43)",
+          "oklch(95% 0.08435 14.43)"
         ]
       },
-      "nav-hover": {
+      "maroon-light": {
         "role": "primary",
-        "displayName": "Nav Hover",
+        "displayName": "Maroon Light",
+        "canonical": "#54232a",
+        "darkCanonical": "#ffffff",
         "tonalRamp": [
-          "oklch(15% 0.00551 3.34)",
-          "oklch(26% 0.00551 3.34)",
-          "oklch(38% 0.00551 3.34)",
-          "oklch(49% 0.00551 3.34)",
-          "oklch(61% 0.00551 3.34)",
-          "oklch(72% 0.00551 3.34)",
-          "oklch(84% 0.00551 3.34)",
-          "oklch(95% 0.00551 3.34)"
+          "oklch(15% 0.07318 13.13)",
+          "oklch(26% 0.07318 13.13)",
+          "oklch(38% 0.07318 13.13)",
+          "oklch(49% 0.07318 13.13)",
+          "oklch(61% 0.07318 13.13)",
+          "oklch(72% 0.07318 13.13)",
+          "oklch(84% 0.07318 13.13)",
+          "oklch(95% 0.07318 13.13)"
         ]
       },
-      "button-text": {
-        "role": "neutral",
-        "displayName": "Button Text",
+      "on-accent": {
+        "role": "primary",
+        "displayName": "On Accent",
+        "canonical": "#fff9ef",
+        "darkCanonical": "#191a18",
         "tonalRamp": [
-          "oklch(15% 0.00000 89.88)",
-          "oklch(26% 0.00000 89.88)",
-          "oklch(38% 0.00000 89.88)",
-          "oklch(49% 0.00000 89.88)",
-          "oklch(61% 0.00000 89.88)",
-          "oklch(72% 0.00000 89.88)",
-          "oklch(84% 0.00000 89.88)",
-          "oklch(95% 0.00000 89.88)"
+          "oklch(15% 0.01467 80.71)",
+          "oklch(26% 0.01467 80.71)",
+          "oklch(38% 0.01467 80.71)",
+          "oklch(49% 0.01467 80.71)",
+          "oklch(61% 0.01467 80.71)",
+          "oklch(72% 0.01467 80.71)",
+          "oklch(84% 0.01467 80.71)",
+          "oklch(95% 0.01467 80.71)"
         ]
       },
-      "input-line": {
+      "input": {
         "role": "neutral",
-        "displayName": "Input Line",
+        "displayName": "Input",
+        "canonical": "#faf7f1",
+        "darkCanonical": "#111213",
         "tonalRamp": [
-          "oklch(15% 0.01533 355.24)",
-          "oklch(26% 0.01533 355.24)",
-          "oklch(38% 0.01533 355.24)",
-          "oklch(49% 0.01533 355.24)",
-          "oklch(61% 0.01533 355.24)",
-          "oklch(72% 0.01533 355.24)",
-          "oklch(84% 0.01533 355.24)",
-          "oklch(95% 0.01533 355.24)"
+          "oklch(15% 0.00857 84.57)",
+          "oklch(26% 0.00857 84.57)",
+          "oklch(38% 0.00857 84.57)",
+          "oklch(49% 0.00857 84.57)",
+          "oklch(61% 0.00857 84.57)",
+          "oklch(72% 0.00857 84.57)",
+          "oklch(84% 0.00857 84.57)",
+          "oklch(95% 0.00857 84.57)"
+        ]
+      },
+      "input-border": {
+        "role": "neutral",
+        "displayName": "Input Border",
+        "canonical": "#8e867b",
+        "darkCanonical": "#77776d",
+        "tonalRamp": [
+          "oklch(15% 0.01883 76.03)",
+          "oklch(26% 0.01883 76.03)",
+          "oklch(38% 0.01883 76.03)",
+          "oklch(49% 0.01883 76.03)",
+          "oklch(61% 0.01883 76.03)",
+          "oklch(72% 0.01883 76.03)",
+          "oklch(84% 0.01883 76.03)",
+          "oklch(95% 0.01883 76.03)"
         ]
       },
       "focus": {
-        "role": "semantic",
+        "role": "neutral",
         "displayName": "Focus",
+        "canonical": "#9c4c41",
+        "darkCanonical": "#edb785",
         "tonalRamp": [
-          "oklch(15% 0.09668 4.99)",
-          "oklch(26% 0.09668 4.99)",
-          "oklch(38% 0.09668 4.99)",
-          "oklch(49% 0.09668 4.99)",
-          "oklch(61% 0.09668 4.99)",
-          "oklch(72% 0.09668 4.99)",
-          "oklch(84% 0.09668 4.99)",
-          "oklch(95% 0.09668 4.99)"
+          "oklch(15% 0.10904 29.40)",
+          "oklch(26% 0.10904 29.40)",
+          "oklch(38% 0.10904 29.40)",
+          "oklch(49% 0.10904 29.40)",
+          "oklch(61% 0.10904 29.40)",
+          "oklch(72% 0.10904 29.40)",
+          "oklch(84% 0.10904 29.40)",
+          "oklch(95% 0.10904 29.40)"
         ]
       },
-      "table-header": {
+      "green": {
         "role": "neutral",
-        "displayName": "Table Header",
+        "displayName": "Green",
+        "canonical": "#28624d",
+        "darkCanonical": "#add9bd",
         "tonalRamp": [
-          "oklch(15% 0.00168 325.59)",
-          "oklch(26% 0.00168 325.59)",
-          "oklch(38% 0.00168 325.59)",
-          "oklch(49% 0.00168 325.59)",
-          "oklch(61% 0.00168 325.59)",
-          "oklch(72% 0.00168 325.59)",
-          "oklch(84% 0.00168 325.59)",
-          "oklch(95% 0.00168 325.59)"
+          "oklch(15% 0.07041 166.70)",
+          "oklch(26% 0.07041 166.70)",
+          "oklch(38% 0.07041 166.70)",
+          "oklch(49% 0.07041 166.70)",
+          "oklch(61% 0.07041 166.70)",
+          "oklch(72% 0.07041 166.70)",
+          "oklch(84% 0.07041 166.70)",
+          "oklch(95% 0.07041 166.70)"
         ]
       },
-      "pill-neutral": {
+      "green-bg": {
         "role": "neutral",
-        "displayName": "Pill Neutral",
+        "displayName": "Green Bg",
+        "canonical": "#e1eee5",
+        "darkCanonical": "#1d382d",
         "tonalRamp": [
-          "oklch(15% 0.00107 17.18)",
-          "oklch(26% 0.00107 17.18)",
-          "oklch(38% 0.00107 17.18)",
-          "oklch(49% 0.00107 17.18)",
-          "oklch(61% 0.00107 17.18)",
-          "oklch(72% 0.00107 17.18)",
-          "oklch(84% 0.00107 17.18)",
-          "oklch(95% 0.00107 17.18)"
+          "oklch(15% 0.01827 155.80)",
+          "oklch(26% 0.01827 155.80)",
+          "oklch(38% 0.01827 155.80)",
+          "oklch(49% 0.01827 155.80)",
+          "oklch(61% 0.01827 155.80)",
+          "oklch(72% 0.01827 155.80)",
+          "oklch(84% 0.01827 155.80)",
+          "oklch(95% 0.01827 155.80)"
         ]
       },
-      "event-date": {
+      "amber": {
         "role": "neutral",
-        "displayName": "Event Date",
+        "displayName": "Amber",
+        "canonical": "#805014",
+        "darkCanonical": "#f0ca89",
         "tonalRamp": [
-          "oklch(15% 0.01044 354.90)",
-          "oklch(26% 0.01044 354.90)",
-          "oklch(38% 0.01044 354.90)",
-          "oklch(49% 0.01044 354.90)",
-          "oklch(61% 0.01044 354.90)",
-          "oklch(72% 0.01044 354.90)",
-          "oklch(84% 0.01044 354.90)",
-          "oklch(95% 0.01044 354.90)"
+          "oklch(15% 0.09591 66.51)",
+          "oklch(26% 0.09591 66.51)",
+          "oklch(38% 0.09591 66.51)",
+          "oklch(49% 0.09591 66.51)",
+          "oklch(61% 0.09591 66.51)",
+          "oklch(72% 0.09591 66.51)",
+          "oklch(84% 0.09591 66.51)",
+          "oklch(95% 0.09591 66.51)"
         ]
       },
-      "input-disabled": {
+      "amber-bg": {
         "role": "neutral",
-        "displayName": "Input Disabled",
+        "displayName": "Amber Bg",
+        "canonical": "#f8e9cc",
+        "darkCanonical": "#3b3020",
         "tonalRamp": [
-          "oklch(15% 0.00250 345.21)",
-          "oklch(26% 0.00250 345.21)",
-          "oklch(38% 0.00250 345.21)",
-          "oklch(49% 0.00250 345.21)",
-          "oklch(61% 0.00250 345.21)",
-          "oklch(72% 0.00250 345.21)",
-          "oklch(84% 0.00250 345.21)",
-          "oklch(95% 0.00250 345.21)"
+          "oklch(15% 0.04145 83.87)",
+          "oklch(26% 0.04145 83.87)",
+          "oklch(38% 0.04145 83.87)",
+          "oklch(49% 0.04145 83.87)",
+          "oklch(61% 0.04145 83.87)",
+          "oklch(72% 0.04145 83.87)",
+          "oklch(84% 0.04145 83.87)",
+          "oklch(95% 0.04145 83.87)"
         ]
       },
-      "note": {
+      "red": {
         "role": "neutral",
-        "displayName": "Note",
+        "displayName": "Red",
+        "canonical": "#a02f31",
+        "darkCanonical": "#ffb5ab",
         "tonalRamp": [
-          "oklch(15% 0.00345 354.69)",
-          "oklch(26% 0.00345 354.69)",
-          "oklch(38% 0.00345 354.69)",
-          "oklch(49% 0.00345 354.69)",
-          "oklch(61% 0.00345 354.69)",
-          "oklch(72% 0.00345 354.69)",
-          "oklch(84% 0.00345 354.69)",
-          "oklch(95% 0.00345 354.69)"
+          "oklch(15% 0.14883 23.86)",
+          "oklch(26% 0.14883 23.86)",
+          "oklch(38% 0.14883 23.86)",
+          "oklch(49% 0.14883 23.86)",
+          "oklch(61% 0.14883 23.86)",
+          "oklch(72% 0.14883 23.86)",
+          "oklch(84% 0.14883 23.86)",
+          "oklch(95% 0.14883 23.86)"
         ]
       },
-      "rose": {
-        "role": "primary",
-        "displayName": "Rose",
+      "red-bg": {
+        "role": "neutral",
+        "displayName": "Red Bg",
+        "canonical": "#f8e5e1",
+        "darkCanonical": "#3d2325",
         "tonalRamp": [
-          "oklch(15% 0.01399 355.01)",
-          "oklch(26% 0.01399 355.01)",
-          "oklch(38% 0.01399 355.01)",
-          "oklch(49% 0.01399 355.01)",
-          "oklch(61% 0.01399 355.01)",
-          "oklch(72% 0.01399 355.01)",
-          "oklch(84% 0.01399 355.01)",
-          "oklch(95% 0.01399 355.01)"
+          "oklch(15% 0.02157 31.78)",
+          "oklch(26% 0.02157 31.78)",
+          "oklch(38% 0.02157 31.78)",
+          "oklch(49% 0.02157 31.78)",
+          "oklch(61% 0.02157 31.78)",
+          "oklch(72% 0.02157 31.78)",
+          "oklch(84% 0.02157 31.78)",
+          "oklch(95% 0.02157 31.78)"
+        ]
+      },
+      "chart-prt": {
+        "role": "secondary",
+        "displayName": "Chart Prt",
+        "canonical": "#8c4544",
+        "darkCanonical": "#e5c9a9",
+        "tonalRamp": [
+          "oklch(15% 0.09688 22.18)",
+          "oklch(26% 0.09688 22.18)",
+          "oklch(38% 0.09688 22.18)",
+          "oklch(49% 0.09688 22.18)",
+          "oklch(61% 0.09688 22.18)",
+          "oklch(72% 0.09688 22.18)",
+          "oklch(84% 0.09688 22.18)",
+          "oklch(95% 0.09688 22.18)"
         ]
       },
       "chart-standard": {
-        "role": "chart-series",
+        "role": "secondary",
         "displayName": "Chart Standard",
+        "canonical": "#9b6928",
+        "darkCanonical": "#eda963",
         "tonalRamp": [
-          "oklch(15% 0.12232 4.85)",
-          "oklch(26% 0.12232 4.85)",
-          "oklch(38% 0.12232 4.85)",
-          "oklch(49% 0.12232 4.85)",
-          "oklch(61% 0.12232 4.85)",
-          "oklch(72% 0.12232 4.85)",
-          "oklch(84% 0.12232 4.85)",
-          "oklch(95% 0.12232 4.85)"
+          "oklch(15% 0.10214 69.70)",
+          "oklch(26% 0.10214 69.70)",
+          "oklch(38% 0.10214 69.70)",
+          "oklch(49% 0.10214 69.70)",
+          "oklch(61% 0.10214 69.70)",
+          "oklch(72% 0.10214 69.70)",
+          "oklch(84% 0.10214 69.70)",
+          "oklch(95% 0.10214 69.70)"
         ]
       },
-      "chart-high-impact": {
-        "role": "chart-series",
-        "displayName": "Chart High Impact",
+      "chart-impact": {
+        "role": "secondary",
+        "displayName": "Chart Impact",
+        "canonical": "#3f7774",
+        "darkCanonical": "#8bbcb3",
         "tonalRamp": [
-          "oklch(15% 0.04522 273.78)",
-          "oklch(26% 0.04522 273.78)",
-          "oklch(38% 0.04522 273.78)",
-          "oklch(49% 0.04522 273.78)",
-          "oklch(61% 0.04522 273.78)",
-          "oklch(72% 0.04522 273.78)",
-          "oklch(84% 0.04522 273.78)",
-          "oklch(95% 0.04522 273.78)"
+          "oklch(15% 0.05951 191.00)",
+          "oklch(26% 0.05951 191.00)",
+          "oklch(38% 0.05951 191.00)",
+          "oklch(49% 0.05951 191.00)",
+          "oklch(61% 0.05951 191.00)",
+          "oklch(72% 0.05951 191.00)",
+          "oklch(84% 0.05951 191.00)",
+          "oklch(95% 0.05951 191.00)"
         ]
       },
-      "qr-black": {
-        "role": "qr",
-        "displayName": "QR Black",
+      "skeleton": {
+        "role": "neutral",
+        "displayName": "Skeleton",
+        "canonical": "#e4dfd5",
+        "darkCanonical": "#262725",
         "tonalRamp": [
-          "oklch(15% 0.00000 0.00)",
-          "oklch(26% 0.00000 0.00)",
-          "oklch(38% 0.00000 0.00)",
-          "oklch(49% 0.00000 0.00)",
-          "oklch(61% 0.00000 0.00)",
-          "oklch(72% 0.00000 0.00)",
-          "oklch(84% 0.00000 0.00)",
-          "oklch(95% 0.00000 0.00)"
+          "oklch(15% 0.01452 84.58)",
+          "oklch(26% 0.01452 84.58)",
+          "oklch(38% 0.01452 84.58)",
+          "oklch(49% 0.01452 84.58)",
+          "oklch(61% 0.01452 84.58)",
+          "oklch(72% 0.01452 84.58)",
+          "oklch(84% 0.01452 84.58)",
+          "oklch(95% 0.01452 84.58)"
         ]
       },
-      "skeleton-base": {
-        "role": "loading",
-        "displayName": "Skeleton Base",
+      "skeleton-shine": {
+        "role": "neutral",
+        "displayName": "Skeleton Shine",
+        "canonical": "#f5f1e9",
+        "darkCanonical": "#343530",
         "tonalRamp": [
-          "oklch(15% 0.00599 350.80)",
-          "oklch(26% 0.00599 350.80)",
-          "oklch(38% 0.00599 350.80)",
-          "oklch(49% 0.00599 350.80)",
-          "oklch(61% 0.00599 350.80)",
-          "oklch(72% 0.00599 350.80)",
-          "oklch(84% 0.00599 350.80)",
-          "oklch(95% 0.00599 350.80)"
+          "oklch(15% 0.01147 84.58)",
+          "oklch(26% 0.01147 84.58)",
+          "oklch(38% 0.01147 84.58)",
+          "oklch(49% 0.01147 84.58)",
+          "oklch(61% 0.01147 84.58)",
+          "oklch(72% 0.01147 84.58)",
+          "oklch(84% 0.01147 84.58)",
+          "oklch(95% 0.01147 84.58)"
         ]
+      }
+    },
+    "themeModes": {
+      "selector": "html[data-theme]",
+      "default": "device preference when no explicit saved choice exists",
+      "storageKey": "societyhub-theme",
+      "light": {
+        "ground": "#f4f1eb",
+        "paper": "#fffdf8",
+        "ink": "#252321",
+        "muted": "#69625a",
+        "line": "#ded9cf",
+        "tint": "#ece7de",
+        "maroon": "#6b3037",
+        "maroon-light": "#54232a",
+        "on-accent": "#fff9ef",
+        "input": "#faf7f1",
+        "input-border": "#8e867b",
+        "focus": "#9c4c41",
+        "green": "#28624d",
+        "green-bg": "#e1eee5",
+        "amber": "#805014",
+        "amber-bg": "#f8e9cc",
+        "red": "#a02f31",
+        "red-bg": "#f8e5e1",
+        "chart-prt": "#8c4544",
+        "chart-standard": "#9b6928",
+        "chart-impact": "#3f7774",
+        "skeleton": "#e4dfd5",
+        "skeleton-shine": "#f5f1e9"
       },
-      "skeleton-highlight": {
-        "role": "loading",
-        "displayName": "Skeleton Highlight",
-        "tonalRamp": [
-          "oklch(15% 0.00345 354.69)",
-          "oklch(26% 0.00345 354.69)",
-          "oklch(38% 0.00345 354.69)",
-          "oklch(49% 0.00345 354.69)",
-          "oklch(61% 0.00345 354.69)",
-          "oklch(72% 0.00345 354.69)",
-          "oklch(84% 0.00345 354.69)",
-          "oklch(95% 0.00345 354.69)"
-        ]
+      "dark": {
+        "ground": "#0c0d0e",
+        "paper": "#171819",
+        "ink": "#f3ebdd",
+        "muted": "#bcb4a6",
+        "line": "#343431",
+        "tint": "#242524",
+        "maroon": "#f3ebdd",
+        "maroon-light": "#ffffff",
+        "on-accent": "#191a18",
+        "input": "#111213",
+        "input-border": "#77776d",
+        "focus": "#edb785",
+        "green": "#add9bd",
+        "green-bg": "#1d382d",
+        "amber": "#f0ca89",
+        "amber-bg": "#3b3020",
+        "red": "#ffb5ab",
+        "red-bg": "#3d2325",
+        "chart-prt": "#e5c9a9",
+        "chart-standard": "#eda963",
+        "chart-impact": "#8bbcb3",
+        "skeleton": "#262725",
+        "skeleton-shine": "#343530"
       }
     },
     "typographyMeta": {
       "headline": {
-        "displayName": "Page heading",
-        "purpose": "Geist display role; dashboard retains a more-specific desktop size and mobile override."
+        "displayName": "Page headline",
+        "purpose": "Orientation within the workspace."
       },
-      "title": {
-        "displayName": "Section heading",
-        "purpose": "22px, weight 680; 20px mobile."
+      "hero": {
+        "displayName": "Login hero",
+        "purpose": "Public landing message; sans-serif, never script."
+      },
+      "section": {
+        "displayName": "Section title",
+        "purpose": "Identify the next operating task."
       },
       "body": {
         "displayName": "Body",
-        "purpose": "16px/1.55 Geist; descriptive copy uses 15px/1.65."
+        "purpose": "Readable forms and instructions."
       },
-      "label": {
-        "displayName": "Label",
-        "purpose": "14px, weight 600 for controls, navigation and field labels."
-      },
-      "point-total": {
-        "displayName": "Point total",
-        "purpose": "Actual earned total in the category ledger; 32px desktop and 26px mobile."
-      },
-      "item": {
-        "displayName": "Item heading",
-        "purpose": "17px, weight 650."
-      },
-      "metadata": {
-        "displayName": "Metadata",
-        "purpose": "13px/1.6 muted supporting information."
+      "data": {
+        "displayName": "Readiness total",
+        "purpose": "Large current-data percentage with written context."
       }
     },
-    "shadows": [
+    "breakpoints": [
       {
-        "name": "primary-hover",
-        "value": "0 3px 8px #50000016",
-        "purpose": "Primary button hover only."
+        "name": "mobile",
+        "value": "760px"
       },
       {
-        "name": "drawer",
-        "value": "10px 0 40px #28000033",
-        "purpose": "Open mobile navigation edge."
+        "name": "login-tablet",
+        "value": "1000px"
       },
       {
-        "name": "qr-modal",
-        "value": "0 24px 80px #1d001a30",
-        "purpose": "Centered native QR dialog."
-      },
-      {
-        "name": "point-reset-dialog",
-        "value": "0 24px 80px #211d2030",
-        "purpose": "Typed confirmation for resetting all society points."
+        "name": "navigation-two-row",
+        "value": "1200px"
       }
     ],
     "motion": [
       {
-        "name": "hover",
-        "value": "0.15s ease",
-        "purpose": "Navigation background and button background/shadow."
+        "name": "greeting-arrive",
+        "value": "520ms cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "Existing once-per-session society greeting."
       },
       {
-        "name": "drawer",
-        "value": "0.2s ease",
-        "purpose": "Mobile drawer transform."
+        "name": "earned-share-fill",
+        "value": "460ms cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "Existing nonzero earned-share bar draw."
+      },
+      {
+        "name": "prt-ring-draw",
+        "value": "850ms cubic-bezier(0.22, 1, 0.36, 1)",
+        "purpose": "Existing minimum-met ring draw."
       },
       {
         "name": "reduced-motion",
-        "value": "none",
-        "purpose": "Disable animation and transition when reduced motion is requested."
-      },
-      {
-        "name": "auth-maroon-ribbons",
-        "value": "none; static SEC reference ribbon SVG image",
-        "purpose": "Local reference-derived auth-story artwork remains still for all motion preferences; no animation loop or timed rendering."
-      },
-      {
-        "name": "society-greeting",
-        "value": "520ms cubic-bezier(0.16, 1, 0.3, 1); 60ms word stagger capped at 600ms",
-        "purpose": "The society greeting\u2019s words are individual inline blocks that fade from opacity (0) to (1) and slide from horizontal offset (-16px) to (0) over (520ms), with `cubic-bezier(0.16, 1, 0.3, 1)` easing. Words stagger by (60ms), capped at (600ms). It plays once per authenticated session and resets on an authentication-required (401) response. Reduced-motion preference disables the greeting animation. The login ribbon remains static; earned-share bars and the completed PRT ring use the scoped draw motion described below."
-      },
-      {
-        "name": "earned-share-bar",
-        "value": "460ms cubic-bezier(0.16, 1, 0.3, 1)",
-        "purpose": "Nonzero bars scaleX(0) to scaleX(1), origin left center; replay only on mount or society/point-period/category-value/earned-total key changes; reduced motion shows final state."
-      },
-      {
-        "name": "prt-requirement-draw",
-        "value": "850ms cubic-bezier(0.22, 1, 0.36, 1)",
-        "purpose": "Met ring draws clockwise from top with stroke-dashoffset 100 to 0; key is society/point-period/met state; no replay from a higher already-met PRT amount; reduced motion shows final state."
-      },
-      {
-        "name": "workspace-refresh",
-        "value": "800ms linear infinite",
-        "purpose": "Refresh icon while loading; disabled by reduced motion."
-      },
-      {
-        "name": "loading-skeleton",
-        "value": "1.6s ease-in-out infinite",
-        "purpose": "Placeholder shimmer only; reduced motion shows the static base fill."
+        "value": "disable CSS animation and transitions; static skeleton base",
+        "purpose": "Respect reduced-motion preference."
       }
     ],
-    "breakpoints": [
-      {
-        "name": "tablet-max",
-        "value": "1150px"
-      },
-      {
-        "name": "mobile-max",
-        "value": "760px"
-      },
-      {
-        "name": "wide-min",
-        "value": "1600px"
-      }
-    ],
+    "surfaces": {
+      "dream": "radial-gradient(ellipse at 75% 15%, #be883b 0, transparent 50%),\n    radial-gradient(ellipse at 95% 45%, #a44738 0, transparent 47%),\n    radial-gradient(ellipse at 85% 100%, #7ba99e 0, transparent 50%),\n    linear-gradient(130deg, #203b3e, #685645 65%, #a99a74)",
+      "dreamSoftLight": "radial-gradient(ellipse at 85% 5%, #e8c3a3, transparent 60%),\n    radial-gradient(ellipse at 70% 100%, #c8dbd0, transparent 65%), #eae2d7",
+      "dreamSoftDark": "radial-gradient(ellipse at 85% 5%, #6f3f39, transparent 65%),\n    radial-gradient(ellipse at 60% 120%, #335a5b, transparent 65%), #262a32"
+    },
+    "focus": {
+      "outline": "2px solid var(--focus)",
+      "offset": "4px"
+    },
+    "layout": {
+      "containerMax": "1440px",
+      "editorMax": "980px",
+      "desktopContentInset": "40px",
+      "tabletContentInset": "28px",
+      "mobileContentInset": "18px",
+      "desktopContextHeight": "76px",
+      "mobileToolbarHeight": "68px",
+      "loginColumns": "minmax(0, 1.2fr) minmax(420px, .8fr)",
+      "loginFormMax": "400px"
+    },
     "brand": {
       "publicName": "SocietyHub",
-      "asset": "public/sec-logo.png",
-      "sourceAsset": "Delphi/public/sec_favicon.png",
-      "preservation": "Copied unchanged; retain proportions, contain fit, circular rounding, and no shrinking.",
-      "sidebar": {
-        "fontFamily": "Geist Variable",
-        "fontSize": "21px",
-        "fontWeight": 750,
-        "logoWidth": "42px",
-        "logoHeight": "42px",
-        "gap": "10px",
-        "paddingInline": "6px"
-      },
-      "signIn": {
-        "logoWidth": "48px",
-        "logoHeight": "48px",
-        "fontSizeDesktop": "25px",
-        "fontSizeMobile": "21px",
-        "gap": "14px",
-        "placement": "Single logo in the story\u2019s top brand; no duplicate logo above the form heading."
-      },
-      "loading": {
-        "logoWidth": "48px",
-        "logoHeight": "48px"
-      }
+      "logo": "/sec-logo.png",
+      "ribbon": "/society-ribbon.svg",
+      "ribbonUsage": "Static, pointer-inert login hero accent only; old workspace pseudo-elements suppressed."
     },
-    "authStoryBackground": {
-      "description": "The user-pinned sign-in foundation is white (#ffffff), with equal desktop design/form columns. The static maroon artwork retains the SEC reference geometry, served locally as `public/society-ribbon.svg` from `https://ragnarok-flame-iota.vercel.app/brand/sign-in-ribbon.svg`. Its centered framing uses viewBox `570 -80 890 1070` and `xMidYMid meet`, with no artwork transform. The image is contained at opacity (0.88), inset (112px 2% 120px) within the left panel. The SVG\u2019s own soft-ends mask uses edge-fade stops at (0.025) and (0.975), retaining more of the broad ribbon; there is no extra CSS mask, readability veil, or right-edge fade. The decorative image is pointer-inert, hidden from assistive technology, and has no animation, client rendering loop, or runtime external request. The panel contains only its top brand, artwork, and bottom description, \u201cThe home for Texas A&M engineering societies and SEC.\u201d Mobile hides the artwork and description, retaining a compact brand header and bottom divider. The authenticated workspace keeps the same white foundation, pale rules, and muted maroon focus outline.",
-      "headingColor": "var(--ink)",
-      "pointerEvents": "none",
-      "ariaHidden": true,
-      "externalAssets": false,
-      "surfaceColor": "#ffffff",
-      "bodyColor": "var(--muted)",
-      "brandColor": "var(--maroon)",
-      "focusColor": "#8c4658",
-      "lineColor": "#e5e2df",
-      "renderer": "Static local SVG image",
-      "viewBox": "570 -80 890 1070",
-      "animation": "none",
-      "asset": "public/society-ribbon.svg",
-      "sourceAsset": "https://ragnarok-flame-iota.vercel.app/brand/sign-in-ribbon.svg",
-      "maskImage": "none",
-      "preserveAspectRatio": "xMidYMid meet",
-      "imageObjectFit": "contain",
-      "imageOpacity": 0.88,
-      "inset": "112px 2% 120px",
-      "mobileVisibility": "hidden at 760px and below",
-      "svgMask": "soft-ends",
-      "svgFadeStops": [
-        0.025,
-        0.975
-      ]
-    },
-    "applicationReceipts": {
-      "description": "Application forms add a labeled confirmation-email field using the existing control style, with help text explaining the receipt destination and acceptance of an officer\u2019s personal email or a society email. Receipt status is a normal paragraph (13px), with (16px 0 22px) margins and wrapping for long addresses; written messages distinguish queued, sent, and failed delivery while confirming that a failed email leaves the application saved. SEC review offers the existing secondary-button style to retry eligible unsent receipts, disabled while busy. These additions retain the ordinary form and record hierarchy.",
-      "fieldLabel": "Confirmation email",
-      "fieldHelp": "We\u2019ll send a receipt here when you submit. An officer\u2019s personal email or a society email works.",
-      "inputType": "email",
-      "autoComplete": "email",
-      "statusTypography": "13px body font",
-      "statusMargin": "16px 0 22px",
-      "statusOverflowWrap": "anywhere",
-      "retryVariant": "button-secondary",
-      "retryVisibility": "Receipt exists, status is not SENT, and confirmation attempts are below 5.",
-      "retryBusyState": "disabled"
-    },
-    "dashboard": {
-      "layoutDescription": "The public navigation destination is Dashboard. SEC\u2019s dashboard prioritizes the oldest five applications awaiting review with direct review actions and a full-queue link, then the earliest five upcoming or ongoing events with event-management actions and explicit check-in status. It also shows up to five enabled societies without an active PRT credit in the current point period and up to five enabled accounts awaiting setup across all point periods, with direct setup-link actions. Counts beside section headings reflect the full matching lists, and truncation text points to the complete destination. The full society points table remains available in the initially collapsed native disclosure, \u201cAll society point totals.\u201d The society dashboard greets its account with \u201cHello, {display_name}\u201d without an overview subtitle. It retains applications and recent attendance, shows the next three upcoming or ongoing events with a View events link, and replaces the former three-column trackers with the Society points ledger and separate PRT requirement.",
-      "rowDescription": "Dashboard action rows reuse ruled records and existing primary, secondary, or text actions. Row content allows shrinking with `min-width: 0`, while its direct action does not shrink. At (760px) and below, action rows stack their content and action vertically, align to the start, and use an (8px) gap. The native points-register disclosure summary is maroon, (13px), weight (650), with (12px 0 20px) padding. Repeated direct actions have descriptive accessible names; changing navigation destinations scrolls to the top.",
-      "publicNavigationLabel": "Dashboard",
-      "admin": {
-        "pendingReviews": {
-          "scope": "Current point period, submitted applications",
-          "sort": "Oldest submission first",
-          "previewLimit": 5,
-          "actions": [
-            "Review application",
-            "Open review queue"
-          ]
-        },
-        "events": {
-          "scope": "Current point period, not yet ended",
-          "sort": "Earliest start first",
-          "previewLimit": 5,
-          "action": "Manage event",
-          "status": "Shared full-text check-in status; no user-facing manual-award explanation."
-        },
-        "prtFollowUp": {
-          "scope": "Enabled societies without an active, nonrevoked PRT credit of at least one point in the current point period",
-          "previewLimit": 5,
-          "fullRegister": "All society point totals"
-        },
-        "awaitingSetup": {
-          "scope": "Enabled, unactivated society accounts across all point periods",
-          "previewLimit": 5,
-          "action": "Issue setup link"
-        },
-        "counts": "Full matching lists, independent of preview limits.",
-        "pointTotalsDisclosure": {
-          "label": "All society point totals",
-          "element": "details / summary",
-          "initialState": "collapsed",
-          "summaryColor": "var(--maroon)",
-          "summaryFontSize": "13px",
-          "summaryFontWeight": 650,
-          "summaryPadding": "12px 0 20px"
-        }
-      },
-      "society": {
-        "preserves": [
-          "Category totals",
-          "Applications",
-          "Recent attendance"
-        ],
-        "eventsPreviewLimit": 3,
-        "eventsLink": "View events",
-        "greeting": "Hello, {display_name}",
-        "subtitle": null,
-        "fundingNote": "Removed."
-      },
-      "responsiveRows": {
-        "contentMinWidth": "0",
-        "actionFlexShrink": 0,
-        "mobileMax": "760px",
-        "mobileDirection": "column",
-        "mobileAlignItems": "flex-start",
-        "mobileGap": "8px"
-      },
-      "composition": {
-        "description": "Dashboard composition uses open sections separated by hairlines, with (26px 0) section padding and (24px 0) on mobile. The page headline is `clamp(34px, 3.5vw, 52px)` with (1.12) line height and (-0.04em) tracking, with mobile title sizing defined by the Typography section. Section headings are (22px), weight (680), reducing to (20px) on mobile; counts sit outside the heading in muted body type (14px, weight 500). Empty sections become one compact status line with a check icon and an optional destination action, using (18px 0) padding, without an extra heading or description. Each section keeps its accessible name and `data-count`. SEC has one primary header action: review the oldest pending application, otherwise manage the earliest upcoming event, otherwise create an event. The collapsed points-register content is also flat. The society greeting has the scoped entrance motion described below; the static login reference artwork remains unchanged.",
-        "sectionPadding": "26px 0",
-        "mobileSectionPadding": "24px 0",
-        "emptyPadding": "18px 0",
-        "columnGap": "42px",
-        "rowGap": "0",
-        "headlineFontSize": "clamp(34px, 3.5vw, 52px)",
-        "mobileHeadlineFontSize": "clamp(2rem, 7.5vw, 2.75rem)",
-        "sectionHeadingSize": "22px",
-        "mobileSectionHeadingSize": "20px",
-        "sectionHeadingWeight": 680,
-        "countFontSize": "14px",
-        "countFontWeight": 500,
-        "contextRow": "Unboxed; no ribbon artwork.",
-        "motion": "Greeting words animate once per authenticated session; nonzero earned-share bars and the completed PRT ring draw on mount or keyed state changes; login ribbon remains static.",
-        "primaryHeaderActionPriority": [
-          "Review next application: oldest pending submission",
-          "Manage next event: earliest upcoming event",
-          "Create event"
-        ]
-      }
-    },
-    "loginHelp": {
-      "description": "The login combines account setup and password-reset help in one pale rose card (#fcf5f5) with a (1px #ead4d8) border, the input-matching (6px) radius, (18px) padding, and a (32px minmax(0, 1fr)) grid with a (12px) gap. A maroon KeyRound icon (17px) sits in a white circular holder (32px). The bold title is (14px) and body is (13px / 1.65); body margins are (7px 0 10px). The \u201cContact an SEC chair\u201d action is maroon (12px, weight 650), with an ArrowRight icon, (8px) gap, and (36px) minimum height; hover underlines the label. Its mail link targets `society@sec.tamu.edu` with subject \u201cSocietyHub account help.\u201d Autofilled sign-in inputs retain white fill with a (1000px) inset white shadow, ink text and text fill, and a maroon caret through `:is(:autofill, :-webkit-autofill)`.",
-      "background": "#fcf5f5",
-      "border": "1px solid #ead4d8",
-      "radius": "6px",
-      "padding": "18px",
-      "marginTopDesktop": "28px",
-      "marginTopMobile": "25px",
-      "gridTemplateColumns": "32px minmax(0, 1fr)",
-      "gap": "12px",
-      "icon": {
-        "name": "KeyRound",
-        "size": "17px",
-        "holderSize": "32px",
-        "holderBackground": "#ffffff",
-        "holderShape": "circle",
-        "color": "var(--maroon)"
-      },
-      "titleSize": "14px",
-      "bodySize": "13px",
-      "bodyMargin": "7px 0 10px",
-      "action": {
-        "label": "Contact an SEC chair",
-        "href": "mailto:society@sec.tamu.edu?subject=SocietyHub%20account%20help",
-        "fontSize": "12px",
-        "fontWeight": 650,
-        "color": "var(--maroon)",
-        "icon": "ArrowRight",
-        "iconSize": "17px",
-        "gap": "8px",
-        "minHeight": "36px",
-        "hover": "underline"
-      }
-    },
-    "loginAutofill": {
-      "selector": ".auth-form input:is(:autofill, :-webkit-autofill)",
-      "backgroundColor": "#ffffff !important",
-      "color": "var(--ink) !important",
-      "webkitTextFillColor": "var(--ink)",
-      "caretColor": "var(--maroon)",
-      "boxShadow": "0 0 0 1000px #fff inset"
-    },
-    "navigationActive": {
-      "background": "transparent",
-      "color": "var(--maroon)",
-      "radius": "6px",
-      "markerWidth": "2px",
-      "markerColor": "var(--maroon)",
-      "markerTop": "12px",
-      "markerBottom": "12px",
-      "markerLeft": "0"
-    },
-    "eventCalendar": {
-      "description": "Events offer List and Calendar views through native `aria-pressed` buttons in a white, line-bordered (6px) segmented control with a rose active fill. The view toolbar sits outside the content panel. The current point-period month calendar uses Central-time event windows, seven equal columns, and minimum day heights of (110px) desktop and (64px) mobile. Events render as continuous weekly spans in reusable nonoverlapping lanes, labeled once per weekly segment, with continuation arrows at clipped edges. Category fills use maroon, Standard rose, and High Impact slate, with a named legend and readable selected-day details. Date buttons retain roving keyboard focus, arrows and Home/End, a pale rose selected-day state, and a maroon circle for today; month navigation remains within scoped bounds.",
-      "viewControlRadius": "6px",
-      "dayMinHeight": "110px",
-      "mobileDayMinHeight": "64px",
-      "timeZone": "America/Chicago",
-      "categoryTokens": {
-        "PRT": "maroon",
-        "STANDARD": "chart-standard",
-        "HIGH_IMPACT": "chart-high-impact"
-      },
-      "selectionFill": "#fcf5f5",
-      "selectionShadow": "inset 0 0 0 1px #b58e98",
-      "gridRole": "grid",
-      "focus": "Roving date buttons; arrow keys and Home/End.",
-      "eventRendering": "Continuous weekly spans; one label per segment; clipped edges have continuation arrows.",
-      "viewToolbar": "Outside content panel.",
-      "selectedDayDetails": {
-        "description": "Calendar selected-day details begin with a date block, date heading, and event count. Each event has a clear title (17px, weight 650; 15px mobile) beside its point amount, a category label underneath, clock/location facts, description text bounded to (70ch) at (13px / 1.65), and a distinct written check-in status with a dot. The day heading is (20px), reducing to (17px) on mobile. Event rows use (24px) vertical padding and a (24px) gap; mobile stacks details and actions with a (16px) gap and puts facts on separate lines.",
-        "titleSize": "17px",
-        "mobileTitleSize": "15px",
-        "titleWeight": 650,
-        "descriptionMaxWidth": "70ch",
-        "descriptionSize": "13px",
-        "descriptionLineHeight": 1.65,
-        "rowPadding": "24px 0",
-        "gap": "24px",
-        "mobileGap": "16px",
-        "facts": [
-          "Clock / event window",
-          "Location"
-        ],
-        "checkinStatus": "Distinct written label with dot"
-      }
-    },
-    "administrativeForms": {
-      "description": "Administrative activity is an admin-only native disclosure, initially collapsed within an operational panel. Its summary uses Geist Variable (18px, weight 650), (17px) on mobile, an activity count, and a maroon chevron that rotates on open; expanded content is separated by (20px). Application authoring explicitly offers Save draft / Publish application, or Save published changes / Unpublish and save draft for published forms. The publication actions follow a top rule, (28px) top margin, and (20px) top padding. Drafts carry an amber label and a written not-published hint; the application list offers a primary Publish application action. Publication changes preserve the existing versioned form and saved submission behavior.",
-      "auditDefault": "collapsed",
-      "auditSummary": "650 18px/1.4 var(--heading)",
-      "auditSummaryMobileSize": "17px",
-      "publicationActions": {
-        "marginTop": "28px",
-        "paddingTop": "20px",
-        "borderTop": "1px solid var(--line)"
-      },
-      "draftActions": [
-        "Save draft",
-        "Publish application"
-      ],
-      "publishedActions": [
-        "Save published changes",
-        "Unpublish and save draft"
-      ],
-      "draftLabelTone": "amber"
-    },
-    "checkInQr": {
-      "description": "Event check-in QR artwork opens in a centered native dialog with a maximum width of (900px), white surface, panel radius, shadow (`0 24px 80px #1d001a30`), and dark backdrop (#21181b66). Its width is `min(900px, calc(100% - 48px))`, with a maximum height of `calc(100dvh - 48px)`; mobile uses (24px) total viewport clearance. The dialog traps Tab focus, restores the opener and page scrolling on close, and closes by its close control, Escape, or backdrop click. It retains a locally generated (1024px) black-on-white PNG download, sanitized event-derived filename, and current-link-bound image. Link replacement reports success locally with role status and explicitly invalidates earlier links/QRs; failure uses role alert and asks the user to reload before sharing. The event row keeps Edit and QR & link together, with an outlined Enable check-in / Pause check-in action below. On mobile, the action grid uses two equal columns and the check-in action spans the full third row. All actions retain (44px) minimum height; the check-in action uses maroon text and an input-line border rather than a switch graphic.",
-      "format": "image/png",
-      "width": "min(900px, calc(100% - 48px))",
-      "dark": "#000000",
-      "light": "#ffffff",
-      "downloadLabel": "Download PNG",
-      "linkBinding": "Current check-in link only; invalidate outdated image.",
-      "container": "Native centered dialog",
-      "maxWidth": "900px",
-      "maxHeight": "calc(100dvh - 48px)",
-      "mobileWidth": "calc(100% - 24px)",
-      "mobileMaxHeight": "calc(100dvh - 24px)",
-      "backdrop": "#21181b66",
-      "shadow": "0 24px 80px #1d001a30",
-      "focus": "Trap Tab and restore opener on close.",
-      "dismissal": [
-        "Close control",
-        "Escape",
-        "Backdrop click"
-      ],
-      "replacementSuccessRole": "status",
-      "replacementFailureRole": "alert",
-      "preparation": "260px square skeleton; accessible Preparing QR code status."
-    },
-    "loginLayout": {
-      "description": "Login uses equal white columns separated by a thin vertical rule. The left design panel has (48px 56px) padding, its SEC/SocietyHub brand at the top, centered contained artwork, and a short centered description at the bottom (`clamp(12px, 1vw, 14px)`, no width cap, no wrapping). The form column uses (64px clamp(40px, 7vw, 112px)) padding and a (400px) form maximum width. At (760px) and below, art and description are hidden, leaving a compact brand header with (25px 24px) padding and a bottom divider; the form uses (36px 24px) padding and a (440px) maximum width.",
-      "columns": "1fr 1fr",
-      "divider": "1px solid var(--line)",
-      "designPanelPadding": "48px 56px",
-      "descriptionText": "The home for Texas A&M engineering societies and SEC.",
-      "descriptionFontSize": "clamp(12px, 1vw, 14px)",
-      "descriptionMaxWidth": "none",
-      "descriptionAlign": "center",
-      "formColumnPadding": "64px clamp(40px, 7vw, 112px)",
-      "formMaxWidth": "400px",
-      "primaryHeading": {
-        "element": "h1",
-        "fontSize": "clamp(1.75rem, 2.5vw, 2rem)",
-        "mobileFontSize": "28px",
-        "letterSpacing": "-0.035em",
-        "lineHeight": 1.2,
-        "margin": "0 0 14px",
-        "fontWeight": 720
-      },
-      "mobile": {
-        "maxWidth": "760px",
-        "columns": "1fr",
-        "artAndDescription": "hidden",
-        "brandPadding": "25px 24px",
-        "brandBorderBottom": "1px solid var(--line)",
-        "formPadding": "36px 24px",
-        "formMaxWidth": "440px"
-      },
-      "descriptionWhiteSpace": "nowrap"
-    },
-    "eventRowActions": {
-      "desktopColumns": "72px 104px",
-      "gap": "8px",
-      "actionMinHeight": "44px",
-      "togglePlacementDesktop": "Outlined action below Edit and QR & link",
-      "mobileColumns": "1fr 1fr",
-      "togglePlacementMobile": "Full-width third row",
-      "toggleState": "aria-pressed",
-      "actionLabels": [
-        "Enable check-in",
-        "Pause check-in"
-      ],
-      "appearance": "Outlined maroon text action; no switch graphic."
-    },
-    "applicationChoices": {
-      "description": "Choice-based application questions use separate required Choice N input rows rather than a multiline options editor. Rows use a (10px) gap with a flexible field and an icon remove control (44px minimum width, 44px minimum height). The choice group is capped at (640px) with (12px) row gaps and (20px 0 26px) margins. Add choice focuses the new field; removal focuses the preceding available choice. Each choice accepts up to (200) characters, with at least one and at most (30) choices; removal is disabled at one. Select and checkbox questions save their options array, while other question types normalize options to an empty array.",
-      "groupMaxWidth": "640px",
-      "groupGap": "12px",
-      "rowGap": "10px",
-      "choiceMin": 1,
-      "choiceMax": 30,
-      "choiceMaxLength": 200,
-      "removeMinWidth": "44px",
-      "removeMinHeight": "44px",
-      "labels": "Choice N",
-      "addAction": "Add choice",
-      "focusOnAdd": "New choice field",
-      "focusOnRemove": "Preceding available field",
-      "nonchoiceOptions": []
-    },
-    "applicationReadOnly": {
-      "description": "Application content is aligned to a maximum width of (800px). On mobile, the containing panel header and back action stack with a (14px) gap. A submitted society application displays its saved question version and answers in a read-only definition list, with maroon checkmarks for selected multiple-choice values. Question labels are muted (12px, weight 600), answers are (14px) with (1.65) line height, and responses are separated by rules with (20px) vertical padding. A pale rose submission receipt (#fcf5f5), bordered (#ead4d8) and rounded (6px), uses (18px 20px) padding and a (30px) bottom margin; it shows submitted time, confirmation delivery status, and written metadata. Status remains visible above the responses. Drafts and changes-requested submissions retain editable fields when open; other existing read-only conditions still apply.",
-      "maxWidth": "800px",
-      "responsesElement": "dl / dt / dd",
-      "questionTypography": "600 12px body font",
-      "answerTypography": "14px / 1.65 body font",
-      "responsePadding": "20px 0",
-      "receiptBackground": "#fcf5f5",
-      "receiptBorder": "1px solid #ead4d8",
-      "receiptRadius": "6px",
-      "receiptPadding": "18px 20px",
-      "receiptMarginBottom": "30px",
-      "editableStatuses": [
-        "DRAFT",
-        "CHANGES_REQUESTED"
-      ],
-      "version": "Saved submission question version",
-      "mobileHeader": "Column, start-aligned, 14px gap"
-    },
-    "attendanceLedger": {
-      "description": "Attendance history is a ruled ledger with a compact date block, readable event details, and a prominent point amount rather than a tiny badge. A muted (13px) caption reports the active-record count. Rows use (24px) vertical padding and a (20px) gap; the date block is (56px) wide, and the point amount is Geist Variable (30px, weight 700, line height 1.15). Mobile uses (12px) gaps, a (44px) date block, (13px) event titles, and (26px) amounts, keeping the core row together unless correction controls need wrapping. Removed records retain their written state with muted date styling. The former \u201cOne society. One record\u201d funding note is absent from the dashboard.",
-      "rowPadding": "24px 0",
-      "gap": "20px",
-      "dateWidth": "56px",
-      "mobileDateWidth": "44px",
-      "pointTypography": "700 30px/1.15 var(--heading)",
-      "mobilePointSize": "26px",
-      "caption": "Active-record count; 13px muted text."
-    },
-    "societyPoints": {
-      "description": "Society points is a category ledger with Category, Earned, and Minimum columns, an actual earned-total heading, and an Attendance history action. Each ruled category row has a status icon, its point rate, and a (7px) bar showing that category\u2019s share of total earned points, with no implied target. PRT uses maroon, Standard uses chart-standard rose, and High Impact uses chart-high-impact slate. Only PRT has a minimum of one point; Standard and High Impact display None. A separate (180px) ring shows the PRT requirement capped at 0 / 1 or 1 / 1, with (10px) strokes and an explicit requirement status; the ledger and accessible ring label retain the true PRT total even above one. Completed status uses semantic green. A zero total leaves all share bars empty and states that no points are recorded. Totals use only the selected society/current point period\u2019s nonrevoked credits. The display has no timeline, forecast, category-filter controls, or monthly-data disclosure. Its nonzero share bars and completed requirement ring use a brief draw entrance while text and numbers stay constant.",
-      "layout": "minmax(0, 2fr) minmax(240px, 1fr)",
-      "gap": "44px",
-      "requirementBorder": "1px solid var(--line)",
-      "requirementPaddingLeft": "36px",
-      "stackMaxWidth": "1000px",
-      "stackGap": "28px",
-      "stackRequirementPaddingTop": "24px",
-      "totalMobileSize": "26px",
-      "earnedValue": "750 24px var(--heading)",
-      "categoryTokens": {
-        "PRT": "maroon",
-        "STANDARD": "chart-standard",
-        "HIGH_IMPACT": "chart-high-impact"
-      },
-      "columns": [
-        "Category",
-        "Earned",
-        "Minimum"
-      ],
-      "shareTrackHeight": "7px",
-      "shareMeaning": "Category earned points / actual total earned points; zero total yields zero-width bars.",
-      "minimum": {
-        "PRT": 1,
-        "STANDARD": null,
-        "HIGH_IMPACT": null
-      },
-      "ring": {
-        "size": "180px",
-        "strokeWidth": "10px",
-        "cap": 1,
-        "label": "Includes capped requirement and actual PRT total."
-      },
-      "motion": "Earned-share bars scale horizontally from (0) to (1), anchored at the left center, over (460ms) with `cubic-bezier(0.16, 1, 0.3, 1)` easing. The completed PRT ring draws clockwise from the top by changing stroke dash offset from (100) to (0) over (850ms) with `cubic-bezier(0.22, 1, 0.36, 1)` easing. These draw once on mount or when their keyed state changes: bars key society, point period, category value, and total; the ring keys society, point period, and whether the minimum is met. Increasing an already-met PRT total does not replay the ring. Zero bars and an unmet ring have no draw animation. Reduced-motion preference shows the final state immediately, with all numeric values and status text stable throughout."
-    },
-    "pointReset": {
-      "description": "Point periods are controlled manually by SEC. Settings & audit provides Reset all society points, opening a native confirmation dialog that requires the exact text RESET POINTS. The white dialog has a (10px) radius, a line border, width `min(540px, calc(100% - 32px))`, (32px) padding (24px mobile), shadow (`0 24px 80px #211d2030`), and a blurred dark backdrop. It reports archived record/point counts before confirmation; busy controls prevent duplicate submission. Reset begins a new current points period for every society while preserving attendance history, events, forms, submissions, and QR links. Previous attendance records is a native disclosure with a (17px, weight 650) summary and an Export all history CSV action. Closing and reopening event check-in preserves the QR; an expired window opens the event editor so chairs can set a new window.",
-      "confirmation": "RESET POINTS",
-      "location": "Settings & audit",
-      "scope": "All societies",
-      "radius": "10px",
-      "width": "min(540px, calc(100% - 32px))",
-      "padding": "32px",
-      "mobilePadding": "24px",
-      "backdrop": "#211d2066; blur(4px)",
-      "previousRecordsDisclosure": "Previous attendance records",
-      "csvAction": "Export all history",
-      "automaticSemesterGating": false,
-      "visibleSemesterControls": false
-    },
-    "workspaceAccessibility": {
-      "description": "Form labels expose required state and associate hints with their controls. Check-in completion moves focus to its result heading. Notices and errors wrap long text and have accessible dismissal controls. The society directory offers search, readable labeled contact details with email/phone actions, and a ruled mobile list instead of the desktop table; contact detail columns stack on mobile. Primary buttons, icon actions, checkboxes, and event actions retain (44px) interaction targets.",
-      "navigation": "Mobile dialog; trapped Tab, inert main, backdrop, Escape, focus restore, scroll lock.",
-      "controlTarget": "44px",
-      "checkInResult": "Focus moves to result heading.",
-      "directory": "Search, labeled contacts, mobile list."
-    },
-    "receiptEmail": {
-      "description": "Application receipt email uses table-based structure and inline styling: a white content surface, pale rose surroundings and footer, maroon identity/action, dark ink, and muted descriptive copy. The SEC image is loaded through the configured HTTPS public site URL, rather than an invented mark. It records application and submission time without semester details, and explains that receipt is not approval or a point award. Arial/Helvetica/sans-serif is the intentional email-client fallback; Geist rendering in Gmail is not assumed.",
-      "layout": "Presentation tables with inline styling",
-      "fontFamily": "Arial, Helvetica, sans-serif",
-      "logo": "Actual SEC mark using configured HTTPS site URL",
-      "semesterDetails": false
-    },
-    "societyRoster": {
-      "description": "The account-provisioning roster condenses repeated society names into one ruled row per group, with a canonical name, contact-response count, and one checkbox selecting every original response ID in that group. Grouping uses explicit aliases plus Unicode, case, ampersand, and punctuation normalization; related chapters and parent organizations stay distinct. Search includes the canonical name, original submitted names, and contacts. The native Contacts disclosure preserves each original name, submission date, and contact details, with (16px) vertical response padding and hairlines between responses; original-response metadata is muted (13px), with a (10px) bottom margin. The account-creation summary repeats the condensed canonical name and response count. This presentation groups records without merging or changing database data.",
-      "grouping": "Explicit aliases plus NFKC/case/ampersand/punctuation normalization; no fuzzy matching.",
-      "row": "Canonical name, original-response count, one checkbox for all response IDs.",
-      "search": [
-        "Canonical name",
-        "Original submitted names",
-        "Contact details"
-      ],
-      "originalRecordsDisclosure": "Contacts",
-      "originalRecordsPreserved": [
-        "Name",
-        "Submission date",
-        "Contact details",
-        "Original response ID"
-      ],
-      "responsePadding": "16px 0",
-      "responseSeparator": "1px solid var(--line)",
-      "responseMetadataSize": "13px",
-      "responseMetadataMargin": "0 0 10px",
-      "provisionSummary": "Canonical name and response count",
-      "databaseMutation": false,
-      "relatedOrganizations": "Chapters, teams and parent organizations remain separate unless an explicit alias matches."
-    },
-    "checkInControls": {
-      "description": "Event editing presents native Enabled / Paused radio choices in a ruled fieldset, with (6px) outlined choice rows and a rose selected fill. Helper text explains that enabled QR/link check-ins accept attendance only between the chosen start/end times, while Paused accepts none. The same full-text status helper is used across lists, calendar details, and QR: Check-in paused when disabled, otherwise Check-in scheduled before start, Check-in ended at or after end, and Check-in open within the window. A future event can be enabled without changing its dates; an expired event opens the editor for a valid current/future window. Existing QR links remain usable. User-facing manual-award explanations are removed; the High Impact award business rule is preserved in PRODUCT.md.",
-      "editor": "Native Enabled / Paused radios",
-      "statusPrecedence": [
-        "Check-in paused if disabled",
-        "Check-in scheduled before start",
-        "Check-in ended at/after end",
-        "Check-in open within enabled window"
-      ],
-      "futureEnable": "Keep original dates",
-      "expiredEnable": "Open editor for valid current/future dates",
-      "preservesExistingQr": true,
-      "manualHighImpactRule": "Retained as business logic; not advertised in the UI."
-    },
-    "loadingSkeleton": {
-      "description": "Initial workspace and route loading use a white, branded skeleton shell with ruled navigation, heading, total, and record placeholders. Skeleton fill uses skeleton-base and skeleton-highlight in a (1.6s) shimmer; reduced-motion preference uses the static base fill. Placeholder shapes are hidden from assistive technology, while the main loading region exposes `aria-busy` and a screen-reader status, \u201cLoading your workspace\u2026\u201d. Mobile hides the placeholder sidebar and keeps the compact content shell. QR preparation reserves a (260px \u00d7 260px) skeleton with the status \u201cPreparing QR code,\u201d then replaces it with the generated black (#000000) on white (#ffffff) PNG; generation errors keep the sign-in link available.",
-      "baseToken": "skeleton-base",
-      "highlightToken": "skeleton-highlight",
-      "background": "linear-gradient(100deg, #eee9eb 25%, #f8f5f6 45%, #eee9eb 65%)",
-      "radius": "5px",
-      "shimmer": "1.6s ease-in-out infinite",
-      "reducedMotion": "No animation; #eee9eb static fill",
-      "workspaceAriaBusy": true,
-      "workspaceStatus": "Loading your workspace\u2026",
-      "qrSize": "260px \u00d7 260px",
-      "qrStatus": "Preparing QR code"
+    "workflowPreservation": {
+      "pointRules": "Unchanged; visual reference example data is not product truth.",
+      "qr": "Black on white regardless of theme.",
+      "monitoring": "No operational-health panel in workspace settings.",
+      "theme": "No server-side or database preference; current browser stores explicit preference."
     }
   },
   "components": [
@@ -1021,83 +524,82 @@
       "name": "Primary button",
       "kind": "button",
       "refersTo": "button-primary",
-      "description": "Main action with maroon hover and explicit disabled treatment.",
-      "html": "<button class=\"ds-button\">Save application</button>",
-      "css": ".ds-button { display:inline-flex; align-items:center; justify-content:center; padding:11px 17px; border:1px solid transparent; border-radius:6px; background:var(--maroon,#500000); color:#ffffff; font:600 14px/1.4 var(--sans,\"Geist Variable\",\"Segoe UI\",Arial,sans-serif); min-height:44px; cursor:pointer; transition:background .15s ease,box-shadow .15s ease; } .ds-button:hover:not(:disabled) { background:#712727; box-shadow:0 3px 8px #50000016; } .ds-button:disabled { opacity:1; cursor:not-allowed; background:#f1eded; border-color:var(--line,#e5e2df); color:var(--muted,#625b60); box-shadow:none; } .ds-button:focus-visible { outline:3px solid var(--ds-focus,#8c4658); outline-offset:4px; } @media(prefers-reduced-motion:reduce) { .ds-button { transition:none; } }"
+      "description": "Paired theme accent and foreground, with pill shape.",
+      "html": "<button class=\"primary\">Save changes</button>",
+      "css": ".primary{font-family:\"Instrument Sans Variable\",\"Segoe UI\",Arial,sans-serif;box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;gap:9px;border:1px solid transparent;border-radius:999px;min-height:46px;padding:12px 22px;font-size:14px;font-weight:600;background:var(--maroon,#6b3037);color:var(--on-accent,#fff9ef);cursor:pointer;}.primary:hover{background:var(--maroon-light,#54232a)}.primary:focus-visible{outline:2px solid var(--focus,#9c4c41);outline-offset:4px;}"
     },
     {
       "name": "Secondary button",
       "kind": "button",
       "refersTo": "button-secondary",
-      "description": "Supporting action with a ruled paper surface.",
-      "html": "<button class=\"ds-button ds-secondary\">Save draft</button>",
-      "css": ".ds-button { display:inline-flex; align-items:center; justify-content:center; padding:11px 17px; border:1px solid transparent; border-radius:6px; background:var(--maroon,#500000); color:#ffffff; font:600 14px/1.4 var(--sans,\"Geist Variable\",\"Segoe UI\",Arial,sans-serif); min-height:44px; cursor:pointer; transition:background .15s ease,box-shadow .15s ease; } .ds-button:hover:not(:disabled) { background:#712727; box-shadow:0 3px 8px #50000016; } .ds-button:disabled { opacity:1; cursor:not-allowed; background:#f1eded; border-color:var(--line,#e5e2df); color:var(--muted,#625b60); box-shadow:none; } .ds-button:focus-visible { outline:3px solid var(--ds-focus,#8c4658); outline-offset:4px; } .ds-secondary { background:var(--paper,#fff); color:var(--ink,#211d20); border-color:var(--line,#e5e2df); } .ds-secondary:hover:not(:disabled) { background:var(--tint,#f7f2f3); box-shadow:none; } @media(prefers-reduced-motion:reduce) { .ds-button { transition:none; } }"
+      "description": "Outlined supporting action.",
+      "html": "<button class=\"secondary\">Preview application</button>",
+      "css": ".secondary{font-family:\"Instrument Sans Variable\",\"Segoe UI\",Arial,sans-serif;box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;gap:9px;border:1px solid transparent;border-radius:999px;min-height:46px;padding:12px 22px;font-size:14px;font-weight:600;background:var(--maroon,#6b3037);color:var(--on-accent,#fff9ef);cursor:pointer;background:transparent;color:var(--ink,#252321);border-color:var(--input-border,#8e867b)}.secondary:hover{background:var(--tint,#ece7de)}.secondary:focus-visible{outline:2px solid var(--focus,#9c4c41);outline-offset:4px;}"
     },
     {
-      "name": "Labeled field",
+      "name": "Text field",
       "kind": "input",
       "refersTo": "input",
-      "description": "Persistent label with a white bordered control and mobile-readable type.",
-      "html": "<label class=\"ds-field\">Application title<input class=\"ds-input\" placeholder=\"Society application\"></label>",
-      "css": ".ds-field { display:flex; flex-direction:column; gap:7px; color:var(--ink,#211d20); font:600 14px/1.6 var(--sans,\"Geist Variable\",\"Segoe UI\",Arial,sans-serif); } .ds-input { padding:11px 12px; min-height:43px; border:1px solid #9c9094; border-radius:6px; background:#fff; color:var(--ink,#211d20); font:400 16px/1.55 var(--sans,\"Geist Variable\",\"Segoe UI\",Arial,sans-serif); caret-color:var(--maroon,#500000); } .ds-input::placeholder { color:var(--muted,#625b60); } .ds-input:disabled { background:#f6f4f5; color:var(--muted,#625b60); } .ds-input:focus-visible { outline:3px solid var(--ds-focus,#8c4658); outline-offset:4px; } @media(max-width:760px) { .ds-input { font-size:16px; } }"
+      "description": "Readable themed input with explicit boundary.",
+      "html": "<label for=\"sample-field\">Society username</label><input id=\"sample-field\" placeholder=\"Your society username\" />",
+      "css": "label{font-family:\"Instrument Sans Variable\",\"Segoe UI\",Arial,sans-serif;box-sizing:border-box;display:block;font-size:14px;font-weight:550;color:var(--ink,#252321);margin-bottom:9px}input{font-family:\"Instrument Sans Variable\",\"Segoe UI\",Arial,sans-serif;box-sizing:border-box;width:100%;min-height:48px;padding:12px 15px;border:1px solid var(--input-border,#8e867b);border-radius:14px;font-size:16px;background:var(--input,#faf7f1);color:var(--ink,#252321)}input::placeholder{color:var(--muted,#69625a)}input:focus-visible{outline:2px solid var(--focus,#9c4c41);outline-offset:4px;}"
     },
     {
-      "name": "Workspace navigation",
-      "kind": "nav",
+      "name": "Navigation",
+      "kind": "navigation",
       "refersTo": "navigation-active",
-      "description": "White workspace navigation with muted resting text and a transparent maroon active state marked by a thin left rule.",
-      "html": "<nav class=\"ds-nav\" aria-label=\"Main navigation\"><button class=\"ds-nav-item ds-active\" aria-current=\"page\">Dashboard</button><button class=\"ds-nav-item\">Attendance</button></nav>",
-      "css": ".ds-nav { padding:18px; background:var(--paper,#fff); border-right:1px solid var(--line,#e5e2df); display:flex; flex-direction:column; gap:5px; } .ds-nav-item { padding:12px 14px; min-height:46px; border:0; border-radius:8px; background:transparent; color:#625b60; font:600 14px/1.6 var(--sans,\"Geist Variable\",\"Segoe UI\",Arial,sans-serif); text-align:left; cursor:pointer; transition:background .15s ease; } .ds-nav-item:not(.ds-active):hover { background:var(--tint,#f7f2f3); color:var(--maroon,#500000); } .ds-active { position:relative; background:transparent; color:var(--maroon,#500000); font-weight:650; border-radius:6px; } .ds-active::before { content:\"\"; position:absolute; left:0; top:12px; bottom:12px; width:2px; background:var(--maroon,#500000); } .ds-nav-item:focus-visible { outline:3px solid var(--ds-focus,#8c4658); outline-offset:4px; } @media(prefers-reduced-motion:reduce) {  .ds-nav-item { transition:none; } }"
+      "description": "Compact active destination in a bordered pill group.",
+      "html": "<nav aria-label=\"Example navigation\"><button aria-current=\"page\">Dashboard</button><button>Events</button><button>Applications</button></nav>",
+      "css": "nav{font-family:\"Instrument Sans Variable\",\"Segoe UI\",Arial,sans-serif;box-sizing:border-box;display:flex;gap:2px;padding:5px;border:1px solid var(--line,#ded9cf);border-radius:999px;background:var(--paper,#fffdf8);width:max-content}button{font-family:\"Instrument Sans Variable\",\"Segoe UI\",Arial,sans-serif;box-sizing:border-box;min-height:40px;padding:9px 12px;border:0;border-radius:999px;background:transparent;color:var(--muted,#69625a);font-size:12px;cursor:pointer}button[aria-current]{background:var(--maroon,#6b3037);color:var(--on-accent,#fff9ef)}button:focus-visible{outline:2px solid var(--focus,#9c4c41);outline-offset:4px;}"
     },
     {
-      "name": "Positive status pill",
+      "name": "Positive status",
       "kind": "chip",
       "refersTo": "pill-positive",
-      "description": "Compact written state reinforced by semantic green.",
-      "html": "<span class=\"ds-pill\">Requirement met</span>",
-      "css": ".ds-pill { display:inline-flex; align-items:center; padding:5px 9px; border-radius:5px; background:var(--green-bg,#eaf3ed); color:var(--green,#265c43); font:650 10px/1.5 var(--sans,\"Geist Variable\",\"Segoe UI\",Arial,sans-serif); white-space:nowrap; }"
+      "description": "Written state with semantic color.",
+      "html": "<span class=\"status\">Minimum met</span>",
+      "css": ".status{font-family:\"Instrument Sans Variable\",\"Segoe UI\",Arial,sans-serif;box-sizing:border-box;display:inline-flex;padding:5px 11px;border-radius:999px;background:var(--green-bg,#e1eee5);color:var(--green,#28624d);font-size:12px;font-weight:550}"
     },
     {
-      "name": "Ruled paper panel",
+      "name": "Working panel",
       "kind": "card",
       "refersTo": "panel",
-      "description": "Operational form or record container; dashboard sections use open hairline divisions instead.",
-      "html": "<section class=\"ds-panel\"><h2 class=\"ds-title\">Recent attendance</h2><div class=\"ds-record\">Event name <span class=\"ds-meta\">PRT \u00b7 1 point</span></div><div class=\"ds-record\">Event name <span class=\"ds-meta\">Standard \u00b7 1 point</span></div></section>",
-      "css": ".ds-panel { padding:26px; border:1px solid var(--line,#e5e2df); border-radius:var(--radius,14px); background:var(--paper,#fff); color:var(--ink,#211d20); font:400 16px/1.55 var(--sans,\"Geist Variable\",\"Segoe UI\",Arial,sans-serif); } .ds-title { margin:0 0 18px; font:680 22px/1.3 var(--heading,\"Geist Variable\",\"Segoe UI\",Arial,sans-serif); letter-spacing:-.02em; } .ds-record { padding:16px 0; border-top:1px solid var(--line,#e5e2df); } .ds-meta { display:block; margin-top:4px; font-size:13px; color:var(--muted,#625b60); } @media(max-width:760px) { .ds-panel { padding:20px 18px; } .ds-title { font-size:20px; } }"
-    },
-    {
-      "name": "Society points ledger",
-      "kind": "custom",
-      "description": "Actual earned category totals and minima, with a separate capped PRT requirement.",
-      "html": "<section class=\"ds-ledger\"><h2 class=\"ds-ledger-title\">Society points</h2><p class=\"ds-ledger-total\">0 <small>total points</small></p><p class=\"ds-ledger-note\">Bars show each category\u2019s share of your earned points.</p><table class=\"ds-ledger-table\"><thead><tr><th>Category</th><th>Earned</th><th>Minimum</th></tr></thead><tbody><tr><th>PRT</th><td>0</td><td>1 point</td></tr><tr><th>Standard</th><td>0</td><td>None</td></tr><tr><th>High Impact</th><td>0</td><td>None</td></tr></tbody></table><p class=\"ds-ledger-note\">No points recorded yet. Your first credited event will appear here.</p><p class=\"ds-ledger-requirement\">PRT requirement: 0 / 1 \u00b7 1 PRT point still needed</p></section>",
-      "css": ".ds-ledger { border-top:1px solid var(--line,#e5e2df); padding:26px 0; color:var(--ink,#211d20); font-family:var(--sans,\"Geist Variable\",\"Segoe UI\",Arial,sans-serif); } .ds-ledger-title { font:680 22px/1.3 var(--heading,\"Geist Variable\",\"Segoe UI\",Arial,sans-serif); margin:0 0 18px; } .ds-ledger-total { font:750 32px/1.2 var(--heading,\"Geist Variable\",\"Segoe UI\",Arial,sans-serif); color:var(--maroon,#500000); margin:0; font-variant-numeric:tabular-nums; } .ds-ledger-total small { font:400 12px var(--sans,\"Geist Variable\",\"Segoe UI\",Arial,sans-serif); color:var(--muted,#625b60); } .ds-ledger-note { font-size:13px; color:var(--muted,#625b60); margin:10px 0 18px; } .ds-ledger-table { width:100%; border-collapse:collapse; text-align:left; font-size:12px; } .ds-ledger-table th,.ds-ledger-table td { padding:18px 0; border-bottom:1px solid var(--line,#e5e2df); } .ds-ledger-table td { text-align:right; } .ds-ledger-requirement { border-top:1px solid var(--line,#e5e2df); padding-top:24px; color:var(--maroon,#500000); font-size:12px; } @media(max-width:760px) { .ds-ledger-total { font-size:26px; } }"
+      "description": "Calm bordered surface for an operating task.",
+      "html": "<section><h2>Society events</h2><p>Browse events and check-in windows for your society.</p></section>",
+      "css": "section{font-family:\"Instrument Sans Variable\",\"Segoe UI\",Arial,sans-serif;box-sizing:border-box;padding:28px;border:1px solid var(--line,#ded9cf);border-radius:24px;background:var(--paper,#fffdf8);color:var(--ink,#252321)}h2{margin:0 0 16px;font-size:22px;font-weight:550;letter-spacing:-.025em}p{margin:0;color:var(--muted,#69625a);font-size:14px;line-height:1.65}"
     }
   ],
   "narrative": {
-    "northStar": "Editorial society register",
-    "overview": "White surfaces, maroon identity and actions, calm headings, and ruled records give societies and SEC a shared operating workspace. Readable records, explicit status, and efficient forms set the visual density. The public name is SocietyHub. Use the existing SEC circular logo copied unchanged from Delphi/public/sec_favicon.png; Nexus is an internal name only.",
+    "northStar": "Dreamy, grounded connection",
+    "overview": "SocietyHub uses a warm, atmospheric visual world adapted from the supplied SEC Membership Hub Dreamy Redesign. Soft amber, coral, and teal blends give the landing hero and page headers their identity; readable, quieter surfaces carry working records. The authenticated interface is an operating workspace, so tasks, labels, and real data remain more prominent than decoration. The public name is SocietyHub and the supplied SEC logo remains unchanged.",
     "keyCharacteristics": [
-      "Unified white surfaces with maroon identity and pale rose states.",
-      "Compact, readable records with clear hierarchy and tabular totals.",
-      "Restrained motion and explicit interaction states."
+      "Warm ivory light mode and charcoal/cream dark mode use the same semantic component system.",
+      "A single self-hosted sans-serif family, soft corners, and generous but bounded spacing join public and authenticated surfaces.",
+      "Static atmospheric gradients frame content; forms, tables, and state labels remain explicit."
     ],
     "rules": [
       {
         "name": "The Status Rule",
-        "body": "Color reinforces a written status; it never replaces the status label.",
-        "section": "colors"
+        "body": "Color reinforces a written status or numeric value; it never substitutes for one.",
+        "section": "Colors"
+      },
+      {
+        "name": "The Theme Rule",
+        "body": "Choose semantic tokens rather than literal light colors so forms, tables, calendars, notices, and dialogs remain coherent in both modes.",
+        "section": "Colors"
       }
     ],
     "dos": [
-      "Do use white surfaces, pale rose interaction states, and thin rules for operational records.",
-      "Do retain labels, category names, and tabular totals when showing status or points.",
-      "Do preserve visible keyboard focus and reduced-motion behavior.",
-      "Do keep closed mobile navigation out of keyboard navigation."
+      "Do use the semantic theme tokens for every surface, label, boundary, and data category.",
+      "Do preserve the supplied SEC logo, the SocietyHub name, and visible signed-in account context.",
+      "Do keep required labels, written statuses, numeric chart values, focus outlines, and reduced-motion behavior.",
+      "Do constrain editors to a deliberate reading width while leaving calendars and directories room to operate."
     ],
     "donts": [
-      "Don't replace written states with color alone.",
-      "Don't apply resting shadows to the flat record panels.",
-      "Don't substitute an invented mark for the supplied SEC logo."
+      "Don\u2019t introduce script or serif display fonts; the user explicitly rejected that direction.",
+      "Don\u2019t copy the reference\u2019s example memberships, point categories, rewards, or dummy counts into product behavior.",
+      "Don\u2019t turn QR artwork into a themed image: it remains black on white in both modes.",
+      "Don\u2019t restore the old white/maroon sidebar world or scatter ribbon fragments across working records."
     ]
   }
 }

@@ -112,7 +112,7 @@ SEC chairs use **Settings & audit → Reset all society points** and type `RESET
 
 Closed check-in can be reopened from Events. If its window has passed, **Reopen check-in** opens the event editor to choose a window that includes now. The existing QR code remains valid. High Impact events continue to require manual SEC awards.
 
-The interface uses a locally hosted Instrument Sans variable font, distinct heading/label/metadata roles, and reduced-motion alternatives for the greeting and point animations. Confirmation emails use table-based inline styling and email-safe sans-serif fallbacks.
+The interface uses the Dreamy visual system: warm ivory light mode, charcoal/cream dark mode, atmospheric gradient headers, rounded surfaces, and a locally hosted Instrument Sans variable font. The theme follows the device until a user makes a choice, which is saved locally and applied before the first paint. Desktop uses pill navigation; mobile retains a keyboard-accessible navigation drawer. Reduced-motion alternatives remain available for greetings and point animations. Confirmation emails use table-based inline styling and email-safe sans-serif fallbacks.
 
 ## Contacts, decisions, and event schedules
 

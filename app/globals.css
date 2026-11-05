@@ -183,7 +183,7 @@ strong {
 }
 .nav.active {
   color: var(--maroon);
-  background: #f5e9ed;
+  background: var(--tint);
   font-weight: 650;
 }
 .nav:not(.active):hover {
@@ -218,7 +218,7 @@ strong {
   font-size: 12px;
 }
 .avatar {
-  background: #f5e9ed;
+  background: var(--tint);
   color: var(--maroon);
   width: 34px;
   height: 34px;
@@ -243,7 +243,7 @@ strong {
 }
 .topbar {
   height: 78px;
-  background: #fff;
+  background: var(--paper);
   border-bottom: 1px solid var(--line);
   display: flex;
   align-items: center;
@@ -378,7 +378,7 @@ strong {
   border-radius: 5px;
   display: inline-flex;
   align-items: center;
-  background: #f5f4f4;
+  background: var(--tint);
   color: var(--muted);
   white-space: nowrap;
   font-weight: 650;
@@ -393,7 +393,7 @@ strong {
   color: var(--amber);
 }
 .pill.maroon {
-  background: #f5e9ed;
+  background: var(--tint);
   color: var(--maroon);
 }
 .point-trackers {
@@ -544,7 +544,7 @@ th {
   font-weight: 500;
   color: var(--muted);
   font-size: 12px;
-  background: #faf9fa;
+  background: var(--tint);
   padding: 12px 14px;
   white-space: nowrap;
 }
@@ -576,7 +576,7 @@ td strong {
   flex-direction: column;
   align-items: center;
   color: var(--maroon);
-  background: #f7eef1;
+  background: var(--tint);
   border-radius: 8px;
   padding: 8px 12px;
 }
@@ -642,7 +642,7 @@ select,
 textarea {
   border: 1px solid var(--input-line);
   border-radius: 6px;
-  background: #fff;
+  background: var(--paper);
   color: var(--ink);
   width: 100%;
   padding: 11px 12px;
@@ -657,7 +657,7 @@ textarea::placeholder {
 input:disabled,
 textarea:disabled,
 select:disabled {
-  background: #f6f4f5;
+  background: var(--tint);
   color: var(--muted);
 }
 textarea {
@@ -761,7 +761,7 @@ input[type="checkbox"] {
   overflow-wrap: anywhere;
   font: 11px/1.7 var(--sans);
   max-width: 600px;
-  background: #faf9fa;
+  background: var(--tint);
   padding: 12px;
   border-radius: 6px;
 }
@@ -815,7 +815,7 @@ summary {
   font-size: 12px;
 }
 .activation-result {
-  background: #fff5dd;
+  background: var(--amber-bg);
   border: 1px solid #dccca5;
   padding: 22px;
   border-radius: var(--radius);
@@ -843,7 +843,7 @@ summary {
   height: auto;
 }
 .review-note {
-  background: #faf7f8;
+  background: var(--tint);
   border-radius: 8px;
   padding: 18px;
   margin-top: 20px;
@@ -977,7 +977,7 @@ summary {
   display: grid;
   grid-template-columns: 32px minmax(0, 1fr);
   gap: 12px;
-  background: #fcf5f5;
+  background: var(--tint);
   border: 1px solid #ead4d8;
   border-radius: 6px;
   padding: 18px;
@@ -996,7 +996,7 @@ summary {
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background: #fff;
+  background: var(--paper);
   color: var(--maroon);
 }
 .auth-help-action {
@@ -1324,7 +1324,7 @@ td strong {
   top: 12px;
   left: 12px;
   transform: translateY(-200%);
-  background: white;
+  background: var(--paper);
   color: var(--maroon);
   padding: 12px 18px;
   z-index: 100;
@@ -1400,7 +1400,7 @@ td strong {
   position: absolute;
   inset: 0;
   pointer-events: none;
-  background: #fff;
+  background: var(--paper);
 }
 .maroon-ribbons img {
   display: block;
@@ -1414,13 +1414,11 @@ td strong {
 }
 
 .auth-page {
-  background: #fff;
-  --ground: #fff;
-  --line: #e5e2df;
+  background: var(--paper);
 }
 .auth-story,
 .auth-main {
-  background: #fff;
+  background: var(--paper);
 }
 .auth-story {
   color: var(--ink);
@@ -1699,7 +1697,7 @@ td strong {
 }
 .points-share-track {
   height: 7px;
-  background: #f5e9ed;
+  background: var(--tint);
   border-radius: 4px;
   margin: 12px 0 0 31px;
   overflow: hidden;
@@ -1877,7 +1875,7 @@ td strong {
   padding: 3px;
   border: 1px solid var(--line);
   border-radius: 6px;
-  background: #fff;
+  background: var(--paper);
 }
 .view-switch button {
   border: 0;
@@ -1889,7 +1887,7 @@ td strong {
   font-weight: 600;
 }
 .view-switch button[aria-pressed="true"] {
-  background: #f5e9ed;
+  background: var(--tint);
   color: var(--maroon);
 }
 .calendar-toolbar {
@@ -1919,7 +1917,7 @@ td strong {
   padding: 10px 8px;
   font-size: 12px;
   color: var(--muted);
-  background: #faf9fa;
+  background: var(--tint);
 }
 .calendar-cell {
   border-top: 1px solid var(--line);
@@ -1930,7 +1928,7 @@ td strong {
   border-right: 0;
 }
 .calendar-cell.outside {
-  background: #faf9fa;
+  background: var(--tint);
 }
 .calendar-day {
   display: flex;
@@ -1942,15 +1940,15 @@ td strong {
   width: 100%;
   padding: 8px;
   border: 0;
-  background: #fff;
+  background: var(--paper);
   color: var(--ink);
   text-align: left;
 }
 .calendar-day:hover {
-  background: #fcf5f5;
+  background: var(--tint);
 }
 .calendar-day.selected {
-  background: #fcf5f5;
+  background: var(--tint);
   box-shadow: inset 0 0 0 1px #b58e98;
 }
 .calendar-day:focus-visible {
@@ -2198,7 +2196,7 @@ td strong {
   padding: 0;
   border: 0;
   border-radius: 14px;
-  background: #fff;
+  background: var(--paper);
   color: var(--ink);
   box-shadow: 0 24px 80px #1d001a30;
 }
@@ -2294,7 +2292,7 @@ td strong {
   text-transform: capitalize;
 }
 .pill.rose {
-  background: #f5e9ed;
+  background: var(--tint);
   color: var(--maroon);
 }
 .application-meta > small {
@@ -2323,7 +2321,7 @@ td strong {
   min-height: 30px;
 }
 .application-receipt {
-  background: #fcf5f5;
+  background: var(--tint);
   border: 1px solid #ead4d8;
   border-radius: 6px;
   padding: 18px 20px;
@@ -2441,7 +2439,7 @@ td strong {
   margin-top: 4px;
 }
 .ledger-row.removed .ledger-date {
-  background: #f5f4f3;
+  background: var(--tint);
   color: var(--muted);
 }
 .calendar-details-heading {
@@ -2660,14 +2658,14 @@ td strong {
   min-width: var(--control-hit);
 }
 .button:disabled {
-  background: #f1eded;
+  background: var(--tint);
   border-color: var(--line);
   color: var(--muted);
   box-shadow: none;
   opacity: 1;
 }
 .button.secondary:disabled {
-  background: #f6f4f5;
+  background: var(--tint);
   color: var(--muted);
 }
 .text-button:disabled,
@@ -3007,7 +3005,7 @@ textarea {
   width: min(540px, calc(100% - 32px));
   padding: 32px;
   color: var(--ink);
-  background: white;
+  background: var(--paper);
   box-shadow: 0 24px 80px #211d2030;
 }
 .reset-modal::backdrop {

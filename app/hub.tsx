@@ -28,6 +28,7 @@ import {
   Pill,
   Empty,
   DashboardSection,
+  PasswordInput,
 } from "./ui";
 import { when, status } from "./format";
 import { CopyLink, EventEditor, QRPanel } from "./event-management";
@@ -36,7 +37,7 @@ import {
   ApplicationView,
   ReviewView,
 } from "./application-management";
-import MaroonRibbons from "./maroon-ribbons";
+import ThemeToggle from "./theme-toggle";
 import PointsSummary from "./points-summary";
 import AdminInsights from "./admin-insights";
 import ContactEditor from "./contact-editor";
@@ -951,13 +952,16 @@ export default function Hub() {
           >
             {mobile ? <X /> : <Menu />}
           </button>
-          <span>
-            Engineering societies{" "}
+          <span className="workspace-context">
+            <strong title={data.actor.display_name}>
+              {data.actor.display_name}
+            </strong>
             <span className="breadcrumb">
               / {admin ? "SEC administration" : "Member workspace"}
             </span>
           </span>
           <div className="topbar-actions">
+            <ThemeToggle />
             <button
               className={"icon-button" + (refreshing ? " is-refreshing" : "")}
               disabled={refreshing || busy}
@@ -2602,7 +2606,7 @@ export default function Hub() {
             </div>
           )}
           <footer className="footer">
-            <span>SocietyHub</span>
+            <span>SocietyHub · Built for connection</span>
             <span>Student Engineers’ Council · Texas A&M</span>
           </footer>
         </main>
@@ -2625,7 +2629,6 @@ function AuthScreen({
   return (
     <main className="auth-page">
       <section className="auth-story">
-        <MaroonRibbons />
         <a className="brand" href="/">
           <img
             src="/sec-logo.png"
@@ -2636,11 +2639,40 @@ function AuthScreen({
           />
           <span>SocietyHub</span>
         </a>
+        <div className="auth-hero-copy">
+          <h2>
+            Engineering is
+            <br />
+            better together.
+          </h2>
+          <p>
+            Your society. Your people.
+            <br />
+            One place to bring it all together.
+          </p>
+          <div className="auth-capabilities" aria-label="SocietyHub features">
+            <span>
+              <CalendarDays size={17} aria-hidden="true" /> Events & check-in
+            </span>
+            <span>
+              <FileText size={17} aria-hidden="true" /> Society funding
+            </span>
+            <span>
+              <Users size={17} aria-hidden="true" /> Collaboration
+            </span>
+          </div>
+          <a className="auth-mobile-signin" href="#society-sign-in">
+            Sign in <ArrowRight size={17} aria-hidden="true" />
+          </a>
+        </div>
         <p className="auth-description">
-          The home for Texas A&M engineering societies and SEC.
+          Texas A&M University · Student Engineers’ Council
         </p>
       </section>
-      <section className="auth-main">
+      <section id="society-sign-in" className="auth-main">
+        <div className="auth-tools">
+          <ThemeToggle />
+        </div>
         <div className="auth-form">
           <h1>
             {activate
@@ -2652,7 +2684,7 @@ function AuthScreen({
           <p>
             {activate
               ? "Your society can share this password with its authorized officers."
-              : "Use your society username and shared password. SEC chairs use the SEC account."}
+              : "Sign in with your society username and shared password."}
           </p>
           {(error || localError) && (
             <div className="alert error" role="alert">
@@ -2675,7 +2707,6 @@ function AuthScreen({
             {!activate && (
               <Field label="Society username">
                 <input
-                  autoFocus
                   required
                   autoComplete="username"
                   value={username}
@@ -2689,9 +2720,8 @@ function AuthScreen({
               label={activate ? "New password" : "Password"}
               hint={activate ? "Use at least 15 characters." : undefined}
             >
-              <input
+              <PasswordInput
                 required
-                type="password"
                 autoComplete={activate ? "new-password" : "current-password"}
                 minLength={activate ? 15 : 1}
                 maxLength={128}
@@ -2701,9 +2731,8 @@ function AuthScreen({
             </Field>
             {activate && (
               <Field label="Confirm password">
-                <input
+                <PasswordInput
                   required
-                  type="password"
                   autoComplete="new-password"
                   minLength={15}
                   maxLength={128}
@@ -2931,9 +2960,8 @@ function PasswordForm({ busy, save }: PasswordFormProps) {
         }}
       >
         <Field label="Current password">
-          <input
+          <PasswordInput
             required
-            type="password"
             autoComplete="current-password"
             maxLength={128}
             value={current}
@@ -2942,9 +2970,8 @@ function PasswordForm({ busy, save }: PasswordFormProps) {
         </Field>
         <div className="form-grid">
           <Field label="New password">
-            <input
+            <PasswordInput
               required
-              type="password"
               autoComplete="new-password"
               minLength={15}
               maxLength={128}
@@ -2953,9 +2980,8 @@ function PasswordForm({ busy, save }: PasswordFormProps) {
             />
           </Field>
           <Field label="Confirm new password">
-            <input
+            <PasswordInput
               required
-              type="password"
               autoComplete="new-password"
               minLength={15}
               maxLength={128}

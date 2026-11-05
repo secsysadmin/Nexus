@@ -1380,3 +1380,48 @@ test("society contacts save, stay private, and stale changes require a deliberat
     await adminContext.close();
   }
 });
+
+test("theme follows the device, persists an explicit choice, and keeps password controls usable", async ({
+  page,
+}) => {
+  await page.emulateMedia({ colorScheme: "dark" });
+  await page.route("**/api/data**", (route) =>
+    route.fulfill({ status: 401, json: { error: "Sign in required" } }),
+  );
+  await page.goto("/");
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+  await page.getByLabel("Password", { exact: true }).fill("a-private-password");
+  await expect(page.getByLabel("Password", { exact: true })).toHaveAttribute(
+    "type",
+    "password",
+  );
+  await page
+    .getByRole("button", { name: "Show password", exact: true })
+    .click();
+  await expect(page.getByLabel("Password", { exact: true })).toHaveAttribute(
+    "type",
+    "text",
+  );
+  await page
+    .getByRole("button", { name: "Hide password", exact: true })
+    .click();
+  await expect(page.getByLabel("Password", { exact: true })).toHaveAttribute(
+    "type",
+    "password",
+  );
+  await page
+    .getByRole("button", { name: "Switch to light mode", exact: true })
+    .click();
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
+  await page.reload();
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expect(
+    page.getByRole("button", { name: "Switch to dark mode", exact: true }),
+  ).toBeVisible();
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= innerWidth,
+    ),
+  ).toBe(true);
+});

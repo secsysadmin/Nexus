@@ -3,7 +3,11 @@ import { Check, Circle, ArrowUpRight } from "lucide-react";
 import { labels } from "../lib/domain";
 import { pointTotals, pointCategories } from "../lib/points";
 import type { Credit } from "../lib/types";
-const colors = { PRT: "#500000", STANDARD: "#a64b64", HIGH_IMPACT: "#5f6682" };
+const colors = {
+  PRT: "var(--chart-prt)",
+  STANDARD: "var(--chart-standard)",
+  HIGH_IMPACT: "var(--chart-impact)",
+};
 export default function PointsSummary({
   credits,
   cycleId,
