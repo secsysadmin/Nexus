@@ -20,6 +20,7 @@ import {
   canReview,
   statusLabel,
 } from "./submission-status";
+import { checkinStatus } from "./checkin-status";
 export class AppError extends Error {
   constructor(
     message: string,
@@ -143,12 +144,7 @@ export async function checkIn(db: PoolClient, actor: Actor, input: unknown) {
       );
     return { already: true, event: event.name, points };
   }
-  if (
-    !event.checkin_open ||
-    Date.now() <
-      new Date(event.checkin_starts_at ?? event.starts_at).getTime() ||
-    Date.now() >= new Date(event.checkin_ends_at ?? event.ends_at).getTime()
-  )
+  if (checkinStatus(event) !== "OPEN")
     throw new AppError("Check-in is closed. Contact SEC if you attended.");
   const inserted = await db.query(
     "INSERT INTO credits(account_id,event_id,category,points,source) VALUES($1,$2,$3,$4,'CHECK_IN') ON CONFLICT(account_id,event_id) DO NOTHING RETURNING id",

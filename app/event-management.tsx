@@ -4,7 +4,7 @@ import { Copy, Check, X, Download, ExternalLink } from "lucide-react";
 import QRCode from "qrcode";
 import type { Event } from "../lib/types";
 import { useUnsavedChanges, confirmDiscard } from "./unsaved-changes";
-import { checkinStatus } from "../lib/checkin-status";
+import { checkinStatus, checkinLabel } from "../lib/checkin-status";
 import { categories, isOneOf } from "../lib/domain";
 import { Button, Panel, Field, FormActions, Pill } from "./ui";
 import { when, localDate } from "./format";
@@ -427,10 +427,10 @@ export function QRPanel({
             </p>
             <Pill
               tone={
-                checkinStatus(event) === "Check-in open" ? "green" : "neutral"
+                checkinStatus(event) === "OPEN" ? "green" : "neutral"
               }
             >
-              {checkinStatus(event)}
+              {checkinLabel(checkinStatus(event))}
             </Pill>
             {error && <p role="alert">{error}</p>}
             {replacement && (

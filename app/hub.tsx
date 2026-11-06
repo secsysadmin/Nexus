@@ -44,7 +44,7 @@ import ReferenceMetrics from "./reference-metrics";
 import ContactEditor from "./contact-editor";
 import LoadingSkeleton from "./loading-skeleton";
 import { confirmDiscard } from "./unsaved-changes";
-import { checkinStatus } from "../lib/checkin-status";
+import { checkinStatus, checkinLabel } from "../lib/checkin-status";
 import EventCalendar from "./event-calendar";
 import { dashboardItems } from "../lib/dashboard";
 import { groupSocietyRoster, rosterGroupMatches } from "../lib/society-roster";
@@ -1435,7 +1435,7 @@ export default function Hub() {
                               <small>
                                 {event.category === "HIGH_IMPACT"
                                   ? "High Impact · 2 points"
-                                  : checkinStatus(event)}
+                                  : checkinLabel(checkinStatus(event))}
                               </small>
                             </div>
                             <button
@@ -1735,7 +1735,7 @@ export default function Hub() {
                             <small>
                               {e.category === "HIGH_IMPACT"
                                 ? "2 points"
-                                : `1 point · ${checkinStatus(e)}`}
+                                : `1 point · ${checkinLabel(checkinStatus(e))}`}
                             </small>
                           </div>
                           {admin && (
