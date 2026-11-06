@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-11-06T01:47:07.071169+00:00",
+  "generatedAt": "2026-11-06T22:53:43.344444+00:00",
   "title": "Design System: SocietyHub",
   "extensions": {
     "colorMeta": {
@@ -30,11 +30,11 @@
       },
       "maroon": {
         "role": "primary",
-        "displayName": "Maroon"
+        "displayName": "Violet Action (legacy alias)"
       },
       "maroon-light": {
         "role": "primary",
-        "displayName": "Maroon Light"
+        "displayName": "Violet Hover (legacy alias)"
       },
       "on-accent": {
         "role": "primary",
@@ -104,27 +104,15 @@
         "role": "neutral",
         "displayName": "Skeleton Shine"
       },
-      "poster-ink": {
-        "role": "neutral",
-        "displayName": "Poster Cream"
-      },
-      "poster-amber": {
+      "mark-center": {
         "role": "secondary",
-        "displayName": "Poster Amber"
-      },
-      "poster-teal": {
-        "role": "secondary",
-        "displayName": "Poster Teal"
-      },
-      "poster-base": {
-        "role": "secondary",
-        "displayName": "Poster Base"
+        "displayName": "Hub Mark Lavender"
       }
     },
     "typographyMeta": {
       "headline": {
         "displayName": "Headline",
-        "purpose": "Raleway operational hierarchy."
+        "purpose": "Manrope operational hierarchy."
       },
       "hero": {
         "displayName": "Hero",
@@ -136,27 +124,27 @@
       },
       "section": {
         "displayName": "Section",
-        "purpose": "Raleway operational hierarchy."
+        "purpose": "Manrope operational hierarchy."
       },
       "body": {
         "displayName": "Body",
-        "purpose": "Raleway operational hierarchy."
+        "purpose": "Manrope operational hierarchy."
       },
       "label": {
         "displayName": "Label",
-        "purpose": "Raleway operational hierarchy."
+        "purpose": "Manrope operational hierarchy."
       },
       "metadata": {
         "displayName": "Metadata",
-        "purpose": "Raleway operational hierarchy."
+        "purpose": "Manrope operational hierarchy."
       },
       "data": {
         "displayName": "Data",
-        "purpose": "Raleway operational hierarchy."
+        "purpose": "Manrope operational hierarchy."
       },
       "readiness": {
         "displayName": "Readiness",
-        "purpose": "Raleway operational hierarchy."
+        "purpose": "Manrope operational hierarchy."
       }
     },
     "themeModes": {
@@ -211,10 +199,9 @@
       "summaryOffset": "-4px"
     },
     "surfaces": {
-      "poster": "radial-gradient(ellipse at 80% 20%, #b18a4a, transparent 65%),\n    radial-gradient(ellipse at 15% 95%, #45897f, transparent 65%), #273f3f",
-      "posterVeil": "linear-gradient(180deg, #182b2b70, transparent 55%, #182b2b70)",
-      "grain": "/textures/dream-grain.svg",
-      "grainOpacity": 0.16
+      "landingStory": "var(--accent-soft)",
+      "landingMain": "var(--paper)",
+      "character": "Flat semantic fills with no decorative artwork, texture or gradient loop."
     },
     "layout": {
       "sidebarWidth": "232px",
@@ -229,15 +216,16 @@
       "landingMax": "1440px",
       "landingColumns": "minmax(0, 1.22fr) minmax(0, 1fr)",
       "landingGap": "16px",
-      "landingArtworkMinHeight": "690px",
       "loginFormMax": "390px",
-      "features": "four compact columns; two on mobile"
+      "landingStoryMinHeight": "680px",
+      "landingStoryPadding": "48px",
+      "capabilities": "Three compact rows inside the landing story; hidden with context at 760px and below."
     },
     "brand": {
       "publicName": "SocietyHub",
-      "logo": "/sec-logo.png",
-      "ribbon": "/society-ribbon.svg",
-      "ribbonUsage": "Existing static, decorative, pointer-inert landing artwork only.",
+      "logo": "/societyhub-mark.svg",
+      "mark": "Independent violet H hub mark with white strokes and pale lavender center.",
+      "context": "Functional SEC roles, contact routes and service context remain; SEC supplies no visual identity.",
       "rasters": "No new raster assets."
     },
     "dataBehavior": {
@@ -262,7 +250,7 @@
       "refersTo": "button-primary",
       "description": "Confident primary action with a compact rectangular shape.",
       "html": "<button class=\"ds-primary\">Save changes</button>",
-      "css": ".ds-primary{font-family:var(--sans,\"Raleway Variable\",\"Segoe UI\",Arial,sans-serif);display:inline-flex;align-items:center;justify-content:center;gap:9px;border:1px solid transparent;border-radius:10px;min-height:44px;padding:11px 18px;font-size:14px;font-weight:650;cursor:pointer;background:var(--maroon,#722d3d);color:var(--on-accent,#fff9f0)}.ds-primary:hover{background:var(--maroon-light,#55212e)}.ds-primary:focus-visible{outline:2px solid var(--focus,#8c4050);outline-offset:4px;}.ds-primary:disabled{background:var(--tint,#ebefea);color:var(--muted,#606967);cursor:default}"
+      "css": ".ds-primary{font-family:var(--sans,\"Manrope Variable\",\"Segoe UI\",Arial,sans-serif);display:inline-flex;align-items:center;justify-content:center;gap:9px;border:1px solid transparent;border-radius:10px;min-height:44px;padding:11px 18px;font-size:14px;font-weight:650;cursor:pointer;background:var(--maroon,#6257c5);color:var(--on-accent,#ffffff)}.ds-primary:hover{background:var(--maroon-light,#4c42ac)}.ds-primary:focus-visible{outline:2px solid var(--focus,#756bd5);outline-offset:4px;}.ds-primary:disabled{background:var(--tint,#eef0f5);color:var(--muted,#626574);cursor:default}"
     },
     {
       "name": "Secondary button",
@@ -270,7 +258,7 @@
       "refersTo": "button-secondary",
       "description": "Bordered supporting action.",
       "html": "<button class=\"ds-secondary\">Preview application</button>",
-      "css": ".ds-secondary{font-family:var(--sans,\"Raleway Variable\",\"Segoe UI\",Arial,sans-serif);display:inline-flex;align-items:center;justify-content:center;gap:9px;border:1px solid transparent;border-radius:10px;min-height:44px;padding:11px 18px;font-size:14px;font-weight:650;cursor:pointer;background:var(--paper,#fff);color:var(--ink,#252b2a);border-color:var(--line,#dce1dc)}.ds-secondary:hover{background:var(--tint,#ebefea);border-color:var(--input-border,#a3ada7)}.ds-secondary:focus-visible{outline:2px solid var(--focus,#8c4050);outline-offset:4px;}"
+      "css": ".ds-secondary{font-family:var(--sans,\"Manrope Variable\",\"Segoe UI\",Arial,sans-serif);display:inline-flex;align-items:center;justify-content:center;gap:9px;border:1px solid transparent;border-radius:10px;min-height:44px;padding:11px 18px;font-size:14px;font-weight:650;cursor:pointer;background:var(--paper,#ffffff);color:var(--ink,#20212a);border-color:var(--line,#dfe1e9)}.ds-secondary:hover{background:var(--tint,#eef0f5);border-color:var(--input-border,#9296a6)}.ds-secondary:focus-visible{outline:2px solid var(--focus,#756bd5);outline-offset:4px;}"
     },
     {
       "name": "Text field",
@@ -278,15 +266,15 @@
       "refersTo": "input",
       "description": "Explicit field label, readable value and visible boundary.",
       "html": "<label class=\"ds-label\" for=\"ds-username\">Society username</label><input class=\"ds-input\" id=\"ds-username\" placeholder=\"Your society username\" />",
-      "css": ".ds-label{font-family:var(--sans,\"Raleway Variable\",\"Segoe UI\",Arial,sans-serif);display:block;color:var(--ink,#252b2a);font-size:13px;font-weight:650;margin-bottom:9px}.ds-input{font-family:var(--sans,\"Raleway Variable\",\"Segoe UI\",Arial,sans-serif);width:100%;min-height:48px;padding:12px 15px;border:1px solid var(--input-border,#a3ada7);border-radius:10px;font-size:16px;background:var(--input,#fff);color:var(--ink,#252b2a)}.ds-input::placeholder{color:var(--muted,#606967)}.ds-input:focus-visible{outline:2px solid var(--focus,#8c4050);outline-offset:4px;}"
+      "css": ".ds-label{font-family:var(--sans,\"Manrope Variable\",\"Segoe UI\",Arial,sans-serif);display:block;color:var(--ink,#20212a);font-size:13px;font-weight:650;margin-bottom:9px}.ds-input{font-family:var(--sans,\"Manrope Variable\",\"Segoe UI\",Arial,sans-serif);width:100%;min-height:48px;padding:12px 15px;border:1px solid var(--input-border,#9296a6);border-radius:10px;font-size:16px;background:var(--input,#fff);color:var(--ink,#20212a)}.ds-input::placeholder{color:var(--muted,#626574)}.ds-input:focus-visible{outline:2px solid var(--focus,#756bd5);outline-offset:4px;}"
     },
     {
       "name": "Sidebar navigation",
       "kind": "nav",
       "refersTo": "navigation-active",
-      "description": "Vertical destinations; sage communicates the current view.",
+      "description": "Vertical destinations; violet communicates the current view.",
       "html": "<nav class=\"ds-nav\" aria-label=\"Workspace\"><button class=\"ds-destination\" aria-current=\"page\">Dashboard</button><button class=\"ds-destination\">Events</button><button class=\"ds-destination\">Applications</button></nav>",
-      "css": ".ds-nav{display:flex;flex-direction:column;gap:6px;max-width:200px}.ds-destination{font-family:var(--sans,\"Raleway Variable\",\"Segoe UI\",Arial,sans-serif);text-align:left;min-height:44px;padding:12px;border:0;border-radius:10px;background:transparent;color:var(--muted,#606967);font-size:13px;font-weight:550;cursor:pointer}.ds-destination[aria-current]{background:var(--accent-soft,#e6eee8);color:var(--accent-ink,#39695b);font-weight:700}.ds-destination:not([aria-current]):hover{background:var(--tint,#ebefea);color:var(--ink,#252b2a)}.ds-destination:focus-visible{outline:2px solid var(--focus,#8c4050);outline-offset:4px;}"
+      "css": ".ds-nav{display:flex;flex-direction:column;gap:6px;max-width:200px}.ds-destination{font-family:var(--sans,\"Manrope Variable\",\"Segoe UI\",Arial,sans-serif);text-align:left;min-height:44px;padding:12px;border:0;border-radius:10px;background:transparent;color:var(--muted,#626574);font-size:13px;font-weight:550;cursor:pointer}.ds-destination[aria-current]{background:var(--accent-soft,#eeebfc);color:var(--accent-ink,#6257c5);font-weight:700}.ds-destination:not([aria-current]):hover{background:var(--tint,#eef0f5);color:var(--ink,#20212a)}.ds-destination:focus-visible{outline:2px solid var(--focus,#756bd5);outline-offset:4px;}"
     },
     {
       "name": "Positive status",
@@ -294,7 +282,7 @@
       "refersTo": "pill-positive",
       "description": "Written status reinforced with semantic color.",
       "html": "<span class=\"ds-status\">Minimum met</span>",
-      "css": ".ds-status{font-family:var(--sans,\"Raleway Variable\",\"Segoe UI\",Arial,sans-serif);display:inline-flex;padding:5px 10px;border-radius:999px;background:var(--green-bg,#e1eee5);color:var(--green,#28624d);font-size:11px;font-weight:600;line-height:1.4}"
+      "css": ".ds-status{font-family:var(--sans,\"Manrope Variable\",\"Segoe UI\",Arial,sans-serif);display:inline-flex;padding:5px 10px;border-radius:999px;background:var(--green-bg,#e1eee5);color:var(--green,#28624d);font-size:11px;font-weight:600;line-height:1.4}"
     },
     {
       "name": "Working panel",
@@ -302,7 +290,7 @@
       "refersTo": "panel",
       "description": "Flat bordered surface for a bounded operating task.",
       "html": "<section class=\"ds-panel\"><h2 class=\"ds-panel-title\">Society events</h2><p class=\"ds-panel-copy\">Browse events and check-in windows for your society.</p></section>",
-      "css": ".ds-panel{font-family:var(--sans,\"Raleway Variable\",\"Segoe UI\",Arial,sans-serif);padding:26px;border:1px solid var(--line,#dce1dc);border-radius:18px;background:var(--paper,#fff);color:var(--ink,#252b2a)}.ds-panel-title{margin:0 0 22px;font-size:21px;font-weight:650;letter-spacing:-.025em}.ds-panel-copy{margin:0;color:var(--muted,#606967);font-size:14px;line-height:1.65}"
+      "css": ".ds-panel{font-family:var(--sans,\"Manrope Variable\",\"Segoe UI\",Arial,sans-serif);padding:26px;border:1px solid var(--line,#dfe1e9);border-radius:18px;background:var(--paper,#ffffff);color:var(--ink,#20212a)}.ds-panel-title{margin:0 0 22px;font-size:21px;font-weight:650;letter-spacing:-.025em}.ds-panel-copy{margin:0;color:var(--muted,#626574);font-size:14px;line-height:1.65}"
     },
     {
       "name": "Compact summary",
@@ -310,14 +298,14 @@
       "refersTo": "panel",
       "description": "Real total with an optional full-cell destination control.",
       "html": "<article class=\"ds-summary\"><h2 class=\"ds-summary-label\">Upcoming events</h2><strong class=\"ds-summary-value\">0</strong><p class=\"ds-summary-detail\">No upcoming events</p><button class=\"ds-summary-link\" aria-label=\"View upcoming events\">\u2197</button></article>",
-      "css": ".ds-summary{font-family:var(--sans,\"Raleway Variable\",\"Segoe UI\",Arial,sans-serif);position:relative;padding:22px 26px;border:1px solid var(--line,#dce1dc);border-radius:18px;background:var(--paper,#fff);color:var(--ink,#252b2a)}.ds-summary-label{font-size:12px;font-weight:550;color:var(--muted,#606967);margin:0 0 14px}.ds-summary-value{font-size:44px;font-weight:550;line-height:1;letter-spacing:-.04em;font-variant-numeric:tabular-nums}.ds-summary-detail{font-size:11px;color:var(--muted,#606967);margin:8px 0 0}.ds-summary-link{position:absolute;inset:0;border:0;background:transparent;padding:18px;text-align:right;display:flex;justify-content:flex-end;align-items:flex-start;color:var(--muted,#606967);cursor:pointer}.ds-summary-link:hover{background:color-mix(in srgb,var(--accent-ink,#39695b) 5%,transparent)}.ds-summary-link:focus-visible{outline:2px solid var(--focus,#8c4050);outline-offset:4px;outline-offset:-4px}"
+      "css": ".ds-summary{font-family:var(--sans,\"Manrope Variable\",\"Segoe UI\",Arial,sans-serif);position:relative;padding:22px 26px;border:1px solid var(--line,#dfe1e9);border-radius:18px;background:var(--paper,#ffffff);color:var(--ink,#20212a)}.ds-summary-label{font-size:13px;font-weight:550;color:var(--muted,#626574);margin:0 0 14px}.ds-summary-value{font-size:44px;font-weight:650;line-height:1;letter-spacing:-.035em;font-variant-numeric:tabular-nums}.ds-summary-detail{font-size:12px;color:var(--muted,#626574);margin:8px 0 0}.ds-summary-link{position:absolute;inset:0;border:0;background:transparent;padding:18px;text-align:right;display:flex;justify-content:flex-end;align-items:flex-start;color:var(--muted,#626574);cursor:pointer}.ds-summary-link:hover{background:color-mix(in srgb,var(--accent-ink,#6257c5) 5%,transparent)}.ds-summary-link:focus-visible{outline:2px solid var(--focus,#756bd5);outline-offset:4px;outline-offset:-4px}"
     }
   ],
   "narrative": {
     "northStar": "A working society desk with an expressive front door.",
-    "overview": "SocietyHub pairs a welcoming public entrance with a calm operating workspace for engineering societies and SEC chairs. The dreamy reference informs the landing atmosphere; the completed interface defines compact working composition and stronger Raleway hierarchy.",
+    "overview": "SocietyHub pairs a focused sign-in entrance with a calm operating workspace. Independent H hub branding, graphite and pearl surfaces, violet emphasis and stronger Manrope hierarchy define the interface. SEC roles and service context remain functional product content.",
     "keyCharacteristics": [
-      "Charcoal and sage dark default; ivory light mode.",
+      "Graphite dark default, pearl light mode and violet emphasis.",
       "Sacramento appears only in the landing A shared home. accent.",
       "Persistent desktop sidebar, compact summaries and real interactive data."
     ],
@@ -349,7 +337,7 @@
       "Don't use script or mono fonts for operational labels and headings.",
       "Don't copy sample memberships, rewards, dummy counts or unrelated features into product behavior.",
       "Don't theme QR artwork; preserve black modules on white.",
-      "Don't scatter decorative ribbon fragments across working records."
+      "Don't restore ribbons, grain textures, decorative gradient loops, maroon accents or SEC visual branding."
     ]
   }
 }

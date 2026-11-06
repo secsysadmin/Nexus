@@ -10,7 +10,7 @@ export default function LoadingSkeleton() {
       </p>
       <aside className="loading-sidebar" aria-hidden="true">
         <div className="loading-brand">
-          <img src="/sec-logo.png" width={42} height={42} alt="" />
+          <img src="/societyhub-mark.svg" width={42} height={42} alt="" />
           <strong>SocietyHub</strong>
         </div>
         {Array.from({ length: 5 }, (_, i) => (

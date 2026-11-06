@@ -1392,20 +1392,9 @@ td strong {
   overflow: hidden;
   isolation: isolate;
 }
-.auth-story > :not(.maroon-ribbons) {
+.auth-story > * {
   position: relative;
   z-index: 1;
-}
-.maroon-ribbons {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background: var(--paper);
-}
-.maroon-ribbons img {
-  display: block;
-  width: 100%;
-  height: 100%;
 }
 .receipt-status {
   margin: 16px 0 22px;
@@ -1428,18 +1417,6 @@ td strong {
 }
 .auth-story p {
   color: var(--muted);
-}
-.maroon-ribbons::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    90deg,
-    #fff 38%,
-    rgba(255, 255, 255, 0.94) 60%,
-    rgba(255, 255, 255, 0.65) 72%,
-    rgba(255, 255, 255, 0) 94%
-  );
 }
 .auth-page :focus-visible {
   outline-color: #8c4658;
@@ -1480,10 +1457,6 @@ td strong {
   -webkit-text-fill-color: var(--ink);
   caret-color: var(--maroon);
   box-shadow: 0 0 0 1000px #fff inset;
-}
-.auth-story .maroon-ribbons {
-  -webkit-mask-image: linear-gradient(90deg, #000 82%, transparent 100%);
-  mask-image: linear-gradient(90deg, #000 82%, transparent 100%);
 }
 
 .is-dashboard .page-heading {
@@ -2100,19 +2073,6 @@ td strong {
 .auth-story {
   padding: 48px 56px;
   border-right: 1px solid var(--line);
-}
-.auth-story .maroon-ribbons {
-  inset: 112px 2% 120px;
-  background: transparent;
-  -webkit-mask-image: none;
-  mask-image: none;
-}
-.auth-story .maroon-ribbons::after {
-  content: none;
-}
-.auth-story .maroon-ribbons img {
-  object-fit: contain;
-  opacity: 0.88;
 }
 .auth-story p.auth-description {
   align-self: center;

@@ -842,20 +842,7 @@ thead th {
   background: linear-gradient(105deg, #0b1d24dc, #112b2d66 70%, transparent);
   pointer-events: none;
 }
-.auth-story::after {
-  content: "";
-  position: absolute;
-  z-index: -1;
-  width: 470px;
-  height: 720px;
-  right: -170px;
-  bottom: -210px;
-  background: url("/society-ribbon.svg") center / contain no-repeat;
-  opacity: 0.18;
-  filter: brightness(2) saturate(0.5);
-  transform: rotate(-14deg);
-  pointer-events: none;
-}
+
 .auth-story > .brand {
   color: #fff7e9;
   z-index: 1;

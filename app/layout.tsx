@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import { THEME_BOOT_SCRIPT } from "./theme-script";
-import "@fontsource-variable/raleway";
+import "@fontsource-variable/manrope";
 import "@fontsource/sacramento/latin-400.css";
-import "@fontsource/ibm-plex-mono/latin-500.css";
 import "./globals.css";
 import "./dreamy.css";
 import "./dreamy-reference.css";
@@ -11,9 +10,9 @@ export const metadata: Metadata = {
   description:
     "The engineering society workspace for Texas A&M ESOs and the Student Engineers’ Council.",
   icons: {
-    icon: "/sec-logo.png",
-    shortcut: "/sec-logo.png",
-    apple: "/sec-logo.png",
+    icon: "/societyhub-mark.svg",
+    shortcut: "/societyhub-mark.svg",
+    apple: "/societyhub-mark.svg",
   },
   robots: { index: false, follow: false },
 };

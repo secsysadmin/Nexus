@@ -1,38 +1,22 @@
 "use client";
-import {
-  ArrowDownRight,
-  ArrowUpRight,
-  CalendarDays,
-  FileText,
-  Users,
-  ChartNoAxesCombined,
-} from "lucide-react";
+import { ArrowUpRight, CalendarDays, FileText, Users } from "lucide-react";
 import SocietySignIn from "./society-sign-in";
 import ThemeToggle from "./theme-toggle";
-const LANDING_FEATURES = [
+const LANDING_CAPABILITIES = [
   {
-    title: "Show up. Check in.",
-    description:
-      "Find SEC events and record your society’s attendance with a QR code or sign-in link.",
+    title: "Events & check-in",
+    description: "Find your next event. Make your attendance count.",
     icon: CalendarDays,
   },
   {
-    title: "Make your plans happen.",
-    description:
-      "Apply for society funding and follow every submission, decision, and update.",
+    title: "Funding & applications",
+    description: "Keep your plans, submissions, and decisions together.",
     icon: FileText,
   },
   {
-    title: "Build something together.",
-    description:
-      "Connect societies through cross-collaboration and High Impact events.",
+    title: "Cross-society collaboration",
+    description: "Turn shared ideas into something bigger.",
     icon: Users,
-  },
-  {
-    title: "See where you stand.",
-    description:
-      "Keep a clear record of your earned points and Presidents’ Round Table progress.",
-    icon: ChartNoAxesCombined,
   },
 ];
 type AuthScreenProps = {
@@ -50,24 +34,19 @@ export default function AuthScreen(props: AuthScreenProps) {
       <header className="landing-nav">
         <a className="brand" href="/">
           <img
-            src="/sec-logo.png"
-            alt="Student Engineers’ Council"
+            src="/societyhub-mark.svg"
+            alt=""
             width={40}
             height={40}
             className="brand-logo"
           />
           <span>
-            SocietyHub<small>Texas A&M Engineering</small>
+            SocietyHub<small>A place to move forward.</small>
           </span>
         </a>
         <nav aria-label="Landing navigation">
-          {!focused && (
-            <a href="#society-features">
-              Explore the hub <ArrowDownRight size={15} aria-hidden="true" />
-            </a>
-          )}
           <a href="mailto:society@sec.tamu.edu">
-            Contact SEC <ArrowUpRight size={15} aria-hidden="true" />
+            Get in touch <ArrowUpRight size={15} aria-hidden="true" />
           </a>
         </nav>
         <ThemeToggle />
@@ -80,18 +59,29 @@ export default function AuthScreen(props: AuthScreenProps) {
               <br />
               <span>A shared home.</span>
             </h1>
-            <p>
-              The place for Texas A&M’s engineering societies to connect with
-              the Student Engineers’ Council.
-            </p>
+            <p>A little less keeping track. A lot more coming together.</p>
           </div>
-          <div className="landing-art" aria-hidden="true">
-            <img src="/society-ribbon.svg" alt="" width={890} height={1070} />
-          </div>
-          <div className="landing-story-footer">
-            <span>One society. More possibilities.</span>
-            <ArrowDownRight size={22} aria-hidden="true" />
-          </div>
+          <ul
+            className="landing-capabilities"
+            id="society-features"
+            aria-label="What you can do in SocietyHub"
+          >
+            {LANDING_CAPABILITIES.map((capability) => (
+              <li key={capability.title}>
+                <span className="capability-icon">
+                  <capability.icon size={21} aria-hidden="true" />
+                </span>
+                <div>
+                  <strong>{capability.title}</strong>
+                  <p>{capability.description}</p>
+                </div>
+              </li>
+            ))}
+          </ul>
+          <p className="landing-context">
+            For Texas A&M engineering societies and the Student Engineers’
+            Council.
+          </p>
         </section>
         <section
           id="society-sign-in"
@@ -101,43 +91,9 @@ export default function AuthScreen(props: AuthScreenProps) {
           <SocietySignIn {...props} />
         </section>
       </div>
-      {!focused && (
-        <section
-          className="landing-features"
-          id="society-features"
-          aria-labelledby="feature-title"
-        >
-          <div className="reference-section-head">
-            <h2 id="feature-title">
-              Everything your society needs.
-              <br />
-              <span>Room for what’s next.</span>
-            </h2>
-            <p>
-              Less keeping track.
-              <br />
-              More moving forward.
-            </p>
-          </div>
-          <div className="landing-tiles">
-            {LANDING_FEATURES.map((feature) => (
-              <article className="landing-tile" key={feature.title}>
-                <span className="landing-feature-icon">
-                  <feature.icon size={23} aria-hidden="true" />
-                </span>
-                <h3>{feature.title}</h3>
-                <p>{feature.description}</p>
-              </article>
-            ))}
-          </div>
-        </section>
-      )}
       <footer className="landing-footer">
-        <p>Powered by SEC Systems Administration</p>
-        <p className="auth-description">
-          © {new Date().getFullYear()} Student Engineers’ Council. All rights
-          reserved.
-        </p>
+        <p>SocietyHub</p>
+        <p className="auth-description">Built for engineering societies.</p>
       </footer>
     </main>
   );

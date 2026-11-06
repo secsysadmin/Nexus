@@ -857,8 +857,8 @@ export default function Hub() {
       >
         <a href="/" className="brand">
           <img
-            src="/sec-logo.png"
-            alt="Student Engineers’ Council"
+            src="/societyhub-mark.svg"
+            alt=""
             width={42}
             height={42}
             className="brand-logo"
@@ -919,11 +919,6 @@ export default function Hub() {
             <LogOut size={18} />
             Sign out
           </button>
-          <p>
-            Texas A&M University
-            <br />
-            Student Engineers’ Council
-          </p>
         </div>
       </aside>
       {mobile && (
@@ -2622,8 +2617,7 @@ export default function Hub() {
             </div>
           )}
           <footer className="footer">
-            <span>SocietyHub · Built for connection</span>
-            <span>Student Engineers’ Council · Texas A&M</span>
+            <span>SocietyHub</span>
           </footer>
         </main>
       </div>

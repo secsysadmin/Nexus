@@ -6,9 +6,9 @@ related_targets: ["app/hub.tsx"]
 ---
 
 ## Direction contract
-THESIS: SocietyHub is a working society desk with an expressive front door. Replace oversized posters on task pages with compact navigation, actionable summaries and legible records.
-OWN-WORLD: Retain the reference’s charcoal, ivory, amber and teal atmosphere. Sacramento is a landing accent only; Raleway has stronger operational hierarchy. Gradients belong to the front-door artwork and restrained header details.
-STORY: Officers can sign in immediately, find their next event, understand their actual PRT requirement and submit applications. Chairs see where action is needed and inspect real point activity.
-FIRST VIEWPORT: A restrained brand header sits over an asymmetric two-column landing: expressive connected headline and a broad ribbon on the left, a complete sign-in form on the right. Desktop workspace uses a persistent 232px sidebar, 76px toolbar, compact greeting, three compact summaries and a wide chart beside readiness.
-FORM: Code-led substantial evolution of the established dreamy world, selected by the user’s direction to change a lot and retain handwriting only as a landing accent. Existing product workflows and data rules remain intact.
+THESIS: A focused SocietyHub entrance and a legible working interface for societies and administrators. No ribbon motif or SEC-led visual branding.
+OWN-WORLD: Graphite and pearl surfaces, restrained violet accents, an independent hub mark and stronger Manrope type. Sacramento remains a single landing headline accent, as previously chosen by the user. No grain or decorative background artwork.
+STORY: Officers sign in immediately, understand the events/funding/collaboration capabilities, and move into a clear workspace with live point records. SEC remains the functional administrator rather than the visual identity.
+FIRST VIEWPORT: A simple brand header above two complementary surfaces: an open typographic and capability panel beside the complete sign-in form. Mobile omits extended capability rows to keep the primary action in the first screen. Workspace retains its persistent sidebar, compact titles, actionable summaries and real-data charts.
+FORM: Code-led evolution under the user’s express request to remove ribbon artwork, improve the website, and reject maroon accents and SEC identity. Product workflows and data integrity remain fixed.
 FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, DESIGN.md, and every shipping raster carrying its provenance
