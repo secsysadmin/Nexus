@@ -145,7 +145,16 @@ export async function checkIn(db: PoolClient, actor: Actor, input: unknown) {
       );
     return { already: true, event: event.name, points };
   }
-  if (checkinStatus(event) !== "OPEN")
+  const window = z
+    .object({
+      checkin_open: z.boolean(),
+      starts_at: z.date().transform((d) => d.toISOString()),
+      ends_at: z.date().transform((d) => d.toISOString()),
+      checkin_starts_at: z.date().transform((d) => d.toISOString()),
+      checkin_ends_at: z.date().transform((d) => d.toISOString()),
+    })
+    .parse(event);
+  if (checkinStatus(window) !== "OPEN")
     throw new AppError("Check-in is closed. Contact SEC if you attended.");
   const inserted = await db.query(
     "INSERT INTO credits(account_id,event_id,category,points,source) VALUES($1,$2,$3,$4,'CHECK_IN') ON CONFLICT(account_id,event_id) DO NOTHING RETURNING id",

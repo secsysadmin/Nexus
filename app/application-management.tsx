@@ -719,39 +719,51 @@ export function ReviewView({
           </section>
         ))}
       </div>
-      <form
-        className="editor-form"
-        onSubmit={(e) => {
-          e.preventDefault();
-          void save({ id: s.id, status: decision, note, revision: s.revision });
-        }}
-      >
-        <Field label="Review status">
-          <select
-            value={decision}
-            onChange={(e) =>
-              setDecision(options.find((option) => option === e.target.value))
-            }
-          >
-            {options.map((option) => (
-              <option key={option} value={option}>
-                {statusLabel(option)}
-              </option>
-            ))}
-          </select>
-        </Field>
-        <Field label="Feedback visible to the society">
-          <textarea
-            rows={4}
-            required={decision === "CHANGES_REQUESTED"}
-            value={note}
-            maxLength={5000}
-            onChange={(e) => setNote(e.target.value)}
-          />
-        </Field>
-        <p>Review decisions do not award event points.</p>
-        <FormActions busy={busy} onCancel={cancel} label="Save review" />
-      </form>
+      {!decision ? (
+        <p className="section-intro">
+          This application is still a draft and can be reviewed once it is
+          submitted.
+        </p>
+      ) : (
+        <form
+          className="editor-form"
+          onSubmit={(e) => {
+            e.preventDefault();
+            void save({
+              id: s.id,
+              status: decision,
+              note,
+              revision: s.revision,
+            });
+          }}
+        >
+          <Field label="Review status">
+            <select
+              value={decision}
+              onChange={(e) =>
+                setDecision(options.find((option) => option === e.target.value))
+              }
+            >
+              {options.map((option) => (
+                <option key={option} value={option}>
+                  {statusLabel(option)}
+                </option>
+              ))}
+            </select>
+          </Field>
+          <Field label="Feedback visible to the society">
+            <textarea
+              rows={4}
+              required={decision === "CHANGES_REQUESTED"}
+              value={note}
+              maxLength={5000}
+              onChange={(e) => setNote(e.target.value)}
+            />
+          </Field>
+          <p>Review decisions do not award event points.</p>
+          <FormActions busy={busy} onCancel={cancel} label="Save review" />
+        </form>
+      )}
     </Panel>
   );
 }

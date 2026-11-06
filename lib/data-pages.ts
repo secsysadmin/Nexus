@@ -1,5 +1,5 @@
 import type { PoolClient } from "pg";
-import { ACCOUNT_STATE_SQL } from "./account-state";
+import { ACCOUNT_STATE_SQL, NEEDS_SETUP_SQL } from "./account-state";
 import type { Actor } from "./service";
 import { AppError } from "./service";
 import { groupSocietyRoster } from "./society-roster";
@@ -122,13 +122,13 @@ export async function dashboardSummary(db: PoolClient, actor: Actor) {
         'upcomingEvents',(SELECT COALESCE(jsonb_agg(r),'[]'::jsonb) FROM (SELECT * FROM upcoming ORDER BY starts_at,id LIMIT 5) r),
         'pendingReviews',(SELECT COALESCE(jsonb_agg(r),'[]'::jsonb) FROM (SELECT * FROM pending ORDER BY submitted_at,id LIMIT 5) r),
         'missingPrt',(SELECT COALESCE(jsonb_agg(r),'[]'::jsonb) FROM (SELECT * FROM active WHERE NOT prt_met ORDER BY display_name,id LIMIT 5) r),
-        'awaitingSetup',(SELECT COALESCE(jsonb_agg(r),'[]'::jsonb) FROM (SELECT * FROM active WHERE account_state IN ('AWAITING_SETUP','SETUP_EXPIRED') ORDER BY display_name,id LIMIT 5) r)
+        'awaitingSetup',(SELECT COALESCE(jsonb_agg(r),'[]'::jsonb) FROM (SELECT * FROM active WHERE ${NEEDS_SETUP_SQL} ORDER BY display_name,id LIMIT 5) r)
       ),
       'counts',jsonb_build_object(
         'upcomingEvents',(SELECT count(*) FROM upcoming),
         'pendingReviews',(SELECT count(*) FROM pending),
         'missingPrt',(SELECT count(*) FROM active WHERE NOT prt_met),
-        'awaitingSetup',(SELECT count(*) FROM active WHERE account_state IN ('AWAITING_SETUP','SETUP_EXPIRED')),
+        'awaitingSetup',(SELECT count(*) FROM active WHERE ${NEEDS_SETUP_SQL}),
         'activeSocieties',(SELECT count(*) FROM active)
       )
     ) summary`,
