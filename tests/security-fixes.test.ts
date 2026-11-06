@@ -329,7 +329,7 @@ test("maintenance retries rejected mail, quarantines expired uncertain sends, an
     assert(healthy.ok);
     assert.equal(sends, 1);
     await f.db.query(
-      "UPDATE application_emails SET status='SENDING',lease_until=now()-interval '1 minute',accepted_at=NULL,provider_id=NULL WHERE id=$1",
+      "UPDATE application_emails SET status='SENDING',lease_token='expired-lease',lease_until=now()-interval '1 minute',accepted_at=NULL,provider_id=NULL WHERE id=$1",
       [saved.confirmation_email_id],
     );
     const uncertain = await runMaintenance({
