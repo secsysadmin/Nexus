@@ -1,529 +1,258 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-11-05T22:49:02.401289+00:00",
-  "title": "SocietyHub \u00b7 reference-faithful Dreamy",
+  "generatedAt": "2026-11-06T01:47:07.071169+00:00",
+  "title": "Design System: SocietyHub",
   "extensions": {
     "colorMeta": {
       "ground": {
         "role": "neutral",
-        "displayName": "Ground",
-        "canonical": "#f4f1eb",
-        "darkCanonical": "#0c0d0e",
-        "tonalRamp": [
-          "oklch(15% 0.00861 84.57)",
-          "oklch(26% 0.00861 84.57)",
-          "oklch(38% 0.00861 84.57)",
-          "oklch(49% 0.00861 84.57)",
-          "oklch(61% 0.00861 84.57)",
-          "oklch(72% 0.00861 84.57)",
-          "oklch(84% 0.00861 84.57)",
-          "oklch(95% 0.00861 84.57)"
-        ]
+        "displayName": "Ground"
       },
       "paper": {
         "role": "neutral",
-        "displayName": "Paper",
-        "canonical": "#fffdf8",
-        "darkCanonical": "#171819",
-        "tonalRamp": [
-          "oklch(15% 0.00693 88.64)",
-          "oklch(26% 0.00693 88.64)",
-          "oklch(38% 0.00693 88.64)",
-          "oklch(49% 0.00693 88.64)",
-          "oklch(61% 0.00693 88.64)",
-          "oklch(72% 0.00693 88.64)",
-          "oklch(84% 0.00693 88.64)",
-          "oklch(95% 0.00693 88.64)"
-        ]
+        "displayName": "Paper"
       },
       "ink": {
         "role": "neutral",
-        "displayName": "Ink",
-        "canonical": "#252321",
-        "darkCanonical": "#f3ebdd",
-        "tonalRamp": [
-          "oklch(15% 0.00477 67.61)",
-          "oklch(26% 0.00477 67.61)",
-          "oklch(38% 0.00477 67.61)",
-          "oklch(49% 0.00477 67.61)",
-          "oklch(61% 0.00477 67.61)",
-          "oklch(72% 0.00477 67.61)",
-          "oklch(84% 0.00477 67.61)",
-          "oklch(95% 0.00477 67.61)"
-        ]
+        "displayName": "Ink"
       },
       "muted": {
         "role": "neutral",
-        "displayName": "Muted",
-        "canonical": "#69625a",
-        "darkCanonical": "#bcb4a6",
-        "tonalRamp": [
-          "oklch(15% 0.01532 71.16)",
-          "oklch(26% 0.01532 71.16)",
-          "oklch(38% 0.01532 71.16)",
-          "oklch(49% 0.01532 71.16)",
-          "oklch(61% 0.01532 71.16)",
-          "oklch(72% 0.01532 71.16)",
-          "oklch(84% 0.01532 71.16)",
-          "oklch(95% 0.01532 71.16)"
-        ]
+        "displayName": "Muted"
       },
       "line": {
         "role": "neutral",
-        "displayName": "Line",
-        "canonical": "#ded9cf",
-        "darkCanonical": "#343431",
-        "tonalRamp": [
-          "oklch(15% 0.01459 84.59)",
-          "oklch(26% 0.01459 84.59)",
-          "oklch(38% 0.01459 84.59)",
-          "oklch(49% 0.01459 84.59)",
-          "oklch(61% 0.01459 84.59)",
-          "oklch(72% 0.01459 84.59)",
-          "oklch(84% 0.01459 84.59)",
-          "oklch(95% 0.01459 84.59)"
-        ]
+        "displayName": "Line"
       },
       "tint": {
         "role": "neutral",
-        "displayName": "Tint",
-        "canonical": "#ece7de",
-        "darkCanonical": "#242524",
-        "tonalRamp": [
-          "oklch(15% 0.01321 82.40)",
-          "oklch(26% 0.01321 82.40)",
-          "oklch(38% 0.01321 82.40)",
-          "oklch(49% 0.01321 82.40)",
-          "oklch(61% 0.01321 82.40)",
-          "oklch(72% 0.01321 82.40)",
-          "oklch(84% 0.01321 82.40)",
-          "oklch(95% 0.01321 82.40)"
-        ]
+        "displayName": "Tint"
       },
       "maroon": {
         "role": "primary",
-        "displayName": "Maroon",
-        "canonical": "#6b3037",
-        "darkCanonical": "#f3ebdd",
-        "tonalRamp": [
-          "oklch(15% 0.08435 14.43)",
-          "oklch(26% 0.08435 14.43)",
-          "oklch(38% 0.08435 14.43)",
-          "oklch(49% 0.08435 14.43)",
-          "oklch(61% 0.08435 14.43)",
-          "oklch(72% 0.08435 14.43)",
-          "oklch(84% 0.08435 14.43)",
-          "oklch(95% 0.08435 14.43)"
-        ]
+        "displayName": "Maroon"
       },
       "maroon-light": {
         "role": "primary",
-        "displayName": "Maroon Light",
-        "canonical": "#54232a",
-        "darkCanonical": "#ffffff",
-        "tonalRamp": [
-          "oklch(15% 0.07318 13.13)",
-          "oklch(26% 0.07318 13.13)",
-          "oklch(38% 0.07318 13.13)",
-          "oklch(49% 0.07318 13.13)",
-          "oklch(61% 0.07318 13.13)",
-          "oklch(72% 0.07318 13.13)",
-          "oklch(84% 0.07318 13.13)",
-          "oklch(95% 0.07318 13.13)"
-        ]
+        "displayName": "Maroon Light"
       },
       "on-accent": {
         "role": "primary",
-        "displayName": "On Accent",
-        "canonical": "#fff9ef",
-        "darkCanonical": "#191a18",
-        "tonalRamp": [
-          "oklch(15% 0.01467 80.71)",
-          "oklch(26% 0.01467 80.71)",
-          "oklch(38% 0.01467 80.71)",
-          "oklch(49% 0.01467 80.71)",
-          "oklch(61% 0.01467 80.71)",
-          "oklch(72% 0.01467 80.71)",
-          "oklch(84% 0.01467 80.71)",
-          "oklch(95% 0.01467 80.71)"
-        ]
+        "displayName": "On Accent"
       },
       "input": {
         "role": "neutral",
-        "displayName": "Input",
-        "canonical": "#faf7f1",
-        "darkCanonical": "#111213",
-        "tonalRamp": [
-          "oklch(15% 0.00857 84.57)",
-          "oklch(26% 0.00857 84.57)",
-          "oklch(38% 0.00857 84.57)",
-          "oklch(49% 0.00857 84.57)",
-          "oklch(61% 0.00857 84.57)",
-          "oklch(72% 0.00857 84.57)",
-          "oklch(84% 0.00857 84.57)",
-          "oklch(95% 0.00857 84.57)"
-        ]
+        "displayName": "Input"
       },
       "input-border": {
         "role": "neutral",
-        "displayName": "Input Border",
-        "canonical": "#8e867b",
-        "darkCanonical": "#77776d",
-        "tonalRamp": [
-          "oklch(15% 0.01883 76.03)",
-          "oklch(26% 0.01883 76.03)",
-          "oklch(38% 0.01883 76.03)",
-          "oklch(49% 0.01883 76.03)",
-          "oklch(61% 0.01883 76.03)",
-          "oklch(72% 0.01883 76.03)",
-          "oklch(84% 0.01883 76.03)",
-          "oklch(95% 0.01883 76.03)"
-        ]
+        "displayName": "Input Border"
       },
       "focus": {
         "role": "neutral",
-        "displayName": "Focus",
-        "canonical": "#9c4c41",
-        "darkCanonical": "#edb785",
-        "tonalRamp": [
-          "oklch(15% 0.10904 29.40)",
-          "oklch(26% 0.10904 29.40)",
-          "oklch(38% 0.10904 29.40)",
-          "oklch(49% 0.10904 29.40)",
-          "oklch(61% 0.10904 29.40)",
-          "oklch(72% 0.10904 29.40)",
-          "oklch(84% 0.10904 29.40)",
-          "oklch(95% 0.10904 29.40)"
-        ]
+        "displayName": "Focus"
       },
       "green": {
-        "role": "neutral",
-        "displayName": "Green",
-        "canonical": "#28624d",
-        "darkCanonical": "#add9bd",
-        "tonalRamp": [
-          "oklch(15% 0.07041 166.70)",
-          "oklch(26% 0.07041 166.70)",
-          "oklch(38% 0.07041 166.70)",
-          "oklch(49% 0.07041 166.70)",
-          "oklch(61% 0.07041 166.70)",
-          "oklch(72% 0.07041 166.70)",
-          "oklch(84% 0.07041 166.70)",
-          "oklch(95% 0.07041 166.70)"
-        ]
+        "role": "secondary",
+        "displayName": "Green"
       },
       "green-bg": {
-        "role": "neutral",
-        "displayName": "Green Bg",
-        "canonical": "#e1eee5",
-        "darkCanonical": "#1d382d",
-        "tonalRamp": [
-          "oklch(15% 0.01827 155.80)",
-          "oklch(26% 0.01827 155.80)",
-          "oklch(38% 0.01827 155.80)",
-          "oklch(49% 0.01827 155.80)",
-          "oklch(61% 0.01827 155.80)",
-          "oklch(72% 0.01827 155.80)",
-          "oklch(84% 0.01827 155.80)",
-          "oklch(95% 0.01827 155.80)"
-        ]
+        "role": "secondary",
+        "displayName": "Green Bg"
       },
       "amber": {
-        "role": "neutral",
-        "displayName": "Amber",
-        "canonical": "#805014",
-        "darkCanonical": "#f0ca89",
-        "tonalRamp": [
-          "oklch(15% 0.09591 66.51)",
-          "oklch(26% 0.09591 66.51)",
-          "oklch(38% 0.09591 66.51)",
-          "oklch(49% 0.09591 66.51)",
-          "oklch(61% 0.09591 66.51)",
-          "oklch(72% 0.09591 66.51)",
-          "oklch(84% 0.09591 66.51)",
-          "oklch(95% 0.09591 66.51)"
-        ]
+        "role": "secondary",
+        "displayName": "Amber"
       },
       "amber-bg": {
-        "role": "neutral",
-        "displayName": "Amber Bg",
-        "canonical": "#f8e9cc",
-        "darkCanonical": "#3b3020",
-        "tonalRamp": [
-          "oklch(15% 0.04145 83.87)",
-          "oklch(26% 0.04145 83.87)",
-          "oklch(38% 0.04145 83.87)",
-          "oklch(49% 0.04145 83.87)",
-          "oklch(61% 0.04145 83.87)",
-          "oklch(72% 0.04145 83.87)",
-          "oklch(84% 0.04145 83.87)",
-          "oklch(95% 0.04145 83.87)"
-        ]
+        "role": "secondary",
+        "displayName": "Amber Bg"
       },
       "red": {
-        "role": "neutral",
-        "displayName": "Red",
-        "canonical": "#a02f31",
-        "darkCanonical": "#ffb5ab",
-        "tonalRamp": [
-          "oklch(15% 0.14883 23.86)",
-          "oklch(26% 0.14883 23.86)",
-          "oklch(38% 0.14883 23.86)",
-          "oklch(49% 0.14883 23.86)",
-          "oklch(61% 0.14883 23.86)",
-          "oklch(72% 0.14883 23.86)",
-          "oklch(84% 0.14883 23.86)",
-          "oklch(95% 0.14883 23.86)"
-        ]
+        "role": "secondary",
+        "displayName": "Red"
       },
       "red-bg": {
-        "role": "neutral",
-        "displayName": "Red Bg",
-        "canonical": "#f8e5e1",
-        "darkCanonical": "#3d2325",
-        "tonalRamp": [
-          "oklch(15% 0.02157 31.78)",
-          "oklch(26% 0.02157 31.78)",
-          "oklch(38% 0.02157 31.78)",
-          "oklch(49% 0.02157 31.78)",
-          "oklch(61% 0.02157 31.78)",
-          "oklch(72% 0.02157 31.78)",
-          "oklch(84% 0.02157 31.78)",
-          "oklch(95% 0.02157 31.78)"
-        ]
+        "role": "secondary",
+        "displayName": "Red Bg"
       },
       "chart-prt": {
         "role": "secondary",
-        "displayName": "Chart Prt",
-        "canonical": "#8c4544",
-        "darkCanonical": "#e5c9a9",
-        "tonalRamp": [
-          "oklch(15% 0.09688 22.18)",
-          "oklch(26% 0.09688 22.18)",
-          "oklch(38% 0.09688 22.18)",
-          "oklch(49% 0.09688 22.18)",
-          "oklch(61% 0.09688 22.18)",
-          "oklch(72% 0.09688 22.18)",
-          "oklch(84% 0.09688 22.18)",
-          "oklch(95% 0.09688 22.18)"
-        ]
+        "displayName": "Chart Prt"
       },
       "chart-standard": {
         "role": "secondary",
-        "displayName": "Chart Standard",
-        "canonical": "#9b6928",
-        "darkCanonical": "#eda963",
-        "tonalRamp": [
-          "oklch(15% 0.10214 69.70)",
-          "oklch(26% 0.10214 69.70)",
-          "oklch(38% 0.10214 69.70)",
-          "oklch(49% 0.10214 69.70)",
-          "oklch(61% 0.10214 69.70)",
-          "oklch(72% 0.10214 69.70)",
-          "oklch(84% 0.10214 69.70)",
-          "oklch(95% 0.10214 69.70)"
-        ]
+        "displayName": "Chart Standard"
       },
       "chart-impact": {
         "role": "secondary",
-        "displayName": "Chart Impact",
-        "canonical": "#3f7774",
-        "darkCanonical": "#8bbcb3",
-        "tonalRamp": [
-          "oklch(15% 0.05951 191.00)",
-          "oklch(26% 0.05951 191.00)",
-          "oklch(38% 0.05951 191.00)",
-          "oklch(49% 0.05951 191.00)",
-          "oklch(61% 0.05951 191.00)",
-          "oklch(72% 0.05951 191.00)",
-          "oklch(84% 0.05951 191.00)",
-          "oklch(95% 0.05951 191.00)"
-        ]
+        "displayName": "Chart Impact"
+      },
+      "accent-soft": {
+        "role": "primary",
+        "displayName": "Accent Soft"
+      },
+      "accent-ink": {
+        "role": "primary",
+        "displayName": "Accent Ink"
       },
       "skeleton": {
         "role": "neutral",
-        "displayName": "Skeleton",
-        "canonical": "#e4dfd5",
-        "darkCanonical": "#262725",
-        "tonalRamp": [
-          "oklch(15% 0.01452 84.58)",
-          "oklch(26% 0.01452 84.58)",
-          "oklch(38% 0.01452 84.58)",
-          "oklch(49% 0.01452 84.58)",
-          "oklch(61% 0.01452 84.58)",
-          "oklch(72% 0.01452 84.58)",
-          "oklch(84% 0.01452 84.58)",
-          "oklch(95% 0.01452 84.58)"
-        ]
+        "displayName": "Skeleton"
       },
       "skeleton-shine": {
         "role": "neutral",
-        "displayName": "Skeleton Shine",
-        "canonical": "#f5f1e9",
-        "darkCanonical": "#343530",
-        "tonalRamp": [
-          "oklch(15% 0.01147 84.58)",
-          "oklch(26% 0.01147 84.58)",
-          "oklch(38% 0.01147 84.58)",
-          "oklch(49% 0.01147 84.58)",
-          "oklch(61% 0.01147 84.58)",
-          "oklch(72% 0.01147 84.58)",
-          "oklch(84% 0.01147 84.58)",
-          "oklch(95% 0.01147 84.58)"
-        ]
-      }
-    },
-    "themeModes": {
-      "selector": "html[data-theme]",
-      "default": "dark when no explicit saved choice exists",
-      "storageKey": "societyhub-theme",
-      "light": {
-        "ground": "#f4f1eb",
-        "paper": "#fffdf8",
-        "ink": "#252321",
-        "muted": "#69625a",
-        "line": "#ded9cf",
-        "tint": "#ece7de",
-        "maroon": "#6b3037",
-        "maroon-light": "#54232a",
-        "on-accent": "#fff9ef",
-        "input": "#faf7f1",
-        "input-border": "#8e867b",
-        "focus": "#9c4c41",
-        "green": "#28624d",
-        "green-bg": "#e1eee5",
-        "amber": "#805014",
-        "amber-bg": "#f8e9cc",
-        "red": "#a02f31",
-        "red-bg": "#f8e5e1",
-        "chart-prt": "#8c4544",
-        "chart-standard": "#9b6928",
-        "chart-impact": "#3f7774",
-        "skeleton": "#e4dfd5",
-        "skeleton-shine": "#f5f1e9"
+        "displayName": "Skeleton Shine"
       },
-      "dark": {
-        "ground": "#0a0a0b",
-        "paper": "#141416",
-        "ink": "#f4ebdd",
-        "muted": "#b9b0a3",
-        "line": "#303031",
-        "tint": "#242524",
-        "maroon": "#f4ebdd",
-        "maroon-light": "#ffffff",
-        "on-accent": "#191a18",
-        "input": "#0e0e10",
-        "input-border": "#77776d",
-        "focus": "#edb785",
-        "green": "#add9bd",
-        "green-bg": "#1d382d",
-        "amber": "#f0ca89",
-        "amber-bg": "#3b3020",
-        "red": "#ffb5ab",
-        "red-bg": "#3d2325",
-        "chart-prt": "#f4ebdd",
-        "chart-standard": "#f2a24a",
-        "chart-impact": "#8fc1b4",
-        "skeleton": "#262725",
-        "skeleton-shine": "#343530"
+      "poster-ink": {
+        "role": "neutral",
+        "displayName": "Poster Cream"
+      },
+      "poster-amber": {
+        "role": "secondary",
+        "displayName": "Poster Amber"
+      },
+      "poster-teal": {
+        "role": "secondary",
+        "displayName": "Poster Teal"
+      },
+      "poster-base": {
+        "role": "secondary",
+        "displayName": "Poster Base"
       }
     },
     "typographyMeta": {
       "headline": {
-        "displayName": "Page headline",
-        "purpose": "Orientation within the workspace."
+        "displayName": "Headline",
+        "purpose": "Raleway operational hierarchy."
       },
       "hero": {
-        "displayName": "Login hero",
-        "purpose": "Public landing message; sans-serif, never script."
+        "displayName": "Hero",
+        "purpose": "Public landing headline."
+      },
+      "landing-accent": {
+        "displayName": "Landing Accent",
+        "purpose": "Only the landing A shared home. accent."
       },
       "section": {
-        "displayName": "Section title",
-        "purpose": "Identify the next operating task."
+        "displayName": "Section",
+        "purpose": "Raleway operational hierarchy."
       },
       "body": {
         "displayName": "Body",
-        "purpose": "Readable forms and instructions."
+        "purpose": "Raleway operational hierarchy."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Raleway operational hierarchy."
+      },
+      "metadata": {
+        "displayName": "Metadata",
+        "purpose": "Raleway operational hierarchy."
       },
       "data": {
-        "displayName": "Readiness total",
-        "purpose": "Large current-data percentage with written context."
+        "displayName": "Data",
+        "purpose": "Raleway operational hierarchy."
+      },
+      "readiness": {
+        "displayName": "Readiness",
+        "purpose": "Raleway operational hierarchy."
       }
+    },
+    "themeModes": {
+      "selector": "html[data-theme]",
+      "default": "dark without an explicit saved choice",
+      "storageKey": "societyhub-theme",
+      "lightTokenPrefix": "",
+      "darkTokenPrefix": "dark-",
+      "persistence": "Browser only; apply before paint and report storage failure without losing the active theme."
     },
     "breakpoints": [
       {
-        "name": "mobile",
+        "name": "mobile-drawer",
         "value": "760px"
       },
       {
-        "name": "login-tablet",
+        "name": "stack-insights",
         "value": "1000px"
       },
       {
-        "name": "navigation-two-row",
+        "name": "compact-workspace",
         "value": "1200px"
       }
     ],
     "motion": [
       {
-        "name": "earned-share-fill",
-        "value": "460ms cubic-bezier(0.16, 1, 0.3, 1)",
-        "purpose": "Existing nonzero earned-share bar draw."
-      },
-      {
-        "name": "prt-ring-draw",
-        "value": "850ms cubic-bezier(0.22, 1, 0.36, 1)",
-        "purpose": "Existing minimum-met ring draw."
+        "name": "drawer",
+        "value": "180ms ease",
+        "purpose": "Mobile sidebar transform."
       },
       {
         "name": "reduced-motion",
         "value": "disable CSS animation and transitions; static skeleton base",
-        "purpose": "Respect reduced-motion preference."
+        "purpose": "Respect the user preference."
       }
     ],
-    "surfaces": {
-      "dream": "radial-gradient(ellipse at 75% 15%, #be883b 0, transparent 50%),\n    radial-gradient(ellipse at 95% 45%, #a44738 0, transparent 47%),\n    radial-gradient(ellipse at 85% 100%, #7ba99e 0, transparent 50%),\n    linear-gradient(130deg, #203b3e, #685645 65%, #a99a74)",
-      "dreamSoftLight": "radial-gradient(ellipse at 85% 5%, #e8c3a3, transparent 60%),\n    radial-gradient(ellipse at 70% 100%, #c8dbd0, transparent 65%), #eae2d7",
-      "dreamSoftDark": "radial-gradient(ellipse at 85% 5%, #6f3f39, transparent 65%),\n    radial-gradient(ellipse at 60% 120%, #335a5b, transparent 65%), #262a32"
-    },
+    "shadows": [
+      {
+        "name": "mobile-drawer",
+        "value": "10px 0 40px #28000033",
+        "purpose": "Functional drawer separation inherited from globals.css."
+      },
+      {
+        "name": "dialog",
+        "value": "0 24px 80px #211d2030",
+        "purpose": "Functional dialog elevation inherited from globals.css."
+      }
+    ],
     "focus": {
       "outline": "2px solid var(--focus)",
-      "offset": "4px"
+      "offset": "4px",
+      "summaryOffset": "-4px"
+    },
+    "surfaces": {
+      "poster": "radial-gradient(ellipse at 80% 20%, #b18a4a, transparent 65%),\n    radial-gradient(ellipse at 15% 95%, #45897f, transparent 65%), #273f3f",
+      "posterVeil": "linear-gradient(180deg, #182b2b70, transparent 55%, #182b2b70)",
+      "grain": "/textures/dream-grain.svg",
+      "grainOpacity": 0.16
     },
     "layout": {
-      "containerMax": "1440px",
-      "editorMax": "980px",
-      "desktopContentInset": "40px",
-      "tabletContentInset": "28px",
-      "mobileContentInset": "18px",
-      "desktopContextHeight": "76px",
+      "sidebarWidth": "232px",
+      "mobileDrawerWidth": "272px",
+      "desktopToolbarHeight": "76px",
       "mobileToolbarHeight": "68px",
-      "loginColumns": "minmax(0, 1.2fr) minmax(420px, .8fr)",
-      "loginFormMax": "400px"
+      "contentMax": "1400px",
+      "editorMax": "980px",
+      "desktopContentPadding": "32px 36px",
+      "tabletContentInset": "28px",
+      "mobileContentPadding": "26px 18px",
+      "landingMax": "1440px",
+      "landingColumns": "minmax(0, 1.22fr) minmax(0, 1fr)",
+      "landingGap": "16px",
+      "landingArtworkMinHeight": "690px",
+      "loginFormMax": "390px",
+      "features": "four compact columns; two on mobile"
     },
     "brand": {
       "publicName": "SocietyHub",
       "logo": "/sec-logo.png",
       "ribbon": "/society-ribbon.svg",
-      "ribbonUsage": "Static, pointer-inert login hero accent only; old workspace pseudo-elements suppressed."
+      "ribbonUsage": "Existing static, decorative, pointer-inert landing artwork only.",
+      "rasters": "No new raster assets."
+    },
+    "dataBehavior": {
+      "activity": "Eight weekly current-period nonremoved award totals; week controls update live point and attendance summaries.",
+      "readiness": "Active societies meeting the one-point PRT minimum, with accessible progress and written counts.",
+      "categories": "Real earned-point shares; only PRT has a minimum.",
+      "summaryNavigation": "Only render a destination control when an onSelect callback exists."
     },
     "workflowPreservation": {
-      "pointRules": "Unchanged; visual reference example data is not product truth.",
+      "productAuthority": "PRODUCT.md",
+      "pointRules": "Unchanged; never treat visual reference examples as product truth.",
+      "auth": "Preserve server ownership/role checks, chair-controlled one-time setup/recovery, hidden-by-default passwords and current session behavior.",
+      "records": "Preserve reset/history, check-in windows, one credit per ESO/event, draft/publish/review and durable notification recovery.",
       "qr": "Black on white regardless of theme.",
-      "monitoring": "No operational-health panel in workspace settings.",
-      "theme": "No server-side or database preference; current browser stores explicit preference."
-    },
-    "referenceFidelity": {
-      "source": "SEC Membership Hub Dreamy Redesign.pdf",
-      "families": [
-        "Sacramento",
-        "Raleway Variable",
-        "IBM Plex Mono"
-      ],
-      "header": "400px minimum poster with embedded navigation",
-      "landing": "full-width poster, four feature tiles, sign-in below",
-      "texture": "/textures/dream-grain.svg",
-      "categoryCards": "PRT minimum1; other bars show earned share"
+      "monitoring": "No operational-health panel in workspace settings."
     }
   },
   "components": [
@@ -531,82 +260,96 @@
       "name": "Primary button",
       "kind": "button",
       "refersTo": "button-primary",
-      "description": "Paired theme accent and foreground, with pill shape.",
-      "html": "<button class=\"primary\">Save changes</button>",
-      "css": ".primary{font-family:\"Raleway Variable\",\"Segoe UI\",Arial,sans-serif;box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;gap:9px;border:1px solid transparent;border-radius:999px;min-height:46px;padding:12px 22px;font-size:14px;font-weight:600;background:var(--maroon,#6b3037);color:var(--on-accent,#fff9ef);cursor:pointer;}.primary:hover{background:var(--maroon-light,#54232a)}.primary:focus-visible{outline:2px solid var(--focus,#9c4c41);outline-offset:4px;}"
+      "description": "Confident primary action with a compact rectangular shape.",
+      "html": "<button class=\"ds-primary\">Save changes</button>",
+      "css": ".ds-primary{font-family:var(--sans,\"Raleway Variable\",\"Segoe UI\",Arial,sans-serif);display:inline-flex;align-items:center;justify-content:center;gap:9px;border:1px solid transparent;border-radius:10px;min-height:44px;padding:11px 18px;font-size:14px;font-weight:650;cursor:pointer;background:var(--maroon,#722d3d);color:var(--on-accent,#fff9f0)}.ds-primary:hover{background:var(--maroon-light,#55212e)}.ds-primary:focus-visible{outline:2px solid var(--focus,#8c4050);outline-offset:4px;}.ds-primary:disabled{background:var(--tint,#ebefea);color:var(--muted,#606967);cursor:default}"
     },
     {
       "name": "Secondary button",
       "kind": "button",
       "refersTo": "button-secondary",
-      "description": "Outlined supporting action.",
-      "html": "<button class=\"secondary\">Preview application</button>",
-      "css": ".secondary{font-family:\"Raleway Variable\",\"Segoe UI\",Arial,sans-serif;box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;gap:9px;border:1px solid transparent;border-radius:999px;min-height:46px;padding:12px 22px;font-size:14px;font-weight:600;background:var(--maroon,#6b3037);color:var(--on-accent,#fff9ef);cursor:pointer;background:transparent;color:var(--ink,#252321);border-color:var(--input-border,#8e867b)}.secondary:hover{background:var(--tint,#ece7de)}.secondary:focus-visible{outline:2px solid var(--focus,#9c4c41);outline-offset:4px;}"
+      "description": "Bordered supporting action.",
+      "html": "<button class=\"ds-secondary\">Preview application</button>",
+      "css": ".ds-secondary{font-family:var(--sans,\"Raleway Variable\",\"Segoe UI\",Arial,sans-serif);display:inline-flex;align-items:center;justify-content:center;gap:9px;border:1px solid transparent;border-radius:10px;min-height:44px;padding:11px 18px;font-size:14px;font-weight:650;cursor:pointer;background:var(--paper,#fff);color:var(--ink,#252b2a);border-color:var(--line,#dce1dc)}.ds-secondary:hover{background:var(--tint,#ebefea);border-color:var(--input-border,#a3ada7)}.ds-secondary:focus-visible{outline:2px solid var(--focus,#8c4050);outline-offset:4px;}"
     },
     {
       "name": "Text field",
       "kind": "input",
       "refersTo": "input",
-      "description": "Readable themed input with explicit boundary.",
-      "html": "<label for=\"sample-field\">Society username</label><input id=\"sample-field\" placeholder=\"Your society username\" />",
-      "css": "label{font-family:\"Raleway Variable\",\"Segoe UI\",Arial,sans-serif;box-sizing:border-box;display:block;font-size:14px;font-weight:550;color:var(--ink,#252321);margin-bottom:9px}input{font-family:\"Raleway Variable\",\"Segoe UI\",Arial,sans-serif;box-sizing:border-box;width:100%;min-height:48px;padding:12px 15px;border:1px solid var(--input-border,#8e867b);border-radius:14px;font-size:16px;background:var(--input,#faf7f1);color:var(--ink,#252321)}input::placeholder{color:var(--muted,#69625a)}input:focus-visible{outline:2px solid var(--focus,#9c4c41);outline-offset:4px;}"
+      "description": "Explicit field label, readable value and visible boundary.",
+      "html": "<label class=\"ds-label\" for=\"ds-username\">Society username</label><input class=\"ds-input\" id=\"ds-username\" placeholder=\"Your society username\" />",
+      "css": ".ds-label{font-family:var(--sans,\"Raleway Variable\",\"Segoe UI\",Arial,sans-serif);display:block;color:var(--ink,#252b2a);font-size:13px;font-weight:650;margin-bottom:9px}.ds-input{font-family:var(--sans,\"Raleway Variable\",\"Segoe UI\",Arial,sans-serif);width:100%;min-height:48px;padding:12px 15px;border:1px solid var(--input-border,#a3ada7);border-radius:10px;font-size:16px;background:var(--input,#fff);color:var(--ink,#252b2a)}.ds-input::placeholder{color:var(--muted,#606967)}.ds-input:focus-visible{outline:2px solid var(--focus,#8c4050);outline-offset:4px;}"
     },
     {
-      "name": "Navigation",
-      "kind": "navigation",
+      "name": "Sidebar navigation",
+      "kind": "nav",
       "refersTo": "navigation-active",
-      "description": "Compact active destination in a bordered pill group.",
-      "html": "<nav aria-label=\"Example navigation\"><button aria-current=\"page\">Dashboard</button><button>Events</button><button>Applications</button></nav>",
-      "css": "nav{font-family:\"Raleway Variable\",\"Segoe UI\",Arial,sans-serif;box-sizing:border-box;display:flex;gap:2px;padding:5px;border:1px solid var(--line,#ded9cf);border-radius:999px;background:var(--paper,#fffdf8);width:max-content}button{font-family:\"Raleway Variable\",\"Segoe UI\",Arial,sans-serif;box-sizing:border-box;min-height:40px;padding:9px 12px;border:0;border-radius:999px;background:transparent;color:var(--muted,#69625a);font-size:12px;cursor:pointer}button[aria-current]{background:var(--maroon,#6b3037);color:var(--on-accent,#fff9ef)}button:focus-visible{outline:2px solid var(--focus,#9c4c41);outline-offset:4px;}"
+      "description": "Vertical destinations; sage communicates the current view.",
+      "html": "<nav class=\"ds-nav\" aria-label=\"Workspace\"><button class=\"ds-destination\" aria-current=\"page\">Dashboard</button><button class=\"ds-destination\">Events</button><button class=\"ds-destination\">Applications</button></nav>",
+      "css": ".ds-nav{display:flex;flex-direction:column;gap:6px;max-width:200px}.ds-destination{font-family:var(--sans,\"Raleway Variable\",\"Segoe UI\",Arial,sans-serif);text-align:left;min-height:44px;padding:12px;border:0;border-radius:10px;background:transparent;color:var(--muted,#606967);font-size:13px;font-weight:550;cursor:pointer}.ds-destination[aria-current]{background:var(--accent-soft,#e6eee8);color:var(--accent-ink,#39695b);font-weight:700}.ds-destination:not([aria-current]):hover{background:var(--tint,#ebefea);color:var(--ink,#252b2a)}.ds-destination:focus-visible{outline:2px solid var(--focus,#8c4050);outline-offset:4px;}"
     },
     {
       "name": "Positive status",
       "kind": "chip",
       "refersTo": "pill-positive",
-      "description": "Written state with semantic color.",
-      "html": "<span class=\"status\">Minimum met</span>",
-      "css": ".status{font-family:\"Raleway Variable\",\"Segoe UI\",Arial,sans-serif;box-sizing:border-box;display:inline-flex;padding:5px 11px;border-radius:999px;background:var(--green-bg,#e1eee5);color:var(--green,#28624d);font-size:12px;font-weight:550}"
+      "description": "Written status reinforced with semantic color.",
+      "html": "<span class=\"ds-status\">Minimum met</span>",
+      "css": ".ds-status{font-family:var(--sans,\"Raleway Variable\",\"Segoe UI\",Arial,sans-serif);display:inline-flex;padding:5px 10px;border-radius:999px;background:var(--green-bg,#e1eee5);color:var(--green,#28624d);font-size:11px;font-weight:600;line-height:1.4}"
     },
     {
       "name": "Working panel",
       "kind": "card",
       "refersTo": "panel",
-      "description": "Calm bordered surface for an operating task.",
-      "html": "<section><h2>Society events</h2><p>Browse events and check-in windows for your society.</p></section>",
-      "css": "section{font-family:\"Raleway Variable\",\"Segoe UI\",Arial,sans-serif;box-sizing:border-box;padding:28px;border:1px solid var(--line,#ded9cf);border-radius:24px;background:var(--paper,#fffdf8);color:var(--ink,#252321)}h2{margin:0 0 16px;font-size:22px;font-weight:550;letter-spacing:-.025em}p{margin:0;color:var(--muted,#69625a);font-size:14px;line-height:1.65}"
+      "description": "Flat bordered surface for a bounded operating task.",
+      "html": "<section class=\"ds-panel\"><h2 class=\"ds-panel-title\">Society events</h2><p class=\"ds-panel-copy\">Browse events and check-in windows for your society.</p></section>",
+      "css": ".ds-panel{font-family:var(--sans,\"Raleway Variable\",\"Segoe UI\",Arial,sans-serif);padding:26px;border:1px solid var(--line,#dce1dc);border-radius:18px;background:var(--paper,#fff);color:var(--ink,#252b2a)}.ds-panel-title{margin:0 0 22px;font-size:21px;font-weight:650;letter-spacing:-.025em}.ds-panel-copy{margin:0;color:var(--muted,#606967);font-size:14px;line-height:1.65}"
+    },
+    {
+      "name": "Compact summary",
+      "kind": "custom",
+      "refersTo": "panel",
+      "description": "Real total with an optional full-cell destination control.",
+      "html": "<article class=\"ds-summary\"><h2 class=\"ds-summary-label\">Upcoming events</h2><strong class=\"ds-summary-value\">0</strong><p class=\"ds-summary-detail\">No upcoming events</p><button class=\"ds-summary-link\" aria-label=\"View upcoming events\">\u2197</button></article>",
+      "css": ".ds-summary{font-family:var(--sans,\"Raleway Variable\",\"Segoe UI\",Arial,sans-serif);position:relative;padding:22px 26px;border:1px solid var(--line,#dce1dc);border-radius:18px;background:var(--paper,#fff);color:var(--ink,#252b2a)}.ds-summary-label{font-size:12px;font-weight:550;color:var(--muted,#606967);margin:0 0 14px}.ds-summary-value{font-size:44px;font-weight:550;line-height:1;letter-spacing:-.04em;font-variant-numeric:tabular-nums}.ds-summary-detail{font-size:11px;color:var(--muted,#606967);margin:8px 0 0}.ds-summary-link{position:absolute;inset:0;border:0;background:transparent;padding:18px;text-align:right;display:flex;justify-content:flex-end;align-items:flex-start;color:var(--muted,#606967);cursor:pointer}.ds-summary-link:hover{background:color-mix(in srgb,var(--accent-ink,#39695b) 5%,transparent)}.ds-summary-link:focus-visible{outline:2px solid var(--focus,#8c4050);outline-offset:4px;outline-offset:-4px}"
     }
   ],
   "narrative": {
-    "northStar": "Dreamy, grounded connection",
-    "overview": "SocietyHub uses a warm, atmospheric visual world adapted from the supplied SEC Membership Hub Dreamy Redesign. Soft amber, coral, and teal blends give the landing hero and page headers their identity; readable, quieter surfaces carry working records. The authenticated interface is an operating workspace, so tasks, labels, and real data remain more prominent than decoration. The public name is SocietyHub and the supplied SEC logo remains unchanged.",
+    "northStar": "A working society desk with an expressive front door.",
+    "overview": "SocietyHub pairs a welcoming public entrance with a calm operating workspace for engineering societies and SEC chairs. The dreamy reference informs the landing atmosphere; the completed interface defines compact working composition and stronger Raleway hierarchy.",
     "keyCharacteristics": [
-      "Warm ivory light mode and charcoal/cream dark mode use the same semantic component system.",
-      "A single self-hosted sans-serif family, soft corners, and generous but bounded spacing join public and authenticated surfaces.",
-      "Static atmospheric gradients frame content; forms, tables, and state labels remain explicit."
+      "Charcoal and sage dark default; ivory light mode.",
+      "Sacramento appears only in the landing A shared home. accent.",
+      "Persistent desktop sidebar, compact summaries and real interactive data."
     ],
     "rules": [
       {
+        "name": "The Accent Rule",
+        "body": "Use Sacramento only in the landing A shared home. accent.",
+        "section": "typography"
+      },
+      {
         "name": "The Status Rule",
-        "body": "Color reinforces a written status or numeric value; it never substitutes for one.",
-        "section": "Colors"
+        "body": "Color reinforces a written status or numeric value.",
+        "section": "colors"
       },
       {
         "name": "The Theme Rule",
-        "body": "Choose semantic tokens rather than literal light colors so forms, tables, calendars, notices, and dialogs remain coherent in both modes.",
-        "section": "Colors"
+        "body": "Use semantic tokens across both themes.",
+        "section": "colors"
       }
     ],
     "dos": [
-      "Do use the semantic theme tokens for every surface, label, boundary, and data category.",
-      "Do preserve the supplied SEC logo, the SocietyHub name, and visible signed-in account context.",
-      "Do keep required labels, written statuses, numeric chart values, focus outlines, and reduced-motion behavior.",
-      "Do constrain editors to a deliberate reading width while leaving calendars and directories room to operate."
+      "Do use semantic theme tokens for every surface, label, boundary and data category.",
+      "Do keep Sacramento confined to the landing A shared home. accent.",
+      "Do preserve visible account context, written statuses, numeric data values, focus outlines and reduced-motion behavior.",
+      "Do keep sign-in immediately available and summaries compact."
     ],
     "donts": [
-      "Don\u2019t introduce script or serif display fonts; the user explicitly rejected that direction.",
-      "Don\u2019t copy the reference\u2019s example memberships, point categories, rewards, or dummy counts into product behavior.",
-      "Don\u2019t turn QR artwork into a themed image: it remains black on white in both modes.",
-      "Don\u2019t restore the old white/maroon sidebar world or scatter ribbon fragments across working records."
+      "Don't restore oversized workspace posters or embedded capsule navigation.",
+      "Don't use script or mono fonts for operational labels and headings.",
+      "Don't copy sample memberships, rewards, dummy counts or unrelated features into product behavior.",
+      "Don't theme QR artwork; preserve black modules on white.",
+      "Don't scatter decorative ribbon fragments across working records."
     ]
   }
 }

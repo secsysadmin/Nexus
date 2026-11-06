@@ -2,25 +2,26 @@
 import { ArrowUpRight } from "lucide-react";
 import type { HubData } from "../lib/types";
 import { pointActivity } from "../lib/dashboard-visuals";
-const date = (at: number) =>
-  new Date(at).toLocaleDateString("en-US", {
-    timeZone: "America/Chicago",
-    month: "short",
-    day: "numeric",
-  });
+import PointsActivityChart from "./points-activity-chart";
+type AdminInsightsProps = {
+  data: HubData;
+  counts: NonNullable<HubData["dashboardCounts"]>;
+  onActivity: () => void;
+  onSocieties: () => void;
+  onReviews: () => void;
+};
+const CATEGORY_LABELS = [
+  "Presidents’ Round Table",
+  "Standard Event",
+  "High Impact Event",
+];
 export default function AdminInsights({
   data,
   counts,
   onActivity,
   onSocieties,
   onReviews,
-}: {
-  data: HubData;
-  counts: NonNullable<HubData["dashboardCounts"]>;
-  onActivity: () => void;
-  onSocieties: () => void;
-  onReviews: () => void;
-}) {
+}: AdminInsightsProps) {
   const { weeks, categories } = pointActivity(
     data.credits,
     data.pointCycle.id,
@@ -31,14 +32,25 @@ export default function AdminInsights({
   const percent = counts.activeSocieties
     ? Math.round((met / counts.activeSocieties) * 100)
     : 0;
-  const max = Math.max(1, ...weeks.map((week) => week.points));
   return (
     <div className="admin-insights">
+      <section
+        className="insight-activity"
+        aria-labelledby="activity-insight-title"
+      >
+        <div className="insight-heading">
+          <h2 id="activity-insight-title">Points activity</h2>
+          <button className="text-button" onClick={onActivity}>
+            View ledger <ArrowUpRight size={15} />
+          </button>
+        </div>
+        <PointsActivityChart weeks={weeks} />
+      </section>
       <section className="insight-prt" aria-labelledby="prt-insight-title">
         <div className="insight-heading">
           <h2 id="prt-insight-title">Society readiness</h2>
           <button className="text-button" onClick={onSocieties}>
-            View societies <ArrowUpRight size={16} />
+            View societies <ArrowUpRight size={15} />
           </button>
         </div>
         <div className="readiness-value">
@@ -47,22 +59,21 @@ export default function AdminInsights({
             <span>%</span>
           </strong>
           <span>
-            of active societies have
+            of active societies
             <br />
-            met the PRT minimum
+            have met the PRT minimum
           </span>
         </div>
-        <div
-          className="readiness-track"
-          role="img"
+        <progress
+          className="readiness-progress"
+          value={met}
+          max={Math.max(counts.activeSocieties, 1)}
           aria-label={`${met} of ${counts.activeSocieties} active societies have met the PRT minimum`}
-        >
-          <span style={{ width: `${percent}%` }} />
-        </div>
+        />
         <div className="readiness-key">
           <span>
             <i />
-            {met} met
+            {met} minimum met
           </span>
           <span>
             <i />
@@ -73,88 +84,44 @@ export default function AdminInsights({
           <button onClick={onReviews}>
             <strong>{counts.pendingReviews}</strong>
             <span>Awaiting review</span>
-            <ArrowUpRight size={17} />
+            <ArrowUpRight size={16} />
           </button>
           <button onClick={onSocieties}>
             <strong>{counts.awaitingSetup}</strong>
             <span>Awaiting setup</span>
-            <ArrowUpRight size={17} />
+            <ArrowUpRight size={16} />
           </button>
         </div>
         {!counts.activeSocieties && (
           <small>Add society accounts to start tracking readiness.</small>
         )}
       </section>
-      <section
-        className="insight-activity"
-        aria-labelledby="activity-insight-title"
-      >
-        <div className="insight-heading">
-          <h2 id="activity-insight-title">Points activity</h2>
-          <button className="text-button" onClick={onActivity}>
-            Ledger <ArrowUpRight size={16} />
-          </button>
-        </div>
-        <p>Points awarded in the last eight weeks</p>
-        <div className="activity-plot" role="group" aria-label="Weekly points awarded">
-          {weeks.map((week, index) => (
-            <div className="activity-column" key={index}>
-              <span className="activity-number">{week.points}</span>
-              <div className="activity-bar-space">
-                <div
-                  className="activity-bar"
-                  style={{ height: `${(week.points / max) * 100}%` }}
-                >
-                  <span className="sr-only">
-                    Week starting {date(week.start)}: {week.points} points from{" "}
-                    {week.checkins} attendance records
-                  </span>
-                </div>
-              </div>
-              <span className="activity-date">{date(week.start)}</span>
-            </div>
-          ))}
-        </div>
-        <small>Current point period only · Removed awards excluded</small>
-      </section>
       <section className="insight-mix" aria-labelledby="mix-insight-title">
         <div className="insight-heading">
           <h2 id="mix-insight-title">Points by category</h2>
-          <span>{total} total</span>
-        </div>
-        <div
-          className="category-stack"
-          role="img"
-          aria-label={`PRT ${categories[0]}, Standard ${categories[1]}, High Impact ${categories[2]} points`}
-        >
-          {categories.map((value, i) => (
-            <span
-              key={i}
-              className={`category-${i}`}
-              style={{ width: `${total ? (value / total) * 100 : 0}%` }}
-            />
-          ))}
+          <span>{total} total points</span>
         </div>
         <div className="category-breakdown">
-          {[
-            "Presidents’ Round Table",
-            "Standard Event",
-            "High Impact Event",
-          ].map((label, i) => (
+          {CATEGORY_LABELS.map((label, index) => (
             <div key={label}>
               <span>
-                <i className={`category-${i}`} />
+                <i className={`category-${index}`} />
                 {label}
               </span>
               <strong>
-                {categories[i]} <small>pts</small>
+                {categories[index]} <small>pts</small>
               </strong>
+              <progress
+                value={categories[index]}
+                max={Math.max(total, 1)}
+                aria-label={`${label}: ${categories[index]} of ${total} total points`}
+              />
             </div>
           ))}
         </div>
         <small>
           {total
-            ? "Share of all points in the current period"
+            ? "Share of earned points in the current period. Only PRT has a minimum requirement."
             : "Category totals appear as societies earn points."}
         </small>
       </section>

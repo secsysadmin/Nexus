@@ -1332,16 +1332,19 @@ export default function Hub() {
                         label: "Active societies",
                         value: dashboardCounts.activeSocieties,
                         detail: "Engineering societies in this workspace.",
+                        onSelect: () => navigate("societies"),
                       },
                       {
                         label: "Applications to review",
                         value: dashboardCounts.pendingReviews,
                         detail: "Submitted applications awaiting SEC review.",
+                        onSelect: () => navigate("reviews"),
                       },
                       {
                         label: "Upcoming events",
                         value: dashboardCounts.upcomingEvents,
                         detail: "Upcoming and ongoing SEC events.",
+                        onSelect: () => navigate("events"),
                       },
                     ]}
                   />

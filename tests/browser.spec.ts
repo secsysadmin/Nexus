@@ -134,6 +134,19 @@ test("society hub end-to-end: admin, concurrent check-in, drafts, review, QR and
   await expect(
     admin.getByRole("heading", { name: "SEC dashboard" }),
   ).toBeVisible();
+  const weeks = admin
+    .getByRole("group", { name: "Inspect a week of points activity" })
+    .getByRole("button");
+  await expect(weeks).toHaveCount(8);
+  await weeks.last().click();
+  await expect(weeks.last()).toHaveAttribute("aria-pressed", "true");
+  await expect(admin.locator(".activity-summary")).toContainText("Week of");
+  await admin
+    .getByRole("button", { name: "All eight weeks", exact: true })
+    .click();
+  await expect(admin.locator(".activity-summary")).toContainText(
+    "Across the last eight weeks",
+  );
   await admin.getByRole("button", { name: "Events", exact: true }).click();
   await admin
     .getByRole("button", { name: "Create event", exact: true })
@@ -1190,6 +1203,11 @@ test("workspace skeleton announces loading and the desktop login footer stays on
   await page.evaluate(() => document.fonts.ready);
   for (const width of [1976, 1440, 1024]) {
     await page.setViewportSize({ width, height: 1000 });
+    const signIn = await page
+      .getByRole("button", { name: "Sign in", exact: true })
+      .boundingBox();
+    if (signIn === null) throw new Error("Sign-in button is missing.");
+    expect(signIn.y + signIn.height).toBeLessThanOrEqual(1000);
     const footer = page.locator(".auth-description");
     expect(
       await footer.evaluate(

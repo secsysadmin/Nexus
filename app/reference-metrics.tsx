@@ -1,5 +1,11 @@
 import type { ReactNode } from "react";
-type Metric = { label: string; value: ReactNode; detail: string };
+import { ArrowUpRight } from "lucide-react";
+type Metric = {
+  label: string;
+  value: ReactNode;
+  detail: string;
+  onSelect?: () => void;
+};
 type ReferenceMetricsProps = { metrics: Metric[] };
 export default function ReferenceMetrics({ metrics }: ReferenceMetricsProps) {
   return (
@@ -11,6 +17,15 @@ export default function ReferenceMetrics({ metrics }: ReferenceMetricsProps) {
             <strong>{metric.value}</strong>
             <p>{metric.detail}</p>
           </div>
+          {metric.onSelect && (
+            <button
+              className="metric-link"
+              aria-label={`View ${metric.label.toLowerCase()}`}
+              onClick={metric.onSelect}
+            >
+              <ArrowUpRight size={15} aria-hidden="true" />
+            </button>
+          )}
         </article>
       ))}
     </section>
