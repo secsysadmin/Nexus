@@ -1,4 +1,5 @@
 import type { HubData } from "./types";
+import { needsSetup } from "./account-state";
 export function dashboardItems(data: HubData, now: number) {
   if (data.dashboardPreview) return data.dashboardPreview;
   const prtSocieties = new Set(
@@ -23,6 +24,6 @@ export function dashboardItems(data: HubData, now: number) {
       .filter((e) => Date.parse(e.ends_at) >= now)
       .sort((a, b) => Date.parse(a.starts_at) - Date.parse(b.starts_at)),
     missingPrt: societies.filter((a) => !prtSocieties.has(a.id)),
-    awaitingSetup: societies.filter((a) => !a.activated),
+    awaitingSetup: societies.filter((a) => needsSetup(a.account_state)),
   };
 }

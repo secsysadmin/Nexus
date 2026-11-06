@@ -7,6 +7,7 @@ import {
   outboxHealth,
 } from "../../../lib/email-outbox";
 import { z } from "zod";
+import { ACCOUNT_STATE_SQL } from "../../../lib/account-state";
 import { transaction } from "../../../lib/db";
 import { digest, sessionCookie } from "../../../lib/security";
 import {
@@ -88,7 +89,7 @@ async function handle(
           const actor = await authenticate(db, req);
           return (
             await db.query(
-              "SELECT id,username,display_name,role,enabled,contacts,contact_revision,(password_hash IS NOT NULL) activated FROM accounts WHERE id=$1 AND ($2 OR id=$3)",
+              `SELECT id,username,display_name,role,enabled,contacts,contact_revision,${ACCOUNT_STATE_SQL} FROM accounts a WHERE id=$1 AND ($2 OR id=$3)`,
               [id, actor.role === "admin", actor.id],
             )
           ).rows[0];

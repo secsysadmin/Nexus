@@ -7,11 +7,11 @@ function fixture(): HubData {
   return {
     pointCycle: { id: "fall" },
     accounts: [
-      { id: "met", role: "society", enabled: true, activated: true },
-      { id: "revoked", role: "society", enabled: true, activated: true },
-      { id: "new", role: "society", enabled: true, activated: false },
-      { id: "disabled", role: "society", enabled: false, activated: false },
-      { id: "sec", role: "admin", enabled: true, activated: false },
+      { id: "met", role: "society", enabled: true, account_state: "ACTIVE" },
+      { id: "revoked", role: "society", enabled: true, account_state: "ACTIVE" },
+      { id: "new", role: "society", enabled: true, account_state: "AWAITING_SETUP" },
+      { id: "disabled", role: "society", enabled: false, account_state: "DISABLED" },
+      { id: "sec", role: "admin", enabled: true, account_state: "AWAITING_SETUP" },
     ],
     events: [
       {

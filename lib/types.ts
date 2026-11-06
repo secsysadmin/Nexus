@@ -1,12 +1,13 @@
 import type { Question, Answers } from "./domain";
 import type { SubmissionStatus } from "./submission-status";
+import type { AccountState } from "./account-state";
 export type Account = {
   id: string;
   username: string;
   display_name: string;
   role: "society" | "admin";
   enabled: boolean;
-  activated: boolean;
+  account_state: AccountState;
   contact_revision?: number;
   contacts: Record<string, unknown>;
 };
