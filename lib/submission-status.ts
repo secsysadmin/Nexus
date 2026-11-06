@@ -39,3 +39,15 @@ export function reviewOptions(from: SubmissionStatus): readonly ReviewStatus[] {
 export function canReview(from: SubmissionStatus, to: ReviewStatus): boolean {
   return REVIEW_TRANSITIONS[from].includes(to);
 }
+export function acceptsSubmission(input: {
+  published: boolean;
+  deadline: string | Date | null;
+  existingStatus?: SubmissionStatus;
+  now: number;
+}): boolean {
+  if (input.existingStatus === "CHANGES_REQUESTED") return true;
+  return (
+    input.published &&
+    !(input.deadline && new Date(input.deadline).getTime() <= input.now)
+  );
+}

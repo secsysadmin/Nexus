@@ -12,6 +12,7 @@ import type { Form, Submission } from "../lib/types";
 import {
   reviewOptions,
   statusLabel,
+  acceptsSubmission,
   type ReviewStatus,
 } from "../lib/submission-status";
 import {
@@ -464,10 +465,12 @@ export function ApplicationView({
   const [answers, setAnswers] = useState<Answers>(existing?.answers ?? {}),
     [revision, setRevision] = useState(existing?.revision ?? 0),
     [savedAt, setSavedAt] = useState(existing?.updated_at ?? "");
-  const closed =
-    existing?.status !== "CHANGES_REQUESTED" &&
-    (!form.published ||
-      !!(form.deadline && Date.parse(form.deadline) < Date.now()));
+  const closed = !acceptsSubmission({
+    published: form.published,
+    deadline: form.deadline,
+    existingStatus: existing?.status,
+    now: Date.now(),
+  });
   const readOnly =
     admin ||
     closed ||

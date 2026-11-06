@@ -19,6 +19,7 @@ import {
   submissionStatuses,
   canReview,
   statusLabel,
+  acceptsSubmission,
 } from "./submission-status";
 import { checkinStatus } from "./checkin-status";
 export class AppError extends Error {
@@ -193,9 +194,12 @@ export async function saveSubmission(
     [form.id, actor.id],
   );
   if (
-    existing?.status !== "CHANGES_REQUESTED" &&
-    (!form.published ||
-      (form.deadline && Date.parse(form.deadline) < Date.now()))
+    !acceptsSubmission({
+      published: form.published,
+      deadline: form.deadline,
+      existingStatus: existing?.status,
+      now: Date.now(),
+    })
   )
     throw new AppError("This application is closed. Contact SEC for help.");
   if (existing && !["DRAFT", "CHANGES_REQUESTED"].includes(existing.status))
