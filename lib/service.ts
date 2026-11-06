@@ -14,6 +14,12 @@ import {
   MAX_OPTIONS,
   MAX_EMAIL_ATTEMPTS,
 } from "./domain";
+import {
+  reviewStatuses,
+  submissionStatuses,
+  canReview,
+  statusLabel,
+} from "./submission-status";
 export class AppError extends Error {
   constructor(
     message: string,
@@ -638,28 +644,32 @@ async function reviewSubmission(db: PoolClient, actor: Actor, input: unknown) {
   const b = z
     .object({
       id: uuid,
-      status: z.enum([
-        "UNDER_REVIEW",
-        "CHANGES_REQUESTED",
-        "APPROVED",
-        "DENIED",
-      ]),
+      status: z.enum(reviewStatuses),
       note: z.string().max(MAX_REVIEW_NOTE_LENGTH),
       revision: z.number().int().positive(),
     })
     .parse(input);
   if (b.status === "CHANGES_REQUESTED" && !b.note.trim())
     throw new AppError("Explain the requested changes.");
-  const previous = (
+  const row = (
     await db.query(
       "SELECT status,review_note FROM submissions WHERE id=$1 FOR UPDATE",
       [b.id],
     )
   ).rows[0];
+  if (!row) throw new AppError("Submission not found.", 404);
+  const previous = z
+    .object({ status: z.enum(submissionStatuses), review_note: z.string() })
+    .parse(row);
+  if (!canReview(previous.status, b.status))
+    throw new AppError(
+      `An application that is ${statusLabel(previous.status).toLowerCase()} can't be marked ${statusLabel(b.status).toLowerCase()}.`,
+      409,
+    );
   const {
     rows: [s],
   } = await db.query(
-    "UPDATE submissions SET status=$1,review_note=$2,revision=revision+1,updated_at=now() WHERE id=$3 AND status!='DRAFT' AND revision=$4 RETURNING *",
+    "UPDATE submissions SET status=$1,review_note=$2,revision=revision+1,updated_at=now() WHERE id=$3 AND revision=$4 RETURNING *",
     [b.status, b.note, b.id, b.revision],
   );
   if (!s)
@@ -670,7 +680,7 @@ async function reviewSubmission(db: PoolClient, actor: Actor, input: unknown) {
   let emailId: string | undefined;
   if (
     ["APPROVED", "DENIED", "CHANGES_REQUESTED"].includes(b.status) &&
-    (previous?.status !== b.status || previous?.review_note !== b.note) &&
+    (previous.status !== b.status || previous.review_note !== b.note) &&
     z.email().safeParse(s.confirmation_email).success
   ) {
     const info = (

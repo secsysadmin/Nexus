@@ -10,6 +10,11 @@ import {
 } from "lucide-react";
 import type { Form, Submission } from "../lib/types";
 import {
+  reviewOptions,
+  statusLabel,
+  type ReviewStatus,
+} from "../lib/submission-status";
+import {
   formKinds,
   questionTypes,
   isOneOf,
@@ -652,12 +657,9 @@ export function ReviewView({
   cancel: () => void;
   save: (b: unknown) => Promise<void>;
 }) {
-  const [decision, setDecision] = useState(
-      ["UNDER_REVIEW", "CHANGES_REQUESTED", "APPROVED", "DENIED"].includes(
-        s.status,
-      )
-        ? s.status
-        : "UNDER_REVIEW",
+  const options = reviewOptions(s.status);
+  const [decision, setDecision] = useState<ReviewStatus | undefined>(
+      options.find((option) => option === s.status) ?? options[0],
     ),
     [note, setNote] = useState(s.review_note);
   return (
@@ -724,12 +726,15 @@ export function ReviewView({
         <Field label="Review status">
           <select
             value={decision}
-            onChange={(e) => setDecision(e.target.value)}
+            onChange={(e) =>
+              setDecision(options.find((option) => option === e.target.value))
+            }
           >
-            <option value="UNDER_REVIEW">Under review</option>
-            <option value="CHANGES_REQUESTED">Changes requested</option>
-            <option value="APPROVED">Approved</option>
-            <option value="DENIED">Denied</option>
+            {options.map((option) => (
+              <option key={option} value={option}>
+                {statusLabel(option)}
+              </option>
+            ))}
           </select>
         </Field>
         <Field label="Feedback visible to the society">

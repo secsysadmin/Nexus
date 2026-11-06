@@ -254,6 +254,22 @@ test("form edits preserve existing drafts; revisions prevent officer overwrites;
       note: "Approved",
       revision: resubmitted.revision,
     });
+    const approved = (
+      await f.db.query<{ revision: number }>(
+        "SELECT revision FROM submissions WHERE id=$1",
+        [submitted.id],
+      )
+    ).rows[0];
+    await assert.rejects(
+      () =>
+        adminMutation(f.client, f.admin, "admin/review", {
+          id: submitted.id,
+          status: "CHANGES_REQUESTED",
+          note: "Reopen",
+          revision: approved.revision,
+        }),
+      /can't be marked changes requested/,
+    );
     assert.equal((await f.db.query("SELECT * FROM credits")).rows.length, 0);
     assert.equal((await getData(f.client, f.other)).submissions.length, 0);
   } finally {

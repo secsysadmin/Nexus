@@ -1,4 +1,5 @@
 import type { Question, Answers } from "./domain";
+import type { SubmissionStatus } from "./submission-status";
 export type Account = {
   id: string;
   username: string;
@@ -64,7 +65,7 @@ export type Submission = {
   form_version: number;
   account_id: string;
   answers: Answers;
-  status: string;
+  status: SubmissionStatus;
   review_note: string;
   revision: number;
   questions: Question[];
