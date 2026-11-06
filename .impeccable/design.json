@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "generatedAt": "2026-11-05T22:49:02.401289+00:00",
-  "title": "Design System: SocietyHub",
+  "title": "SocietyHub \u00b7 reference-faithful Dreamy",
   "extensions": {
     "colorMeta": {
       "ground": {
@@ -375,7 +375,7 @@
     },
     "themeModes": {
       "selector": "html[data-theme]",
-      "default": "device preference when no explicit saved choice exists",
+      "default": "dark when no explicit saved choice exists",
       "storageKey": "societyhub-theme",
       "light": {
         "ground": "#f4f1eb",
@@ -403,16 +403,16 @@
         "skeleton-shine": "#f5f1e9"
       },
       "dark": {
-        "ground": "#0c0d0e",
-        "paper": "#171819",
-        "ink": "#f3ebdd",
-        "muted": "#bcb4a6",
-        "line": "#343431",
+        "ground": "#0a0a0b",
+        "paper": "#141416",
+        "ink": "#f4ebdd",
+        "muted": "#b9b0a3",
+        "line": "#303031",
         "tint": "#242524",
-        "maroon": "#f3ebdd",
+        "maroon": "#f4ebdd",
         "maroon-light": "#ffffff",
         "on-accent": "#191a18",
-        "input": "#111213",
+        "input": "#0e0e10",
         "input-border": "#77776d",
         "focus": "#edb785",
         "green": "#add9bd",
@@ -421,9 +421,9 @@
         "amber-bg": "#3b3020",
         "red": "#ffb5ab",
         "red-bg": "#3d2325",
-        "chart-prt": "#e5c9a9",
-        "chart-standard": "#eda963",
-        "chart-impact": "#8bbcb3",
+        "chart-prt": "#f4ebdd",
+        "chart-standard": "#f2a24a",
+        "chart-impact": "#8fc1b4",
         "skeleton": "#262725",
         "skeleton-shine": "#343530"
       }
@@ -512,6 +512,18 @@
       "qr": "Black on white regardless of theme.",
       "monitoring": "No operational-health panel in workspace settings.",
       "theme": "No server-side or database preference; current browser stores explicit preference."
+    },
+    "referenceFidelity": {
+      "source": "SEC Membership Hub Dreamy Redesign.pdf",
+      "families": [
+        "Sacramento",
+        "Raleway Variable",
+        "IBM Plex Mono"
+      ],
+      "header": "400px minimum poster with embedded navigation",
+      "landing": "full-width poster, four feature tiles, sign-in below",
+      "texture": "/textures/dream-grain.svg",
+      "categoryCards": "PRT minimum1; other bars show earned share"
     }
   },
   "components": [
@@ -521,7 +533,7 @@
       "refersTo": "button-primary",
       "description": "Paired theme accent and foreground, with pill shape.",
       "html": "<button class=\"primary\">Save changes</button>",
-      "css": ".primary{font-family:\"Instrument Sans Variable\",\"Segoe UI\",Arial,sans-serif;box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;gap:9px;border:1px solid transparent;border-radius:999px;min-height:46px;padding:12px 22px;font-size:14px;font-weight:600;background:var(--maroon,#6b3037);color:var(--on-accent,#fff9ef);cursor:pointer;}.primary:hover{background:var(--maroon-light,#54232a)}.primary:focus-visible{outline:2px solid var(--focus,#9c4c41);outline-offset:4px;}"
+      "css": ".primary{font-family:\"Raleway Variable\",\"Segoe UI\",Arial,sans-serif;box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;gap:9px;border:1px solid transparent;border-radius:999px;min-height:46px;padding:12px 22px;font-size:14px;font-weight:600;background:var(--maroon,#6b3037);color:var(--on-accent,#fff9ef);cursor:pointer;}.primary:hover{background:var(--maroon-light,#54232a)}.primary:focus-visible{outline:2px solid var(--focus,#9c4c41);outline-offset:4px;}"
     },
     {
       "name": "Secondary button",
@@ -529,7 +541,7 @@
       "refersTo": "button-secondary",
       "description": "Outlined supporting action.",
       "html": "<button class=\"secondary\">Preview application</button>",
-      "css": ".secondary{font-family:\"Instrument Sans Variable\",\"Segoe UI\",Arial,sans-serif;box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;gap:9px;border:1px solid transparent;border-radius:999px;min-height:46px;padding:12px 22px;font-size:14px;font-weight:600;background:var(--maroon,#6b3037);color:var(--on-accent,#fff9ef);cursor:pointer;background:transparent;color:var(--ink,#252321);border-color:var(--input-border,#8e867b)}.secondary:hover{background:var(--tint,#ece7de)}.secondary:focus-visible{outline:2px solid var(--focus,#9c4c41);outline-offset:4px;}"
+      "css": ".secondary{font-family:\"Raleway Variable\",\"Segoe UI\",Arial,sans-serif;box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;gap:9px;border:1px solid transparent;border-radius:999px;min-height:46px;padding:12px 22px;font-size:14px;font-weight:600;background:var(--maroon,#6b3037);color:var(--on-accent,#fff9ef);cursor:pointer;background:transparent;color:var(--ink,#252321);border-color:var(--input-border,#8e867b)}.secondary:hover{background:var(--tint,#ece7de)}.secondary:focus-visible{outline:2px solid var(--focus,#9c4c41);outline-offset:4px;}"
     },
     {
       "name": "Text field",
@@ -537,7 +549,7 @@
       "refersTo": "input",
       "description": "Readable themed input with explicit boundary.",
       "html": "<label for=\"sample-field\">Society username</label><input id=\"sample-field\" placeholder=\"Your society username\" />",
-      "css": "label{font-family:\"Instrument Sans Variable\",\"Segoe UI\",Arial,sans-serif;box-sizing:border-box;display:block;font-size:14px;font-weight:550;color:var(--ink,#252321);margin-bottom:9px}input{font-family:\"Instrument Sans Variable\",\"Segoe UI\",Arial,sans-serif;box-sizing:border-box;width:100%;min-height:48px;padding:12px 15px;border:1px solid var(--input-border,#8e867b);border-radius:14px;font-size:16px;background:var(--input,#faf7f1);color:var(--ink,#252321)}input::placeholder{color:var(--muted,#69625a)}input:focus-visible{outline:2px solid var(--focus,#9c4c41);outline-offset:4px;}"
+      "css": "label{font-family:\"Raleway Variable\",\"Segoe UI\",Arial,sans-serif;box-sizing:border-box;display:block;font-size:14px;font-weight:550;color:var(--ink,#252321);margin-bottom:9px}input{font-family:\"Raleway Variable\",\"Segoe UI\",Arial,sans-serif;box-sizing:border-box;width:100%;min-height:48px;padding:12px 15px;border:1px solid var(--input-border,#8e867b);border-radius:14px;font-size:16px;background:var(--input,#faf7f1);color:var(--ink,#252321)}input::placeholder{color:var(--muted,#69625a)}input:focus-visible{outline:2px solid var(--focus,#9c4c41);outline-offset:4px;}"
     },
     {
       "name": "Navigation",
@@ -545,7 +557,7 @@
       "refersTo": "navigation-active",
       "description": "Compact active destination in a bordered pill group.",
       "html": "<nav aria-label=\"Example navigation\"><button aria-current=\"page\">Dashboard</button><button>Events</button><button>Applications</button></nav>",
-      "css": "nav{font-family:\"Instrument Sans Variable\",\"Segoe UI\",Arial,sans-serif;box-sizing:border-box;display:flex;gap:2px;padding:5px;border:1px solid var(--line,#ded9cf);border-radius:999px;background:var(--paper,#fffdf8);width:max-content}button{font-family:\"Instrument Sans Variable\",\"Segoe UI\",Arial,sans-serif;box-sizing:border-box;min-height:40px;padding:9px 12px;border:0;border-radius:999px;background:transparent;color:var(--muted,#69625a);font-size:12px;cursor:pointer}button[aria-current]{background:var(--maroon,#6b3037);color:var(--on-accent,#fff9ef)}button:focus-visible{outline:2px solid var(--focus,#9c4c41);outline-offset:4px;}"
+      "css": "nav{font-family:\"Raleway Variable\",\"Segoe UI\",Arial,sans-serif;box-sizing:border-box;display:flex;gap:2px;padding:5px;border:1px solid var(--line,#ded9cf);border-radius:999px;background:var(--paper,#fffdf8);width:max-content}button{font-family:\"Raleway Variable\",\"Segoe UI\",Arial,sans-serif;box-sizing:border-box;min-height:40px;padding:9px 12px;border:0;border-radius:999px;background:transparent;color:var(--muted,#69625a);font-size:12px;cursor:pointer}button[aria-current]{background:var(--maroon,#6b3037);color:var(--on-accent,#fff9ef)}button:focus-visible{outline:2px solid var(--focus,#9c4c41);outline-offset:4px;}"
     },
     {
       "name": "Positive status",
@@ -553,7 +565,7 @@
       "refersTo": "pill-positive",
       "description": "Written state with semantic color.",
       "html": "<span class=\"status\">Minimum met</span>",
-      "css": ".status{font-family:\"Instrument Sans Variable\",\"Segoe UI\",Arial,sans-serif;box-sizing:border-box;display:inline-flex;padding:5px 11px;border-radius:999px;background:var(--green-bg,#e1eee5);color:var(--green,#28624d);font-size:12px;font-weight:550}"
+      "css": ".status{font-family:\"Raleway Variable\",\"Segoe UI\",Arial,sans-serif;box-sizing:border-box;display:inline-flex;padding:5px 11px;border-radius:999px;background:var(--green-bg,#e1eee5);color:var(--green,#28624d);font-size:12px;font-weight:550}"
     },
     {
       "name": "Working panel",
@@ -561,7 +573,7 @@
       "refersTo": "panel",
       "description": "Calm bordered surface for an operating task.",
       "html": "<section><h2>Society events</h2><p>Browse events and check-in windows for your society.</p></section>",
-      "css": "section{font-family:\"Instrument Sans Variable\",\"Segoe UI\",Arial,sans-serif;box-sizing:border-box;padding:28px;border:1px solid var(--line,#ded9cf);border-radius:24px;background:var(--paper,#fffdf8);color:var(--ink,#252321)}h2{margin:0 0 16px;font-size:22px;font-weight:550;letter-spacing:-.025em}p{margin:0;color:var(--muted,#69625a);font-size:14px;line-height:1.65}"
+      "css": "section{font-family:\"Raleway Variable\",\"Segoe UI\",Arial,sans-serif;box-sizing:border-box;padding:28px;border:1px solid var(--line,#ded9cf);border-radius:24px;background:var(--paper,#fffdf8);color:var(--ink,#252321)}h2{margin:0 0 16px;font-size:22px;font-weight:550;letter-spacing:-.025em}p{margin:0;color:var(--muted,#69625a);font-size:14px;line-height:1.65}"
     }
   ],
   "narrative": {

@@ -1,8 +1,11 @@
 import type { Metadata } from "next";
 import { THEME_BOOT_SCRIPT } from "./theme-script";
-import "@fontsource-variable/instrument-sans";
+import "@fontsource-variable/raleway";
+import "@fontsource/sacramento/latin-400.css";
+import "@fontsource/ibm-plex-mono/latin-500.css";
 import "./globals.css";
 import "./dreamy.css";
+import "./dreamy-reference.css";
 export const metadata: Metadata = {
   title: "SocietyHub",
   description:

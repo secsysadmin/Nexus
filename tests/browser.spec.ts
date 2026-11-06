@@ -1384,10 +1384,10 @@ test("society contacts save, stay private, and stale changes require a deliberat
   }
 });
 
-test("theme follows the device, persists an explicit choice, and keeps password controls usable", async ({
+test("reference theme defaults to dark, persists a choice, and keeps password controls usable", async ({
   page,
 }) => {
-  await page.emulateMedia({ colorScheme: "dark" });
+  await page.emulateMedia({ colorScheme: "light" });
   await page.route("**/api/data**", (route) =>
     route.fulfill({ status: 401, json: { error: "Sign in required" } }),
   );

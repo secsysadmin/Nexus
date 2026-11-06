@@ -6,9 +6,33 @@ import {
   FileText,
   Users,
   KeyRound,
+  ChartNoAxesCombined,
 } from "lucide-react";
 import { Button, Field, PasswordInput } from "./ui";
 import ThemeToggle from "./theme-toggle";
+const LANDING_FEATURES = [
+  {
+    title: "Events",
+    description: "Find SEC events and check in with your society.",
+    icon: CalendarDays,
+  },
+  {
+    title: "Society funding",
+    description: "Apply for funding and keep your applications in one place.",
+    icon: FileText,
+  },
+  {
+    title: "Collaboration",
+    description: "Bring societies together through High Impact events.",
+    icon: Users,
+  },
+  {
+    title: "Your points",
+    description: "See attendance, earned points, and your PRT progress.",
+    icon: ChartNoAxesCombined,
+  },
+];
+
 type AuthScreenProps = {
   activate?: boolean;
   token?: string;
@@ -30,60 +54,93 @@ export default function AuthScreen({
     [confirm, setConfirm] = useState(""),
     [localError, setLocalError] = useState("");
   return (
-    <main className="auth-page">
-      <section className="auth-story">
-        <a className="brand" href="/">
-          <img
-            src="/sec-logo.png"
-            alt="Student Engineers’ Council"
-            width={48}
-            height={48}
-            className="brand-logo"
-          />
-          <span>SocietyHub</span>
-        </a>
-        <div className="auth-hero-copy">
-          <h2>
-            Engineering is
-            <br />
-            better together.
-          </h2>
-          <p>
-            Your society. Your people.
-            <br />
-            One place to bring it all together.
-          </p>
-          <div className="auth-capabilities" aria-label="SocietyHub features">
-            <span>
-              <CalendarDays size={17} aria-hidden="true" /> Events & check-in
-            </span>
-            <span>
-              <FileText size={17} aria-hidden="true" /> Society funding
-            </span>
-            <span>
-              <Users size={17} aria-hidden="true" /> Collaboration
-            </span>
-          </div>
-          <a className="auth-mobile-signin" href="#society-sign-in">
-            Sign in <ArrowRight size={17} aria-hidden="true" />
+    <main className={"auth-page" + (activate || checkin ? " auth-flow" : "")}>
+      <section className="auth-story reference-hero">
+        <header className="landing-nav">
+          <a className="brand" href="/">
+            <img
+              src="/sec-logo.png"
+              alt="Student Engineers’ Council"
+              width={40}
+              height={40}
+              className="brand-logo"
+            />
+            <span>SocietyHub</span>
           </a>
+          <nav aria-label="Landing navigation">
+            <a href="#society-features">Explore</a>
+            <a href="#society-sign-in">Sign in</a>
+            <a href="mailto:society@sec.tamu.edu">Contact SEC</a>
+          </nav>
+          <ThemeToggle />
+        </header>
+        <div className="auth-hero-copy">
+          <p className="reference-context">society hub</p>
+          <h1>
+            Student
+            <br />
+            Engineers’
+            <br />
+            Council
+          </h1>
+          <p>
+            Track your society’s points, check in to events, and apply for
+            funding. All in one place.
+          </p>
+          <div className="landing-actions">
+            <a className="button" href="#society-sign-in">
+              Sign in <ArrowRight size={17} aria-hidden="true" />
+            </a>
+            <a className="button secondary" href="#society-features">
+              Explore SocietyHub
+            </a>
+          </div>
         </div>
-        <p className="auth-description">
-          Texas A&M University · Student Engineers’ Council
-        </p>
+      </section>
+      <section
+        className="landing-features"
+        id="society-features"
+        aria-labelledby="feature-title"
+      >
+        <div className="reference-section-head">
+          <h2 id="feature-title">Your society, connected.</h2>
+          <span>04 features</span>
+        </div>
+        <div className="landing-tiles">
+          {LANDING_FEATURES.map((feature) => (
+            <a
+              href="#society-sign-in"
+              className="landing-tile"
+              key={feature.title}
+            >
+              <div>
+                <feature.icon size={22} aria-hidden="true" />
+                <h3>{feature.title}</h3>
+                <p>{feature.description}</p>
+                <span>
+                  Sign in to explore <ArrowRight size={15} aria-hidden="true" />
+                </span>
+              </div>
+            </a>
+          ))}
+        </div>
       </section>
       <section id="society-sign-in" className="auth-main">
-        <div className="auth-tools">
-          <ThemeToggle />
+        <div className="signin-introduction">
+          <h2>Welcome back.</h2>
+          <p>
+            The shared home for Texas A&M’s engineering societies and the
+            Student Engineers’ Council.
+          </p>
         </div>
         <div className="auth-form">
-          <h1>
+          <h2>
             {activate
               ? "Set your account password"
               : checkin
                 ? "Sign in to check in"
                 : "Welcome to SocietyHub"}
-          </h1>
+          </h2>
           <p>
             {activate
               ? "Your society can share this password with its authorized officers."
@@ -174,6 +231,13 @@ export default function AuthScreen({
           </div>
         </div>
       </section>
+      <footer className="landing-footer">
+        <p>Powered by SEC Systems Administration</p>
+        <p className="auth-description">
+          © {new Date().getFullYear()} Student Engineers’ Council. All rights
+          reserved.
+        </p>
+      </footer>
     </main>
   );
 }

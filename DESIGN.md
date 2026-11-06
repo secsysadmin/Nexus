@@ -2,86 +2,85 @@
 name: SocietyHub
 description: A warm, atmospheric workspace for engineering societies and SEC.
 colors:
-  ground: "#f4f1eb"
-  paper: "#fffdf8"
+  ground: "#f 4f 1eb"
+  paper: "#fffdf 8"
   ink: "#252321"
   muted: "#69625a"
-  line: "#ded9cf"
-  tint: "#ece7de"
-  maroon: "#6b3037"
+  line: "#ded 9cf"
+  tint: "#ece 7de"
+  maroon: "#6b 3037"
   maroon-light: "#54232a"
-  on-accent: "#fff9ef"
-  input: "#faf7f1"
-  input-border: "#8e867b"
-  focus: "#9c4c41"
+  on-accent: "#fff 9ef"
+  input: "#faf 7f 1"
+  input-border: "#8e 867b"
+  focus: "#9c 4c 41"
   green: "#28624d"
-  green-bg: "#e1eee5"
+  green-bg: "#e 1eee 5"
   amber: "#805014"
-  amber-bg: "#f8e9cc"
-  red: "#a02f31"
-  red-bg: "#f8e5e1"
-  chart-prt: "#8c4544"
-  chart-standard: "#9b6928"
-  chart-impact: "#3f7774"
-  skeleton: "#e4dfd5"
-  skeleton-shine: "#f5f1e9"
-  dark-ground: "#0c0d0e"
-  dark-paper: "#171819"
-  dark-ink: "#f3ebdd"
-  dark-muted: "#bcb4a6"
-  dark-line: "#343431"
-  dark-tint: "#242524"
-  dark-maroon: "#f3ebdd"
+  amber-bg: "#f 8e 9cc"
+  red: "#a 02f 31"
+  red-bg: "#f 8e 5e 1"
+  chart-prt: "#8c 4544"
+  chart-standard: "#9b 6928"
+  chart-impact: "#3f 7774"
+  skeleton: "#e 4dfd 5"
+  skeleton-shine: "#f 5f 1e 9"
+  dark-ground: "#0a 0a 0b"
+  dark-paper: "#141416"
+  dark-ink: "#f 4ebdd"
+  dark-muted: "#b 9b 0a 3"
+  dark-line: "#303031"
+  dark-tint: "#252526"
+  dark-maroon: "#f 3ebdd"
   dark-maroon-light: "#ffffff"
-  dark-on-accent: "#191a18"
-  dark-input: "#111213"
+  dark-on-accent: "#191a 18"
+  dark-input: "#0e0e10"
   dark-input-border: "#77776d"
-  dark-focus: "#edb785"
-  dark-green: "#add9bd"
-  dark-green-bg: "#1d382d"
-  dark-amber: "#f0ca89"
-  dark-amber-bg: "#3b3020"
-  dark-red: "#ffb5ab"
-  dark-red-bg: "#3d2325"
-  dark-chart-prt: "#e5c9a9"
-  dark-chart-standard: "#eda963"
-  dark-chart-impact: "#8bbcb3"
+  dark-focus: "#edb 785"
+  dark-green: "#add 9bd"
+  dark-green-bg: "#1d 382d"
+  dark-amber: "#f 0ca 89"
+  dark-amber-bg: "#3b 3020"
+  dark-red: "#ffb 5ab"
+  dark-red-bg: "#3d 2325"
+  dark-chart-prt: "#e 5c 9a 9"
+  dark-chart-standard: "#eda 963"
+  dark-chart-impact: "#8bbcb 3"
   dark-skeleton: "#262725"
   dark-skeleton-shine: "#343530"
 typography:
   headline:
-    fontFamily: "\"Instrument Sans Variable\", \"Segoe UI\", Arial, sans-serif"
-    fontSize: "clamp(2rem, 3.2vw, 3.25rem)"
-    fontWeight: 500
-    lineHeight: 1.13
-    letterSpacing: "-0.035em"
-  hero:
-    fontFamily: "\"Instrument Sans Variable\", \"Segoe UI\", Arial, sans-serif"
-    fontSize: "clamp(3rem, 5.3vw, 5.75rem)"
+    fontFamily: '"Sacramento", cursive'
+    fontSize: "clamp(72px, 7.4vw, 110px)"
     fontWeight: 400
-    lineHeight: 1.03
-    letterSpacing: "-0.04em"
+    lineHeight: 1.08
+  hero:
+    fontFamily: '"Sacramento", cursive'
+    fontSize: "138px"
+    fontWeight: 400
+    lineHeight: 0.88
   section:
-    fontFamily: "\"Instrument Sans Variable\", \"Segoe UI\", Arial, sans-serif"
-    fontSize: "1.375rem"
-    fontWeight: 550
+    fontFamily: "\"Raleway Variable\", \"Segoe UI\", Arial, sans-serif"
+    fontSize: "48px"
+    fontWeight: 200
     letterSpacing: "-0.025em"
   body:
-    fontFamily: "\"Instrument Sans Variable\", \"Segoe UI\", Arial, sans-serif"
+    fontFamily: "\"Raleway Variable\", \"Segoe UI\", Arial, sans-serif"
     fontSize: "1rem"
     fontWeight: 400
     lineHeight: 1.65
   label:
-    fontFamily: "\"Instrument Sans Variable\", \"Segoe UI\", Arial, sans-serif"
-    fontSize: "0.875rem"
-    fontWeight: 550
+    fontFamily: '"IBM Plex Mono", monospace'
+    fontSize: "11px"
+    fontWeight: 500
+    letterSpacing: "0.08em"
   metadata:
-    fontFamily: "\"Instrument Sans Variable\", \"Segoe UI\", Arial, sans-serif"
+    fontFamily: "\"Raleway Variable\", \"Segoe UI\", Arial, sans-serif"
     fontSize: "0.8125rem"
     lineHeight: 1.5
   data:
-    fontFamily: "\"Instrument Sans Variable\", \"Segoe UI\", Arial, sans-serif"
-    fontSize: "76px"
+    fontFamily: "\"Raleway Variable\", \"Segoe UI\", Arial, sans-serif"
+    fontSize: "84px"
     fontWeight: 400
     lineHeight: 1
     letterSpacing: "-0.04em"
@@ -144,117 +143,44 @@ components:
     rounded: "{rounded.pill}"
     padding: "5px 11px"
 ---
+
 # Design System: SocietyHub
 
 ## Overview
 
-**Creative North Star: "Dreamy, grounded connection"**
-
-SocietyHub uses a warm, atmospheric visual world adapted from the supplied SEC Membership Hub Dreamy Redesign. Soft amber, coral, and teal blends give the landing hero and page headers their identity; readable, quieter surfaces carry working records. The authenticated interface is an operating workspace, so tasks, labels, and real data remain more prominent than decoration. The public name is SocietyHub and the supplied SEC logo remains unchanged.
-
-**Key Characteristics:**
-- Warm ivory light mode and charcoal/cream dark mode use the same semantic component system.
-- A single self-hosted sans-serif family, soft corners, and generous but bounded spacing join public and authenticated surfaces.
-- Static atmospheric gradients frame content; forms, tables, and state labels remain explicit.
+The user's SEC Membership Hub Dreamy Redesign PDF is the visual authority. Match its composition, rather than applying its colors to the previous interface: full-width grain-textured gradient posters, embedded capsule navigation, handwritten display headings, delicate geometric sans-serif section headings, colorful feature/metric tiles, and compact dark record strips. The public product remains SocietyHub and the supplied SEC logo remains unchanged.
 
 ## Colors
 
-### Primary
-
-The primary action token is muted maroon in light mode and warm cream in dark mode. Its paired on-accent token supplies readable button and selected-navigation text. Amber and teal provide secondary atmosphere and distinguish data categories; they do not replace written meaning.
-
-### Neutral
-
-Light mode pairs warm ivory ground with a slightly brighter paper surface. Dark mode pairs near-black ground with charcoal paper. Ink, muted text, line, tint, input, input-border, and focus tokens each have explicit dark variants in the frontmatter. Borders distinguish working surfaces without resting shadows.
-
-### Semantic
-
-Green denotes completion or success, amber denotes pending work or caution, and red denotes destructive or error states. Each uses a matching background token in both themes. PRT, Standard, and High Impact use the same three chart tokens across charts, category keys, progress bars, and calendar spans. Skeletons use their theme-specific base/highlight pair.
-
-**The Status Rule.** Color reinforces a written status or numeric value; it never substitutes for one.
-
-**The Theme Rule.** Choose semantic tokens rather than literal light colors so forms, tables, calendars, notices, and dialogs remain coherent in both modes.
+Dark is the initial theme without an explicit saved choice: near-black canvas #0a 0a 0b, charcoal surfaces #141416, cream text #f 4ebdd and muted warm text #b 9b 0a 3. A saved light choice uses the existing ivory canvas and dark text. Both modes retain saturated poster backgrounds with cream foregrounds; operational fields/panels follow semantic theme tokens. Amber, teal, rust, mustard and slate blend across the posters. Gradient definitions live in app/dreamy-reference.css, with role tokens inherited from app/dreamy.css.
 
 ## Typography
 
-**Website Font:** Instrument Sans Variable, self-hosted through `@fontsource-variable/instrument-sans`, with Segoe UI, Arial, and sans-serif fallbacks. A single family carries orientation, reading, controls, and data; script and serif display faces are intentionally excluded.
-
-Page headlines use a medium weight and tight tracking; section headings use a smaller, slightly firmer weight. Body text and native input text retain the ordinary readable size. Metadata is subordinate in size and tone. Data totals use tabular numerals, with the large readiness percentage in a light weight. Prose keeps its inherited bounded measure; header descriptions are capped at 62ch and empty-state explanations at 58ch.
-
-The login hero has the largest type, in a regular weight, with a short two-line message. Login form headings use 32px on desktop and 28px on mobile. Mobile page headings use 32px; mobile hero headings use 39px. The readiness figure reduces from 76px to 64px on mobile. Buttons use 14px/600, while desktop navigation uses 12px with explicit active state.
-
-Confirmation emails retain email-safe Arial/Helvetica/sans-serif; website font availability is not assumed in email clients.
+Fonts match the reference and are locally hosted: Sacramento 400 for poster headlines and the sign-in introduction; Raleway Variable for body, controls, thin section headings and large metric numbers; IBM Plex Mono 500 for uppercase navigation, badges and field labels. Desktop poster titles are 72–110px, the public landing title is 138px over three lines, mobile poster titles are 64px, and mobile landing lettering is 96px (82px at the narrowest width). Script lettering never appears in form labels, input values, paragraphs or buttons. Body/input copy remains readable and native browser zoom is preserved.
 
 ## Layout
 
-The workspace content and desktop header are capped at 1440px. Desktop content uses 40px horizontal insets, with a separate 76px account/context toolbar. The desktop header combines the SEC logo and wordmark, pill navigation, and sign-out control. At widths from 761px through 1200px, navigation occupies a second full-width row and horizontal insets reduce to 28px. The current account name remains visible in the context toolbar with a full-name title and ellipsis protection.
+The desktop composition is bounded at 1440px with 20px exterior inset. Workspace posters start at the top and are at least 400px tall. Navigation sits inside the poster 48px from its top; an account/theme toolbar sits beneath navigation. Headline content begins below those controls with 56px side padding. At 761–1200px navigation becomes two rows and title padding increases. At 760px the focus-managed drawer and sticky account toolbar remain, with smaller poster composition below.
 
-At 760px and below, the established focus-managed navigation drawer replaces the top navigation; a sticky 68px toolbar carries the drawer control, account context, theme control, and refresh. Mobile content uses 18px side insets and 22px top/bottom padding. Grid sections stack, actions wrap or stack, and tables retain their local horizontal scrolling rather than overflowing the page.
-
-Page headers use a soft theme-specific atmospheric gradient, 38px desktop padding, a 28px radius, and a 190px minimum height. Mobile headers reduce to 26px/24px padding with no forced height. Standard panel spacing is 28px, with most mobile panels using 22px. Dashboard content uses separated rounded surfaces; the readiness panel and weekly activity share a top row, with category composition across the next row. Desktop follow-up sections use 1.15fr/1fr columns with 24px gaps and stack on mobile.
-
-Editors and application-detail panels are centered at a maximum width of 980px; their inner forms can occupy the panel width. Lists, calendars, and directories remain wide. The footer wraps naturally on mobile.
-
-The desktop login is a continuous composition inset 22px from the viewport: a 1.2fr atmospheric story and a minimum-420px/0.8fr form side, joined by complementary 30px outer corners. The story has 40px padding and the form is bounded to 400px. At 761px–1000px, the composition uses equal columns with tighter padding. Mobile uses separate 24px-rounded hero and form panels with 12px outer clearance. The compact hero keeps its headline and a Sign in anchor; capability chips are omitted on mobile. The form follows with its own theme toggle. Login does not autofocus an input and skip the hero.
+The public landing has a full-width poster with brand/navigation, a three-line Student Engineers’ Council title, factual society description and sign-in/explore anchors. Four 400px feature tiles follow an open, thin-weight heading. The real sign-in form sits below the tiles, with direct anchors to it; activation and check-in flows omit the long marketing content. On mobile the feature tiles use two columns and the sign-in panel stacks. No fake members, rewards, leaderboard or other reference-only features are introduced.
 
 ## Elevation & Depth
 
-Tonal layering, borders, and atmospheric blends carry ordinary depth. Panels and primary-button hover do not use resting shadows. The login story uses a dark readability veil over static gradients; its retained ribbon is a low-opacity, pointer-inert accent. Workspace ribbon pseudo-elements from the former visual world are suppressed. Modal backdrops darken and blur the underlying page; the established modal and mobile-drawer shadows remain functional elevation.
-
-Gradients and ribbon artwork are static. The society greeting remains static. Earned-share bar fill and the completed PRT ring draw remain scoped to their states, and reduced-motion preference disables those animations. Skeleton shimmer also has a static reduced-motion state.
+Texture is intentional reference fidelity: a local static SVG fractal-noise tile overlays poster surfaces. There is no animation loop, external image request, or decorative ribbon. Readability veils protect cream text. Functional focus rings, dialogs and navigation behavior remain; ordinary panels use borders without resting shadows.
 
 ## Shapes
 
-Working panels use the shared 24px corner radius, reducing to 20px on mobile. Page-header and login corners are a little broader. Inputs use soft 14px corners rather than pills; action buttons, navigation, status chips, and the theme switch use full pill silhouettes. Notices and submitted-application receipts use 16px corners. Boundaries use theme line or input-border tokens according to whether the component is structural or interactive.
+Posters use 32px corners, record/metric cards 22px, compact rows 18px, controls 14px and capsule buttons/navigation 999px. Mobile radii reduce where needed. Spacing separates major sections by roughly 48–56px and keeps related fields/row actions grouped.
 
 ## Components
 
-### Navigation and account context
-
-Desktop navigation is a bordered pill group with compact destinations, a filled active destination, and a separate sign-out action. The mobile drawer retains its focus protection, Escape/backdrop dismissal, opener restoration, and hidden-when-closed keyboard behavior. Navigation destinations and permissions are unchanged. The context toolbar names the signed-in society or SEC account, then identifies SEC administration or member workspace where space permits.
-
-### Theme switch
-
-A sun/moon button appears on login and in the workspace toolbar. Its accessible label names the destination mode. The initial mode follows `prefers-color-scheme` unless a valid `societyhub-theme` preference exists in local storage. The pre-paint document script sets the theme; system changes are followed only while no explicit preference is stored. Storage changes in another tab update the document theme. A storage failure does not prevent the control from changing the current page. Browser native controls receive the matching `color-scheme`.
-
-### Buttons and fields
-
-Primary actions use paired accent/foreground tokens, 46px minimum height, and 12px/22px padding; login submission uses 50px minimum height. Secondary actions keep a visible input-border outline and transparent surface. Disabled controls have explicit muted surfaces and text. Focus uses a 2px theme-specific outline with a 4px offset.
-
-Text inputs, selects, and textareas use the input surface, ink, and input-border tokens, 48px minimum height, 16px text, and 12px/15px padding. Fields keep 24px bottom spacing and 13px hints. Autofill is reconciled to the current input surface and text. Password fields start hidden and offer a labeled eye button with a pressed state; field IDs and hint associations reach the actual input.
-
-### Working panels and records
-
-Panel titles and actions share a flexible header. Event rows, application rows, attendance entries, and account records use readable hierarchy and local rules inside the themed panel. Empty states retain a concise title and next-step explanation. Search, pagination, revision warnings, notices, and existing unsaved-change protection keep their functional behavior.
-
-### Dashboard visualizations
-
-The SEC readiness percentage uses complete enabled-society counts and explicit PRT follow-up values, with review and setup shortcuts. Weekly activity and category composition show current-period non-revoked points and visible numbers. Society points retain the earned-category ledger and PRT completion ring, with their existing reset-period scoping. No reference sample counts or extra categories are introduced.
-
-### Calendar, QR, and dialogs
-
-Calendar dates, selected/today state, category spans, legends, and selected-day details all use theme tokens. Bars represent event duration; day details label the independent check-in window. Event editing preserves Enabled/Paused radio choices and the clear check-in explanation.
-
-QR/link tools remain in a focus-trapped native dialog with their existing link replacement, copy, and PNG download actions. The actual QR stays black on a white padded surface in both themes. The point-reset dialog retains its required confirmation and historical-record protection. Escape, backdrop dismissal, and opener restoration remain in place.
-
-### Applications and account settings
-
-Application authoring retains separate choice inputs and explicit draft/publish actions. Submitted application answers remain read-only when required, with written delivery/review state and a themed receipt surface. Contact editing, original-contact evidence, stale-save recovery, password changes, and audit disclosures remain available. Operational health is not a visible workspace-settings panel; monitoring continues independently.
-
-### Loading
-
-Branded skeletons follow the theme surfaces. Desktop placeholders use a top navigation arrangement; mobile omits the placeholder side rail. QR loading reserves its image area and exposes a written preparation state. Loading regions retain accessible status text and `aria-busy` rather than exposing decorative placeholder shapes.
+- Three gradient metric cards use true, current data. SEC sees active society count, pending reviews and upcoming events. Societies see points, attendance count and PRT progress.
+- Society category cards mirror the reference tile composition using only the three real categories. PRT has a 1-point minimum. Standard and High Impact have no minimum; their bars explicitly show share of earned points rather than an invented goal.
+- Event lists are two-column cards with gradient title bands and grouped actions, stacking on mobile. Applications use independent compact strips directly on the canvas. The directory uses separate rounded row surfaces. Editors retain bounded reading widths.
+- Calendar, QR dialogs, receipt states, forms and skeletons follow semantic theme tokens. QR artwork remains black on white. Written status accompanies color.
+- The theme switch persists a manual choice locally and applies it before paint. Dark is the unsaved default. Password visibility remains opt-in and defaults to hidden. Storage failures keep the current theme usable and report that the preference could not be saved.
+- Server ownership/role checks, point resets/history, one-time links, draft/publish/review flows, durable email recovery and other product rules are unchanged by the visual redesign.
 
 ## Do's and Don'ts
 
-### Do:
-- Do use the semantic theme tokens for every surface, label, boundary, and data category.
-- Do preserve the supplied SEC logo, the SocietyHub name, and visible signed-in account context.
-- Do keep required labels, written statuses, numeric chart values, focus outlines, and reduced-motion behavior.
-- Do constrain editors to a deliberate reading width while leaving calendars and directories room to operate.
-
-### Don't:
-- Don’t introduce script or serif display fonts; the user explicitly rejected that direction.
-- Don’t copy the reference’s example memberships, point categories, rewards, or dummy counts into product behavior.
-- Don’t turn QR artwork into a themed image: it remains black on white in both modes.
-- Don’t restore the old white/maroon sidebar world or scatter ribbon fragments across working records.
+Preserve the reference's scale, type contrast, saturated gradients, texture and poster-first layout. Keep forms practical, focus visible, record data real, theme choice persistent and all mobile actions reachable. Do not drift back to a muted split login, small generic headings or nested equal-weight panels. Do not copy sample personal data or fabricate the reference's unrelated product features.

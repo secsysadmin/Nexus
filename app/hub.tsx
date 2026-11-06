@@ -40,6 +40,7 @@ import ThemeToggle from "./theme-toggle";
 import AuthScreen from "./auth-screen";
 import PointsSummary from "./points-summary";
 import AdminInsights from "./admin-insights";
+import ReferenceMetrics from "./reference-metrics";
 import ContactEditor from "./contact-editor";
 import LoadingSkeleton from "./loading-skeleton";
 import { confirmDiscard } from "./unsaved-changes";
@@ -842,7 +843,7 @@ export default function Hub() {
     },
   ];
   return (
-    <div className="hub">
+    <div className="hub" data-view={tab}>
       <a className="skip-link" href="#main-content">
         Skip to content
       </a>
@@ -1325,6 +1326,25 @@ export default function Hub() {
                 </>
               ) : (
                 <>
+                  <ReferenceMetrics
+                    metrics={[
+                      {
+                        label: "Active societies",
+                        value: dashboardCounts.activeSocieties,
+                        detail: "Engineering societies in this workspace.",
+                      },
+                      {
+                        label: "Applications to review",
+                        value: dashboardCounts.pendingReviews,
+                        detail: "Submitted applications awaiting SEC review.",
+                      },
+                      {
+                        label: "Upcoming events",
+                        value: dashboardCounts.upcomingEvents,
+                        detail: "Upcoming and ongoing SEC events.",
+                      },
+                    ]}
+                  />
                   <AdminInsights
                     data={data}
                     counts={dashboardCounts}
