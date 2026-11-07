@@ -42,7 +42,11 @@ import AdminInsights from "./admin-insights";
 import ContactEditor from "./contact-editor";
 import LoadingSkeleton from "./loading-skeleton";
 import { confirmDiscard } from "./unsaved-changes";
-import { checkinStatus } from "../lib/checkin-status";
+import { checkinStatus, checkinLabel } from "../lib/checkin-status";
+import {
+  accountStateLabel,
+  accountStateTone,
+} from "../lib/account-state";
 import EventCalendar from "./event-calendar";
 import { dashboardItems } from "../lib/dashboard";
 import { groupSocietyRoster, rosterGroupMatches } from "../lib/society-roster";
@@ -1407,7 +1411,7 @@ export default function Hub() {
                               <small>
                                 {event.category === "HIGH_IMPACT"
                                   ? "High Impact · 2 points"
-                                  : checkinStatus(event)}
+                                  : checkinLabel(checkinStatus(event))}
                               </small>
                             </div>
                             <button
@@ -1707,7 +1711,7 @@ export default function Hub() {
                             <small>
                               {e.category === "HIGH_IMPACT"
                                 ? "2 points"
-                                : `1 point · ${checkinStatus(e)}`}
+                                : `1 point · ${checkinLabel(checkinStatus(e))}`}
                             </small>
                           </div>
                           {admin && (
@@ -2289,12 +2293,8 @@ export default function Hub() {
                                 </details>
                               </td>
                               <td>
-                                <Pill tone={a.enabled ? "green" : "neutral"}>
-                                  {a.enabled
-                                    ? a.activated
-                                      ? "Active"
-                                      : "Awaiting setup"
-                                    : "Disabled"}
+                                <Pill tone={accountStateTone(a.account_state)}>
+                                  {accountStateLabel(a.account_state)}
                                 </Pill>
                               </td>
                               <td>{societyActions(a)}</td>
@@ -2308,12 +2308,8 @@ export default function Hub() {
                         <li key={a.id}>
                           <div className="mobile-society-heading">
                             <h3>{a.display_name}</h3>
-                            <Pill tone={a.enabled ? "green" : "neutral"}>
-                              {a.enabled
-                                ? a.activated
-                                  ? "Active"
-                                  : "Awaiting setup"
-                                : "Disabled"}
+                            <Pill tone={accountStateTone(a.account_state)}>
+                              {accountStateLabel(a.account_state)}
                             </Pill>
                           </div>
                           <small>@{a.username}</small>

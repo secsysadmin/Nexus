@@ -1,4 +1,5 @@
 import { type PoolClient } from "pg";
+import { ACCOUNT_STATE_SQL } from "./account-state";
 import type { Actor } from "./service";
 import { operationalHealth } from "./observability";
 import { getPage, dashboardSummary, type Collection } from "./data-pages";
@@ -57,7 +58,7 @@ export async function getData(
     ? await page("accounts")
     : (
         await db.query(
-          `SELECT id,username,display_name,role,enabled,contacts,contact_revision,(password_hash IS NOT NULL) activated FROM accounts ${admin ? "" : "WHERE id=$1"} ORDER BY display_name`,
+          `SELECT id,username,display_name,role,enabled,contacts,contact_revision,${ACCOUNT_STATE_SQL} FROM accounts a ${admin ? "" : "WHERE id=$1"} ORDER BY display_name`,
           admin ? [] : [actor.id],
         )
       ).rows;

@@ -9,18 +9,18 @@ test("check-in distinguishes paused, scheduled, open, and ended without promisin
   };
   assert.equal(
     checkinStatus(e, Date.parse("2026-11-03T14:00:00Z")),
-    "Check-in scheduled",
+    "SCHEDULED",
   );
   assert.equal(
     checkinStatus(e, Date.parse("2026-11-03T16:00:00Z")),
-    "Check-in open",
+    "OPEN",
   );
-  assert.equal(checkinStatus(e, Date.parse(e.ends_at)), "Check-in ended");
+  assert.equal(checkinStatus(e, Date.parse(e.ends_at)), "ENDED");
   assert.equal(
     checkinStatus(
       { ...e, checkin_open: false },
       Date.parse("2026-11-03T16:00:00Z"),
     ),
-    "Check-in paused",
+    "PAUSED",
   );
 });

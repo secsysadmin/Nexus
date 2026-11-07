@@ -10,6 +10,12 @@ import {
 } from "lucide-react";
 import type { Form, Submission } from "../lib/types";
 import {
+  reviewOptions,
+  statusLabel,
+  acceptsSubmission,
+  type ReviewStatus,
+} from "../lib/submission-status";
+import {
   formKinds,
   questionTypes,
   isOneOf,
@@ -459,10 +465,12 @@ export function ApplicationView({
   const [answers, setAnswers] = useState<Answers>(existing?.answers ?? {}),
     [revision, setRevision] = useState(existing?.revision ?? 0),
     [savedAt, setSavedAt] = useState(existing?.updated_at ?? "");
-  const closed =
-    existing?.status !== "CHANGES_REQUESTED" &&
-    (!form.published ||
-      !!(form.deadline && Date.parse(form.deadline) < Date.now()));
+  const closed = !acceptsSubmission({
+    published: form.published,
+    deadline: form.deadline,
+    existingStatus: existing?.status,
+    now: Date.now(),
+  });
   const readOnly =
     admin ||
     closed ||
@@ -652,12 +660,9 @@ export function ReviewView({
   cancel: () => void;
   save: (b: unknown) => Promise<void>;
 }) {
-  const [decision, setDecision] = useState(
-      ["UNDER_REVIEW", "CHANGES_REQUESTED", "APPROVED", "DENIED"].includes(
-        s.status,
-      )
-        ? s.status
-        : "UNDER_REVIEW",
+  const options = reviewOptions(s.status);
+  const [decision, setDecision] = useState<ReviewStatus | undefined>(
+      options.find((option) => option === s.status) ?? options[0],
     ),
     [note, setNote] = useState(s.review_note);
   return (
@@ -714,36 +719,51 @@ export function ReviewView({
           </section>
         ))}
       </div>
-      <form
-        className="editor-form"
-        onSubmit={(e) => {
-          e.preventDefault();
-          void save({ id: s.id, status: decision, note, revision: s.revision });
-        }}
-      >
-        <Field label="Review status">
-          <select
-            value={decision}
-            onChange={(e) => setDecision(e.target.value)}
-          >
-            <option value="UNDER_REVIEW">Under review</option>
-            <option value="CHANGES_REQUESTED">Changes requested</option>
-            <option value="APPROVED">Approved</option>
-            <option value="DENIED">Denied</option>
-          </select>
-        </Field>
-        <Field label="Feedback visible to the society">
-          <textarea
-            rows={4}
-            required={decision === "CHANGES_REQUESTED"}
-            value={note}
-            maxLength={5000}
-            onChange={(e) => setNote(e.target.value)}
-          />
-        </Field>
-        <p>Review decisions do not award event points.</p>
-        <FormActions busy={busy} onCancel={cancel} label="Save review" />
-      </form>
+      {!decision ? (
+        <p className="section-intro">
+          This application is still a draft and can be reviewed once it is
+          submitted.
+        </p>
+      ) : (
+        <form
+          className="editor-form"
+          onSubmit={(e) => {
+            e.preventDefault();
+            void save({
+              id: s.id,
+              status: decision,
+              note,
+              revision: s.revision,
+            });
+          }}
+        >
+          <Field label="Review status">
+            <select
+              value={decision}
+              onChange={(e) =>
+                setDecision(options.find((option) => option === e.target.value))
+              }
+            >
+              {options.map((option) => (
+                <option key={option} value={option}>
+                  {statusLabel(option)}
+                </option>
+              ))}
+            </select>
+          </Field>
+          <Field label="Feedback visible to the society">
+            <textarea
+              rows={4}
+              required={decision === "CHANGES_REQUESTED"}
+              value={note}
+              maxLength={5000}
+              onChange={(e) => setNote(e.target.value)}
+            />
+          </Field>
+          <p>Review decisions do not award event points.</p>
+          <FormActions busy={busy} onCancel={cancel} label="Save review" />
+        </form>
+      )}
     </Panel>
   );
 }
