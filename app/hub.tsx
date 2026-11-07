@@ -36,11 +36,9 @@ import {
   ApplicationView,
   ReviewView,
 } from "./application-management";
-import ThemeToggle from "./theme-toggle";
 import AuthScreen from "./auth-screen";
 import PointsSummary from "./points-summary";
 import AdminInsights from "./admin-insights";
-import ReferenceMetrics from "./reference-metrics";
 import ContactEditor from "./contact-editor";
 import LoadingSkeleton from "./loading-skeleton";
 import { confirmDiscard } from "./unsaved-changes";
@@ -82,7 +80,6 @@ type AllowlistProps = {
   busy: boolean;
   run: Run;
 };
-
 type ManualAwardProps = {
   events: Event[];
   societies: Account[];
@@ -843,7 +840,7 @@ export default function Hub() {
     },
   ];
   return (
-    <div className="hub" data-view={tab}>
+    <div className="hub">
       <a className="skip-link" href="#main-content">
         Skip to content
       </a>
@@ -857,8 +854,8 @@ export default function Hub() {
       >
         <a href="/" className="brand">
           <img
-            src="/societyhub-mark.svg"
-            alt=""
+            src="/sec-logo.png"
+            alt="Student Engineers’ Council"
             width={42}
             height={42}
             className="brand-logo"
@@ -919,6 +916,11 @@ export default function Hub() {
             <LogOut size={18} />
             Sign out
           </button>
+          <p>
+            Texas A&M University
+            <br />
+            Student Engineers’ Council
+          </p>
         </div>
       </aside>
       {mobile && (
@@ -941,16 +943,13 @@ export default function Hub() {
           >
             {mobile ? <X /> : <Menu />}
           </button>
-          <span className="workspace-context">
-            <strong title={data.actor.display_name}>
-              {data.actor.display_name}
-            </strong>
+          <span>
+            Engineering societies{" "}
             <span className="breadcrumb">
               / {admin ? "SEC administration" : "Member workspace"}
             </span>
           </span>
           <div className="topbar-actions">
-            <ThemeToggle />
             <button
               className={"icon-button" + (refreshing ? " is-refreshing" : "")}
               disabled={refreshing || busy}
@@ -1321,28 +1320,6 @@ export default function Hub() {
                 </>
               ) : (
                 <>
-                  <ReferenceMetrics
-                    metrics={[
-                      {
-                        label: "Active societies",
-                        value: dashboardCounts.activeSocieties,
-                        detail: "Engineering societies in this workspace.",
-                        onSelect: () => navigate("societies"),
-                      },
-                      {
-                        label: "Applications to review",
-                        value: dashboardCounts.pendingReviews,
-                        detail: "Submitted applications awaiting SEC review.",
-                        onSelect: () => navigate("reviews"),
-                      },
-                      {
-                        label: "Upcoming events",
-                        value: dashboardCounts.upcomingEvents,
-                        detail: "Upcoming and ongoing SEC events.",
-                        onSelect: () => navigate("events"),
-                      },
-                    ]}
-                  />
                   <AdminInsights
                     data={data}
                     counts={dashboardCounts}
@@ -2618,13 +2595,13 @@ export default function Hub() {
           )}
           <footer className="footer">
             <span>SocietyHub</span>
+            <span>Student Engineers’ Council · Texas A&M</span>
           </footer>
         </main>
       </div>
     </div>
   );
 }
-
 function ManualAward({ events, societies, busy, save }: ManualAwardProps) {
   const [event, setEvent] = useState(""),
     [account, setAccount] = useState(""),

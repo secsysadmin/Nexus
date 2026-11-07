@@ -1,273 +1,253 @@
 ---
 name: SocietyHub
-description: A working society desk with an expressive front door.
+description: An editorial society register for point records and SEC administration.
 colors:
-  ground: "#f6f7fa"
+  maroon: "#500000"
+  button-hover: "#712727"
+  ink: "#211d20"
+  muted: "#625b60"
+  ground: "#ffffff"
   paper: "#ffffff"
-  ink: "#20212a"
-  muted: "#626574"
-  line: "#dfe1e9"
-  tint: "#eef0f5"
-  maroon: "#6257c5"
-  maroon-light: "#4c42ac"
-  on-accent: "#ffffff"
-  input: "#fff"
-  input-border: "#9296a6"
-  focus: "#756bd5"
-  green: "#28624d"
-  green-bg: "#e1eee5"
-  amber: "#805014"
-  amber-bg: "#f8e9cc"
-  red: "#a02f31"
-  red-bg: "#f8e5e1"
-  chart-prt: "#6257c5"
-  chart-standard: "#997023"
-  chart-impact: "#547c82"
-  accent-soft: "#eeebfc"
-  accent-ink: "#6257c5"
-  skeleton: "#e4dfd5"
-  skeleton-shine: "#f5f1e9"
-  dark-ground: "#111217"
-  dark-paper: "#1a1c24"
-  dark-ink: "#f2f3f8"
-  dark-muted: "#aeb2c3"
-  dark-line: "#333744"
-  dark-tint: "#272b37"
-  dark-maroon: "#c8c1ff"
-  dark-maroon-light: "#e0dcff"
-  dark-on-accent: "#272b37"
-  dark-input: "#171922"
-  dark-input-border: "#747b91"
-  dark-focus: "#b9adff"
-  dark-green: "#add9bd"
-  dark-green-bg: "#1d382d"
-  dark-amber: "#f0ca89"
-  dark-amber-bg: "#3b3020"
-  dark-red: "#ffb5ab"
-  dark-red-bg: "#3d2325"
-  dark-chart-prt: "#b5a7fb"
-  dark-chart-standard: "#dfbb7b"
-  dark-chart-impact: "#8dbbc4"
-  dark-accent-soft: "#29283f"
-  dark-accent-ink: "#d1c9ff"
-  dark-skeleton: "#292d3a"
-  dark-skeleton-shine: "#383e4e"
-  mark-center: "#d8d3ff"
+  line: "#e5e2df"
+  tint: "#f7f2f3"
+  green: "#265c43"
+  green-bg: "#eaf3ed"
+  amber: "#795310"
+  amber-bg: "#fbf0d5"
+  red: "#962b29"
+  nav-text: "#625b60"
+  rose: "#f5e9ed"
+  nav-hover: "#f7f2f3"
+  button-text: "#ffffff"
+  input-line: "#9c9094"
+  focus: "#8c4658"
+  table-header: "#faf9fa"
+  pill-neutral: "#f5f4f4"
+  event-date: "#f7eef1"
+  input-disabled: "#f6f4f5"
+  note: "#faf7f8"
+  chart-standard: "#a64b64"
+  chart-high-impact: "#5f6682"
+  qr-black: "#000000"
+  skeleton-base: "#eee9eb"
+  skeleton-highlight: "#f8f5f6"
 typography:
   headline:
-    fontFamily: "\"Manrope Variable\", \"Segoe UI\", Arial, sans-serif"
-    fontSize: "clamp(30px, 3.3vw, 46px)"
-    fontWeight: 600
-    lineHeight: 1.15
-    letterSpacing: "-0.04em"
-  hero:
-    fontFamily: "\"Manrope Variable\", \"Segoe UI\", Arial, sans-serif"
-    fontSize: "clamp(44px, 4.3vw, 64px)"
-    fontWeight: 600
-    lineHeight: 1.14
-    letterSpacing: "-0.04em"
-  landing-accent:
-    fontFamily: "\"Sacramento\", cursive"
-    fontSize: "clamp(64px, 6vw, 88px)"
-    fontWeight: 400
-    lineHeight: 1.12
-    letterSpacing: "0"
-  section:
-    fontFamily: "\"Manrope Variable\", \"Segoe UI\", Arial, sans-serif"
-    fontSize: "21px"
+    fontFamily: '"Instrument Sans Variable", "Segoe UI", Arial, sans-serif'
+    fontSize: "clamp(2.25rem, 3.6vw, 3.5rem)"
+    fontWeight: 700
+    lineHeight: 1.08
+    letterSpacing: "-0.035em"
+  title:
+    fontFamily: '"Instrument Sans Variable", "Segoe UI", Arial, sans-serif'
+    fontSize: "1.375rem"
     fontWeight: 650
+    lineHeight: 1.3
     letterSpacing: "-0.025em"
+  item:
+    fontFamily: '"Instrument Sans Variable", "Segoe UI", Arial, sans-serif'
+    fontSize: "1.0625rem"
+    fontWeight: 650
+    lineHeight: 1.4
+    letterSpacing: "-0.012em"
   body:
-    fontFamily: "\"Manrope Variable\", \"Segoe UI\", Arial, sans-serif"
-    fontSize: "16px"
-    fontWeight: 450
+    fontFamily: '"Instrument Sans Variable", "Segoe UI", Arial, sans-serif'
+    fontSize: "1rem"
+    fontWeight: 400
     lineHeight: 1.55
   label:
-    fontFamily: "\"Manrope Variable\", \"Segoe UI\", Arial, sans-serif"
-    fontSize: "13px"
-    fontWeight: 650
-    letterSpacing: "0"
+    fontFamily: '"Instrument Sans Variable", "Segoe UI", Arial, sans-serif'
+    fontSize: "0.875rem"
+    fontWeight: 600
   metadata:
-    fontFamily: "\"Manrope Variable\", \"Segoe UI\", Arial, sans-serif"
-    fontSize: "11px"
+    fontFamily: '"Instrument Sans Variable", "Segoe UI", Arial, sans-serif'
+    fontSize: "0.8125rem"
     lineHeight: 1.6
-  data:
-    fontFamily: "\"Manrope Variable\", \"Segoe UI\", Arial, sans-serif"
-    fontSize: "44px"
-    fontWeight: 650
-    lineHeight: 1
-    letterSpacing: "-0.035em"
-  readiness:
-    fontFamily: "\"Manrope Variable\", \"Segoe UI\", Arial, sans-serif"
-    fontSize: "66px"
-    fontWeight: 550
-    lineHeight: 1
-    letterSpacing: "-0.04em"
+  point-total:
+    fontFamily: '"Instrument Sans Variable", "Segoe UI", Arial, sans-serif'
+    fontSize: "32px"
+    fontWeight: 700
+    lineHeight: 1.2
 rounded:
-  panel: "18px"
-  panel-mobile: "16px"
-  landing: "24px"
-  icon: "12px"
-  landing-mobile: "22px"
-  control: "10px"
-  compact-card: "14px"
-  pill: "999px"
+  panel: "14px"
+  control: "6px"
+  button: "6px"
+  navigation: "8px"
+  pill: "5px"
 spacing:
-  inline: "12px"
-  section: "24px"
+  inline: "10px"
+  field-gap: "7px"
+  grid: "24px"
   panel: "26px"
-  desktop-inset: "36px"
-  tablet-inset: "28px"
+  desktop-inset: "42px"
+  tablet-inset: "25px"
   mobile-inset: "18px"
-  field-bottom: "20px"
 components:
   button-primary:
     backgroundColor: "{colors.maroon}"
-    textColor: "{colors.on-accent}"
-    rounded: "{rounded.control}"
-    padding: "11px 18px"
-    height: "44px"
+    textColor: "{colors.button-text}"
+    rounded: "{rounded.button}"
+    padding: "11px 17px"
   button-primary-hover:
-    backgroundColor: "{colors.maroon-light}"
+    backgroundColor: "{colors.button-hover}"
   button-secondary:
     backgroundColor: "{colors.paper}"
     textColor: "{colors.ink}"
-    rounded: "{rounded.control}"
-    padding: "11px 18px"
-    height: "44px"
+    rounded: "{rounded.button}"
+    padding: "11px 17px"
   input:
-    backgroundColor: "{colors.input}"
-    textColor: "{colors.ink}"
-    rounded: "{rounded.control}"
-    padding: "12px 15px"
-    height: "48px"
-  panel:
     backgroundColor: "{colors.paper}"
     textColor: "{colors.ink}"
+    rounded: "{rounded.control}"
+    padding: "11px 12px"
+  panel:
+    backgroundColor: "{colors.paper}"
     rounded: "{rounded.panel}"
     padding: "26px"
   navigation-active:
-    backgroundColor: "{colors.accent-soft}"
-    textColor: "{colors.accent-ink}"
+    backgroundColor: "transparent"
+    textColor: "{colors.maroon}"
     rounded: "{rounded.control}"
-    padding: "12px"
-    height: "44px"
+    padding: "12px 14px"
   pill-positive:
     backgroundColor: "{colors.green-bg}"
     textColor: "{colors.green}"
     rounded: "{rounded.pill}"
-    padding: "5px 10px"
-  pill-pending:
-    backgroundColor: "{colors.amber-bg}"
-    textColor: "{colors.amber}"
-    rounded: "{rounded.pill}"
-    padding: "5px 10px"
+    padding: "5px 9px"
 ---
 
 # Design System: SocietyHub
 
 ## Overview
 
-**Creative North Star: “A working society desk with an expressive front door.”**
+**Creative North Star: "Editorial society register"**
 
-SocietyHub pairs a welcoming public entrance with a calm operating workspace for Texas A&M engineering societies and SEC chairs. The independent SocietyHub identity uses a custom H hub mark, neutral surfaces and violet emphasis. Functional SEC roles, contact routes and service context remain part of the product without supplying its visual identity.
+White surfaces, maroon identity and actions, calm headings, and ruled records give societies and SEC a shared operating workspace. Readable records, explicit status, and efficient forms set the visual density. The public name is SocietyHub. Use the existing SEC circular logo copied unchanged from Delphi/public/sec_favicon.png; Nexus is an internal name only.
 
 **Key Characteristics:**
-
-- A graphite dark default and pearl light mode share semantic surfaces, controls and data colors.
-- Manrope provides clear working hierarchy; Sacramento appears only in the landing headline’s “A shared home.” accent.
-- Desktop navigation is persistent, summaries are compact, and charts and records expose real product data.
+- Unified white surfaces with maroon identity and pale rose states.
+- Compact, readable records with clear hierarchy and tabular totals.
+- Restrained motion and explicit interaction states.
 
 ## Colors
 
-The normative frontmatter contains the exact current semantic colors from `app/dreamy.css` as overridden by `app/dreamy-reference.css`. Unprefixed tokens describe light mode; `dark-` tokens describe dark mode. Components bind to the runtime CSS variables so a theme change updates every surface.
+Maroon anchors identity, active navigation, and primary actions; white unifies the canvas, sidebar, top bar, panels, and point context, with pale neutral rules and rose interaction states. The frontmatter records observed reusable colors from `app/globals.css`.
 
 ### Primary
 
-`maroon` and `on-accent` are legacy CSS names for the violet action pair: saturated violet on light surfaces and pale lavender on dark surfaces. `maroon-light` is its hover role. `accent-soft` and `accent-ink` provide violet selection, readiness and chart emphasis. These internal aliases do not authorize a maroon accent or SEC visual branding.
-
-### Secondary
-
-`chart-prt`, `chart-standard` and `chart-impact` distinguish the three actual point categories. `green`, `amber` and `red`, paired with their background tokens, reinforce positive, pending and error states. Always include a written status or numeric value.
+Maroon identifies the brand, active destinations, and action hierarchy. Active navigation uses maroon text with a thin maroon left marker on a transparent row; identity avatars retain the pale rose fill. Primary action hover uses its own deeper red-brown fill, while inactive navigation hover uses the shared pale rose tint and maroon text.
 
 ### Neutral
 
-`ground` is the application canvas, `paper` the working surface, `tint` a secondary fill, and `line` a subtle boundary. `ink` and `muted` carry the reading hierarchy. Inputs use the explicit `input-border`; focus uses `focus`. Loading placeholders use `skeleton` and `skeleton-shine`.
+Ink is the primary reading color; muted text carries descriptions and metadata. White panels, sidebar, and top bar sit on the white ground canvas with line-colored boundaries. Tint supports secondary hover and progress tracks. Table headers use a near-white tone, neutral pills use a light gray fill, date blocks use pale rose, and notes use a subtle rose-white surface. Disabled fields use their pale neutral fill and muted text; placeholders also use muted text.
 
-The landing story uses a flat `accent-soft` surface with `ink`, `muted` and `accent-ink` type. The custom H mark uses violet, white strokes and a pale lavender center. QR modules remain black on white in every theme.
+### Semantic
+
+Green and its pale background indicate positive status and PRT completion. Amber and its pale background identify pending or caution states. Red identifies destructive actions and errors. Keep status labels visible alongside color.
+
+**The Status Rule.** Color reinforces a written status; it never replaces the status label.
 
 ## Typography
 
-**Operational family:** self-hosted Manrope Variable, with Segoe UI, Arial and sans-serif fallbacks. Body weight is 450; labels and section titles generally use 650. Paragraphs use 1.65 line-height. Field values remain 16px. Ordinary labels use sentence case and no tracking; the small uppercase workspace label is a localized exception.
+**Website Font:** Instrument Sans Variable, with Segoe UI, Arial, and sans-serif fallbacks. The website self-hosts this single family through `@fontsource-variable/instrument-sans` in `app/layout.tsx`; hierarchy comes from size, weight, and spacing.
 
-**Landing accent:** self-hosted Sacramento 400, exclusively for “A shared home.” in the public landing headline. It is not a page-title, sign-in, navigation or label font. Manrope replaces the prior sans-serif and mono font packages; there is no mono label hierarchy.
+The frontmatter records the role scale: display (36–56px), section (22px), item (17px), body (16px), label (14px), and metadata (13px). General page headings use the headline token. Dashboard desktop titles retain their more-specific `clamp(34px, 3.5vw, 52px)` size and (1.12) line height; mobile page/dashboard headings use `clamp(2rem, 7.5vw, 2.75rem)` with (1.12) line height. Mobile section headings are (20px). Controls use (16px) input text, while buttons/navigation use (14px, weight 600). Descriptive copy is generally (15px / 1.65), bounded to (65–70ch). Component-specific data totals retain tabular numerals: the ledger total (32px; 26px mobile), earned values (24px), and PRT ring value (46px).
 
-### Hierarchy
-
-- **Page heading:** 600, `clamp(30px, 3.3vw, 46px)`, 1.15 line-height, −0.04em tracking. Mobile uses 32px/1.2.
-- **Public headline:** 600, `clamp(44px, 4.3vw, 64px)`, 1.14 line-height; its Sacramento accent is `clamp(64px, 6vw, 88px)`/1.12. At 1000px these become 42px and 65px; mobile uses 32px and 50px.
-- **Section:** usually 21px/650, −0.025em. Dashboard and insight subheads use 18px/650. Form headings use 650, `clamp(24px, 2.2vw, 30px)`/1.2.
-- **Data:** summary totals use 44px/650 with tabular numerals, reducing to 30px on mobile. Readiness uses 66px/550, reducing to 60px on mobile.
-- **Labels and metadata:** field labels 13px/650; navigation 13px/550, active 700; supporting record details generally 11–13px. Avoid using delicate weights to carry essential operating instructions.
+The form h1 is the login’s primary heading, using `clamp(1.75rem, 2.5vw, 2rem)` (28–32px), weight (700), line height (1.2), and tracking (-0.035em). Its art panel has no separate headline. Login help uses a (14px) bold title and (13px / 1.65) body. Receipt emails use email-safe Arial/Helvetica/sans-serif rather than relying on the website’s self-hosted font.
 
 ## Layout
 
-Desktop workspace uses a fixed 232px sidebar with vertical destinations, visible account identity and sign-out at the bottom. The main region offsets by 232px. A 76px paper-surface toolbar carries workspace context and theme controls. Content is centered within a 1400px maximum and padded 32px vertically and 36px horizontally. Page headings sit above a simple divider with supporting copy and an optional action.
+The fixed desktop sidebar is (244px) wide; the main region offsets by the same amount. The content container is capped at (1440px) with desktop insets from the spacing tokens. The top bar is (78px) tall. Panels use the panel spacing token; the recurring panel and grid gap is (24px). The dashboard content grid divides (1.15fr / 1fr), with a (42px) column gap and no row gap. The society points section pairs an earned-points ledger with a PRT requirement ring in `minmax(0, 2fr) minmax(240px, 1fr)` columns, separated by (44px). The requirement region has a left rule and (36px) left padding. At (1000px) and below, it stacks with a (28px) gap, a top rule, and (24px) top padding.
 
-Three compact summaries share a single bordered surface, with optional destination controls only when navigation is available. The admin dashboard places a wider activity chart beside readiness, then a full-width category breakdown. Working panels use bounded padding; editors retain a 980px reading width. Event cards use two columns on wide screens, with dates and grouped actions; applications use individual bordered rows and directories use a unified table.
+At (1150px) and below, the sidebar becomes (215px), the main offset matches, content uses tablet insets, and the dashboard grid becomes one column. At (760px) and below, a (260px) navigation drawer replaces the sidebar, the main offset clears, and a sticky (65px) top bar carries the labeled menu control. Content uses mobile insets, panels use (20px 18px), forms become one column, and the points visualization retains its stacked ledger/requirement layout. At (1600px) and above, content top padding becomes (52px).
 
-At 1200px content insets become 28px, event cards and society point categories stack, and toolbar breadcrumbs disappear. At 1000px insights and dashboard sections stack. At 760px the sidebar becomes a 272px focus-managed drawer; the account toolbar is sticky and 68px high, content padding becomes 26px 18px, and panels use 20px inset. Keep all mobile actions reachable.
+The public navigation destination is Dashboard. SEC’s dashboard prioritizes the oldest five applications awaiting review with direct review actions and a full-queue link, then the earliest five upcoming or ongoing events with event-management actions and explicit check-in status. It also shows up to five enabled societies without an active PRT credit in the current point period and up to five enabled accounts awaiting setup across all point periods, with direct setup-link actions. Counts beside section headings reflect the full matching lists, and truncation text points to the complete destination. The full society points table remains available in the initially collapsed native disclosure, “All society point totals.” The society dashboard greets its account with “Hello, {display_name}” without an overview subtitle. It retains applications and recent attendance, shows the next three upcoming or ongoing events with a View events link, and replaces the former three-column trackers with the Society points ledger and separate PRT requirement.
 
-The landing is bounded at 1440px with 36px horizontal padding. Beneath a 104px brand/navigation header, one asymmetric stage uses `minmax(0, 1.22fr) minmax(0, 1fr)` with a 16px gap. A flat violet-tinted story surface and the complete sign-in form sit side by side; the form is bounded at 390px. The story has a 680px desktop minimum height and 48px inset, with its headline above three compact capability rows: events/check-in, funding/applications and collaboration. Context sits inside the same surface; there is no separate feature-card section below it.
-
-At 1000px the columns equalize. At 760px the short headline and sign-in stack with 16px outer padding; capability rows and context are hidden to prioritize sign-in in the first screen. Activation and check-in use a focused form layout without landing capabilities.
+Tables scroll within their own container, retain a (650px) minimum width, and show a horizontal-scroll instruction on mobile. Long record names wrap. Login uses equal white columns separated by a thin vertical rule. The left design panel has (48px 56px) padding, its SEC/SocietyHub brand at the top, centered contained artwork, and a short centered description at the bottom (`clamp(12px, 1vw, 14px)`, no width cap, no wrapping). The form column uses (64px clamp(40px, 7vw, 112px)) padding and a (400px) form maximum width. At (760px) and below, art and description are hidden, leaving a compact brand header with (25px 24px) padding and a bottom divider; the form uses (36px 24px) padding and a (440px) maximum width.
 
 ## Elevation & Depth
 
-Working surfaces are primarily flat: semantic fills, thin borders and spacing establish hierarchy. Ordinary panels and primary buttons have no resting shadows. Dialog elevation and the mobile drawer retain their functional depth. The landing story is flat, without artwork, texture, ribbons, gradient overlays or decorative animation. The custom brand mark is SVG; there are no new raster assets.
+Tonal layers and thin rules carry most depth. Panels remain flat, without resting shadows. A primary button hover adds a small shadow (`0 3px 8px #50000016`); the open mobile drawer uses an edge shadow (`10px 0 40px #28000033`).
 
-Focus uses a 2px semantic outline with 4px offset; summary destination overlays draw focus inward. Respect reduced-motion preferences by disabling animation and transitions, including the drawer’s 180ms ease transition and loading shimmer. Chart selection communicates state with selected controls and written totals, without relying on motion.
+Panels appear without an entrance animation. Navigation and button hover transitions take (0.15s); the drawer takes (0.2s). Reduced-motion preference disables CSS animations and transitions.
+
+The user-pinned sign-in foundation is white (#ffffff), with equal desktop design/form columns. The static maroon artwork retains the SEC reference geometry, served locally as `public/society-ribbon.svg` from `https://ragnarok-flame-iota.vercel.app/brand/sign-in-ribbon.svg`. Its centered framing uses viewBox `570 -80 890 1070` and `xMidYMid meet`, with no artwork transform. The image is contained at opacity (0.88), inset (112px 2% 120px) within the left panel. The SVG’s own soft-ends mask uses edge-fade stops at (0.025) and (0.975), retaining more of the broad ribbon; there is no extra CSS mask, readability veil, or right-edge fade. The decorative image is pointer-inert, hidden from assistive technology, and has no animation, client rendering loop, or runtime external request. The panel contains only its top brand, artwork, and bottom description, “The home for Texas A&M engineering societies and SEC.” Mobile hides the artwork and description, retaining a compact brand header and bottom divider. The authenticated workspace keeps the same white foundation, pale rules, and muted maroon focus outline.
+
+The society greeting is static text. The login ribbon remains static; earned-share bars and the completed PRT ring use the scoped draw motion described below.
+
+Earned-share bars scale horizontally from (0) to (1), anchored at the left center, over (460ms) with `cubic-bezier(0.16, 1, 0.3, 1)` easing. The completed PRT ring draws clockwise from the top by changing stroke dash offset from (100) to (0) over (850ms) with `cubic-bezier(0.22, 1, 0.36, 1)` easing. These draw once on mount or when their keyed state changes: bars key society, point period, category value, and total; the ring keys society, point period, and whether the minimum is met. Increasing an already-met PRT total does not replay the ring. Zero bars and an unmet ring have no draw animation. Reduced-motion preference shows the final state immediately, with all numeric values and status text stable throughout.
 
 ## Shapes
 
-Working panels use 18px corners, reduced to 16px on mobile. Buttons, fields, icon controls and navigation destinations use 10px corners. Status chips remain pills. Landing story and sign-in surfaces use 24px corners, reduced to 22px on mobile. The directory table uses 14px corners; brand and capability icons use 12px corners; compact charts and progress bars have restrained small radii. Thin separators join related summaries and rows without producing nested, equal-weight boxes.
+Operational form panels retain the panel radius. Dashboard sections, including Society points, are flat and separated by rules without enclosing card corners. Buttons, controls, navigation, and pills use the smaller frontmatter radii. Records and tables use horizontal rules rather than individual floating cards. The identity avatar is circular; event date blocks use the navigation radius.
 
 ## Components
 
-### Buttons and inputs
+`public/sec-logo.png` is copied unchanged from Delphi’s `public/sec_favicon.png`. It replaces the prior network icon on sign-in, loading, navigation, and browser icons. The public name is SocietyHub, including page titles and footers. The sidebar wordmark uses Instrument Sans Variable at (21px), weight (700), with a (42px × 42px) logo, (10px) gap, and (6px) horizontal padding. Sign-in retains a single (48px × 48px) logo in the story’s top brand, with a (14px) brand gap; its wordmark is (25px) on desktop and (21px) on mobile. The form column starts directly with its heading, without a duplicated logo. Initial workspace and route loading use the branded skeleton described below. Logos retain their proportions with `object-fit: contain`, do not shrink, and have circular rounding.
 
-Primary buttons pair `maroon` with `on-accent`, use 11px 18px padding and a 44px minimum height; hover uses `maroon-light`. Secondary actions use `paper`, `ink` and a `line` border, strengthening to `input-border` on hover. Disabled controls use `tint` and `muted`. Text actions use stronger 13px Manrope. Inputs use `input`, a 1px `input-border`, 12px 15px padding and a 48px minimum height. Labels remain explicit; password visibility is opt-in and hidden by default.
+Primary and secondary buttons share label typography (14px, weight 600), a minimum height of (44px), and an explicit disabled state (pale background, muted text, line border, and not-allowed cursor). Secondary buttons use a paper surface and line border; their hover uses tint. Text actions use maroon and underline on hover.
 
-### Navigation and summaries
+Fields place a persistent label above a white control with the input-line stroke, control radius, and minimum height (43px). Help text sits below the label. Errors and saved/loading messages remain explicit. Keyboard focus uses the focus color as a (3px) outline offset by (4px).
 
-Sidebar destinations have 44px minimum height and 12px padding. Active destinations use violet `accent-soft`, `accent-ink` and weight 700; inactive hover uses `tint` and `ink`. Summary cells show real counts and context. A summary receives a full-cell destination button only when its `onSelect` callback exists, with an accessible destination label and visible focus.
+Navigation uses full-width rows on the white sidebar, muted text at rest, and a transparent active row with maroon text and a (2px) maroon left marker inset (12px) from top and bottom. Active-row corners are (6px). The sidebar has a thin right border; the brand is maroon. Inactive hover uses tint with maroon text. The active destination exposes `aria-current="page"`. The mobile toggle exposes `aria-expanded` and `aria-controls`; closed navigation is both translated off-screen and hidden with `visibility: hidden`, removing its controls from keyboard navigation. Opening focuses its close button and traps Tab within the navigation dialog. Main content becomes inert and a dark backdrop blocks background interaction. Escape, backdrop, close, and destination selection dismiss the drawer and restore toggle focus; page scrolling is locked while open. A skip link becomes visible on focus.
 
-### Activity, readiness and category bars
+Pills carry short written states with positive, pending, maroon, or neutral tones. An unboxed context row presents the current point-period start and workspace context above the point register; the dashboard has no ribbon decoration. The points breakdown keeps PRT, Standard, and High Impact separate; only PRT shows a one-point point-period minimum status. Lists, applications, and attendance tables use ruled rows and compact metadata.
 
-The weekly activity chart summarizes eight weeks of current-period, nonremoved awards. Keyboard-operable week buttons expose selected state, update a polite live summary of points and attendance records, and offer a return to all eight weeks. SVG title text describes each weekly value. Empty data remains truthful.
+Application forms add a labeled confirmation-email field using the existing control style, with help text explaining the receipt destination and acceptance of an officer’s personal email or a society email. Receipt status is a normal paragraph (13px), with (16px 0 22px) margins and wrapping for long addresses; written messages distinguish queued, sent, and failed delivery while confirming that a failed email leaves the application saved. SEC review offers the existing secondary-button style to retry eligible unsent receipts, disabled while busy. These additions retain the ordinary form and record hierarchy.
 
-Readiness is the percentage of active societies meeting the PRT minimum, with written counts, an accessible progress element and links to society/review work. Category bars show each category’s share of earned points. Society PRT progress has a one-point minimum; Standard and High Impact have no minimum, so their bars describe earned share rather than invented goals. Never import sample memberships, rewards or dummy counts from visual references.
+Dashboard action rows reuse ruled records and existing primary, secondary, or text actions. Row content allows shrinking with `min-width: 0`, while its direct action does not shrink. At (760px) and below, action rows stack their content and action vertically, align to the start, and use an (8px) gap. The native points-register disclosure summary is maroon, (13px), weight (650), with (12px 0 20px) padding. Repeated direct actions have descriptive accessible names; changing navigation destinations scrolls to the top.
 
-### Working records and theme behavior
+The login combines account setup and password-reset help in one pale rose card (#fcf5f5) with a (1px #ead4d8) border, the input-matching (6px) radius, (18px) padding, and a (32px minmax(0, 1fr)) grid with a (12px) gap. A maroon KeyRound icon (17px) sits in a white circular holder (32px). The bold title is (14px) and body is (13px / 1.65); body margins are (7px 0 10px). The “Contact an SEC chair” action is maroon (12px, weight 650), with an ArrowRight icon, (8px) gap, and (36px) minimum height; hover underlines the label. Its mail link targets `society@sec.tamu.edu` with subject “SocietyHub account help.” Autofilled sign-in inputs retain white fill with a (1000px) inset white shadow, ink text and text fill, and a maroon caret through `:is(:autofill, :-webkit-autofill)`.
 
-Events, calendars, applications, contacts, receipt states, dialogs and skeletons use the same semantic theme system. Dark is the unsaved default. Explicit light/dark choice persists in browser storage under `societyhub-theme` and applies before paint. Storage failure preserves the active usable theme and reports that the preference could not be saved; no server-side theme preference is introduced.
+Dashboard composition uses open sections separated by hairlines, with (26px 0) section padding and (24px 0) on mobile. The page headline is `clamp(34px, 3.5vw, 52px)` with (1.12) line height and (-0.035em) tracking, with mobile title sizing defined by the Typography section. Section headings are (22px), weight (650), reducing to (20px) on mobile; counts sit outside the heading in muted body type (14px, weight 500). Empty sections become one compact status line with a check icon and an optional destination action, using (18px 0) padding, without an extra heading or description. Each section keeps its accessible name and `data-count`. SEC has one primary header action: review the oldest pending application, otherwise manage the earliest upcoming event, otherwise create an event. The collapsed points-register content is also flat. The static login reference artwork remains unchanged.
 
-Server ownership and role checks, chair-controlled setup/recovery, one-time links, point resets and history, check-in windows, one credit per ESO/event, draft/publish/review workflows and durable notification recovery remain product constraints. QR artwork stays black on white. Operational-health monitoring does not return to workspace settings. `PRODUCT.md` remains the product/security authority; visual samples never change its rules.
+Society points is a category ledger with Category, Earned, and Minimum columns, an actual earned-total heading, and an Attendance history action. Each ruled category row has a status icon, its point rate, and a (7px) bar showing that category’s share of total earned points, with no implied target. PRT uses maroon, Standard uses chart-standard rose, and High Impact uses chart-high-impact slate. Only PRT has a minimum of one point; Standard and High Impact display None. A separate (180px) ring shows the PRT requirement capped at 0 / 1 or 1 / 1, with (10px) strokes and an explicit requirement status; the ledger and accessible ring label retain the true PRT total even above one. Completed status uses semantic green. A zero total leaves all share bars empty and states that no points are recorded. Totals use only the selected society/current point period’s nonrevoked credits. The display has no timeline, forecast, category-filter controls, or monthly-data disclosure. Its nonzero share bars and completed requirement ring use a brief draw entrance while text and numbers stay constant.
+
+The workspace has no visible semester selector or semester settings and no automatic semester gating. The refresh action remains in the top bar, with the tooltip “Reload the latest workspace data,” a busy state and spinning icon; automatic refresh remains every (30s) while eligible. Reduced motion disables the spin.
+
+Events offer List and Calendar views through native `aria-pressed` buttons in a white, line-bordered (6px) segmented control with a rose active fill. The view toolbar sits outside the content panel. The event month calendar uses Central-time event windows, seven equal columns, and minimum day heights of (110px) desktop and (64px) mobile. Events render as continuous weekly spans in reusable nonoverlapping lanes, labeled once per weekly segment, with continuation arrows at clipped edges. Category fills use maroon, Standard rose, and High Impact slate, with a named legend and readable selected-day details. Date buttons retain roving keyboard focus, arrows and Home/End, a pale rose selected-day state, and a maroon circle for today; month navigation spans the current month and the earliest/latest event windows.
+
+Administrative activity is an admin-only native disclosure, initially collapsed within an operational panel. Its summary uses Instrument Sans Variable (18px, weight 650), (17px) on mobile, an activity count, and a maroon chevron that rotates on open; expanded content is separated by (20px). Application authoring explicitly offers Save draft / Publish application, or Save published changes / Unpublish and save draft for published forms. The publication actions follow a top rule, (28px) top margin, and (20px) top padding. Drafts carry an amber label and a written not-published hint; the application list offers a primary Publish application action. Publication changes preserve the existing versioned form and saved submission behavior.
+
+Event check-in QR artwork opens in a centered native dialog with a maximum width of (900px), white surface, panel radius, shadow (`0 24px 80px #1d001a30`), and dark backdrop (#21181b66). Its width is `min(900px, calc(100% - 48px))`, with a maximum height of `calc(100dvh - 48px)`; mobile uses (24px) total viewport clearance. The dialog traps Tab focus, restores the opener and page scrolling on close, and closes by its close control, Escape, or backdrop click. It retains a locally generated (1024px) black-on-white PNG download, sanitized event-derived filename, and current-link-bound image. Link replacement reports success locally with role status and explicitly invalidates earlier links/QRs; failure uses role alert and asks the user to reload before sharing. The event row keeps Edit and QR & link together, with an outlined Enable check-in / Pause check-in action below. On mobile, the action grid uses two equal columns and the check-in action spans the full third row. All actions retain (44px) minimum height; the check-in action uses maroon text and an input-line border rather than a switch graphic.
+
+Choice-based application questions use separate required Choice N input rows rather than a multiline options editor. Rows use a (10px) gap with a flexible field and an icon remove control (44px minimum width, 44px minimum height). The choice group is capped at (640px) with (12px) row gaps and (20px 0 26px) margins. Add choice focuses the new field; removal focuses the preceding available choice. Each choice accepts up to (200) characters, with at least one and at most (30) choices; removal is disabled at one. Select and checkbox questions save their options array, while other question types normalize options to an empty array.
+
+Application content is aligned to a maximum width of (800px). On mobile, the containing panel header and back action stack with a (14px) gap. A submitted society application displays its saved question version and answers in a read-only definition list, with maroon checkmarks for selected multiple-choice values. Question labels are muted (12px, weight 600), answers are (14px) with (1.65) line height, and responses are separated by rules with (20px) vertical padding. A pale rose submission receipt (#fcf5f5), bordered (#ead4d8) and rounded (6px), uses (18px 20px) padding and a (30px) bottom margin; it shows submitted time, confirmation delivery status, and written metadata. Status remains visible above the responses. Drafts and changes-requested submissions retain editable fields when open; other existing read-only conditions still apply.
+
+Attendance history is a ruled ledger with a compact date block, readable event details, and a prominent point amount rather than a tiny badge. A muted (13px) caption reports the active-record count. Rows use (24px) vertical padding and a (20px) gap; the date block is (56px) wide, and the point amount is Instrument Sans Variable (30px, weight 700, line height 1.15). Mobile uses (12px) gaps, a (44px) date block, (13px) event titles, and (26px) amounts, keeping the core row together unless correction controls need wrapping. Removed records retain their written state with muted date styling. The former “One society. One record” funding note is absent from the dashboard.
+
+Calendar selected-day details begin with a date block, date heading, and event count. Each event has a clear title (17px, weight 650; 15px mobile) beside its point amount, a category label underneath, clock/location facts, description text bounded to (70ch) at (13px / 1.65), and a distinct written check-in status with a dot. The day heading is (20px), reducing to (17px) on mobile. Event rows use (24px) vertical padding and a (24px) gap; mobile stacks details and actions with a (16px) gap and puts facts on separate lines.
+
+Point periods are controlled manually by SEC. Settings & audit provides Reset all society points, opening a native confirmation dialog that requires the exact text RESET POINTS. The white dialog has a (10px) radius, a line border, width `min(540px, calc(100% - 32px))`, (32px) padding (24px mobile), shadow (`0 24px 80px #211d2030`), and a blurred dark backdrop. It reports archived record/point counts before confirmation; busy controls prevent duplicate submission. Reset begins a new current points period for every society while preserving attendance history, events, forms, submissions, and QR links. Previous attendance records is a native disclosure with a (17px, weight 650) summary and an Export all history CSV action. Closing and reopening event check-in preserves the QR; an expired window opens the event editor so chairs can set a new window.
+
+Form labels expose required state and associate hints with their controls. Check-in completion moves focus to its result heading. Notices and errors wrap long text and have accessible dismissal controls. The society directory offers search, readable labeled contact details with email/phone actions, and a ruled mobile list instead of the desktop table; contact detail columns stack on mobile. Primary buttons, icon actions, checkboxes, and event actions retain (44px) interaction targets.
+
+Application receipt email uses table-based structure and inline styling: a white content surface, pale rose surroundings and footer, maroon identity/action, dark ink, and muted descriptive copy. The SEC image is loaded through the configured HTTPS public site URL, rather than an invented mark. It records application and submission time without semester details, and explains that receipt is not approval or a point award. Arial/Helvetica/sans-serif is the intentional email-client fallback; Custom webfont rendering in Gmail is not assumed.
+
+The account-provisioning roster condenses repeated society names into one ruled row per group, with a canonical name, contact-response count, and one checkbox selecting every original response ID in that group. Grouping uses explicit aliases plus Unicode, case, ampersand, and punctuation normalization; related chapters and parent organizations stay distinct. Search includes the canonical name, original submitted names, and contacts. The native Contacts disclosure preserves each original name, submission date, and contact details, with (16px) vertical response padding and hairlines between responses; original-response metadata is muted (13px), with a (10px) bottom margin. The account-creation summary repeats the condensed canonical name and response count. This presentation groups records without merging or changing database data.
+
+Event editing presents native Enabled / Paused radio choices in a ruled fieldset, with (6px) outlined choice rows and a rose selected fill. Helper text explains that enabled QR/link check-ins accept attendance only between the chosen start/end times, while Paused accepts none. The same full-text status helper is used across lists, calendar details, and QR: Check-in paused when disabled, otherwise Check-in scheduled before start, Check-in ended at or after end, and Check-in open within the window. A future event can be enabled without changing its dates; an expired event opens the editor for a valid current/future window. Existing QR links remain usable. User-facing manual-award explanations are removed; the High Impact award business rule is preserved in PRODUCT.md.
+
+Initial workspace and route loading use a white, branded skeleton shell with ruled navigation, heading, total, and record placeholders. Skeleton fill uses skeleton-base and skeleton-highlight in a (1.6s) shimmer; reduced-motion preference uses the static base fill. Placeholder shapes are hidden from assistive technology, while the main loading region exposes `aria-busy` and a screen-reader status, “Loading your workspace…”. Mobile hides the placeholder sidebar and keeps the compact content shell. QR preparation reserves a (260px × 260px) skeleton with the status “Preparing QR code,” then replaces it with the generated black (#000000) on white (#ffffff) PNG; generation errors keep the sign-in link available.
 
 ## Do's and Don'ts
 
 ### Do:
-
-- **Do** use semantic tokens for surfaces, boundaries, actions and data categories in both themes.
-- **Do** use Manrope weight and scale to distinguish headings, labels, totals and metadata.
-- **Do** preserve SocietyHub, its custom H mark, visible account context, written statuses, accessible data values and keyboard focus.
-- **Do** keep sign-in immediately available beside the compact landing story and working pages focused on the next task.
-- **Do** use real data and explicit empty states, including zero societies or zero awards.
+- Do use white surfaces, pale rose interaction states, and thin rules for operational records.
+- Do retain labels, category names, and tabular totals when showing status or points.
+- Do preserve visible keyboard focus and reduced-motion behavior.
+- Do keep closed mobile navigation out of keyboard navigation.
 
 ### Don't:
+- Don't replace written states with color alone.
+- Don't apply resting shadows to the flat record panels.
+- Don't substitute an invented mark for the supplied SEC logo.
 
-- **Don't** extend Sacramento beyond the landing “A shared home.” accent or restore mono label hierarchy.
-- **Don't** reinstate oversized marketing posters, embedded capsule navigation or giant handwritten titles on task pages.
-- **Don't** add a separate marketing preamble or feature-card section before sign-in.
-- **Don't** restore ribbon motifs, grain textures, decorative gradient loops, maroon accents or SEC visual branding.
-- **Don't** fabricate product goals, categories, personal data or capabilities to resemble a visual reference.
+## Operational workflow additions
+
+Event editing presents calendar start/end fields first, followed by an explicitly independent check-in window and a secondary “Use event times for check-in” action. Calendar bars represent event duration; day details separately label check-in availability. Contact management uses the existing panel, field, and button system, with ruled native fieldsets for president and SEC representative, a preferred notification email, and explicit chair-controlled access guidance. Current contacts are distinct from preserved import responses. Paged lists have written Load more actions and server-search buttons. Operational monitoring runs in the background without a Workspace settings panel. Existing white/maroon surfaces, focus rings, control radii, and reduced-motion behavior are preserved.
+
+## SEC visual overview
+
+The SEC dashboard opens with a flat, ruled readiness section (a 40px maroon percentage, a 10px tint track, and direct review/setup rows) paired with an equal-height weekly activity chart. Category composition sits in a compact full-width row below, with three aligned category totals. Readiness uses full server counts of enabled societies and PRT follow-up, with direct review/setup actions. Eight rolling seven-day buckets show current-period, non-revoked points; category shares use the same complete credit collection. Numeric labels remain visible without hover and empty periods show honest zeros. Mobile stacks the three summaries; no chart library or new motion is introduced. The ribbon artwork appears only on the sign-in page; the authenticated workspace has no background, heading, sidebar, footer, or empty-state ribbon decoration.

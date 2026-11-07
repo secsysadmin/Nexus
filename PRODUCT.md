@@ -35,11 +35,11 @@ Kraken provides reference workflows for check-in, history, form building, drafts
 
 ## Open decisions
 
-Public product name: SocietyHub; Nexus is internal only. SocietyHub has an independent visual identity: graphite and pearl surfaces, restrained violet accents, a dedicated hub mark, and Manrope interface type. SEC remains the service administrator and appears in functional role labels and contact instructions, not as the site’s visual brand. Use SEC-issued activation links for account enrollment and recovery.
+Public product name: SocietyHub; Nexus is internal only. The user restored the original white-and-maroon design from before the Dreamy redesign, with the SEC logo, static ribbon motif, Instrument Sans and a light-only interface. Use SEC-issued activation links for account enrollment and recovery.
 
 ## Application receipts and login motion
 
-Application submission and resubmission send a confirmation receipt to an address chosen by the submitting officer, prefilled from the latest valid imported society contact when possible. Drafts send nothing. SEC can inspect and retry failed delivery. Outbound email is enabled only in production. The login uses a static typographic panel beside the sign-in form. Ribbon artwork, grain textures, maroon accents, and SEC logos are not part of the website identity.
+Application submission and resubmission send a confirmation receipt to an address chosen by the submitting officer, prefilled from the latest valid imported society contact when possible. Drafts send nothing. SEC can inspect and retry failed delivery. Outbound email is enabled only in production. The login uses the original static maroon ribbon beside the sign-in form, with the SEC logo and white background. Password visibility remains opt-in and hidden by default.
 
 ## Contacts, notification decisions, and separate event times
 

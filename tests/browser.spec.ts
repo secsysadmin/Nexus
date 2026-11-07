@@ -134,19 +134,6 @@ test("society hub end-to-end: admin, concurrent check-in, drafts, review, QR and
   await expect(
     admin.getByRole("heading", { name: "SEC dashboard" }),
   ).toBeVisible();
-  const weeks = admin
-    .getByRole("group", { name: "Inspect a week of points activity" })
-    .getByRole("button");
-  await expect(weeks).toHaveCount(8);
-  await weeks.last().click();
-  await expect(weeks.last()).toHaveAttribute("aria-pressed", "true");
-  await expect(admin.locator(".activity-summary")).toContainText("Week of");
-  await admin
-    .getByRole("button", { name: "All eight weeks", exact: true })
-    .click();
-  await expect(admin.locator(".activity-summary")).toContainText(
-    "Across the last eight weeks",
-  );
   await admin.getByRole("button", { name: "Events", exact: true }).click();
   await admin
     .getByRole("button", { name: "Create event", exact: true })
@@ -1402,15 +1389,26 @@ test("society contacts save, stay private, and stale changes require a deliberat
   }
 });
 
-test("reference theme defaults to dark, persists a choice, and keeps password controls usable", async ({
+test("original maroon ribbon appearance ignores old theme settings and keeps password controls usable", async ({
   page,
 }) => {
-  await page.emulateMedia({ colorScheme: "light" });
+  await page.emulateMedia({ colorScheme: "dark" });
+  await page.addInitScript(() =>
+    localStorage.setItem("societyhub-theme", "dark"),
+  );
   await page.route("**/api/data**", (route) =>
     route.fulfill({ status: 401, json: { error: "Sign in required" } }),
   );
   await page.goto("/");
-  await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+  await expect(page.locator(".maroon-ribbons img")).toBeVisible();
+  await expect(page.locator(".brand img")).toHaveAttribute(
+    "src",
+    "/sec-logo.png",
+  );
+  await expect(page.locator("body")).toHaveCSS(
+    "background-color",
+    "rgb(255, 255, 255)",
+  );
   await page.getByLabel("Password", { exact: true }).fill("a-private-password");
   await expect(page.getByLabel("Password", { exact: true })).toHaveAttribute(
     "type",
@@ -1430,16 +1428,16 @@ test("reference theme defaults to dark, persists a choice, and keeps password co
     "type",
     "password",
   );
-  await page
-    .getByRole("button", { name: "Switch to light mode", exact: true })
-    .click();
-  await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
   await page.reload();
-  await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
-  await page.setViewportSize({ width: 390, height: 844 });
+  await page.getByRole("heading", { name: "Welcome to SocietyHub" }).waitFor();
+  await expect(page.locator("body")).toHaveCSS(
+    "background-color",
+    "rgb(255, 255, 255)",
+  );
   await expect(
-    page.getByRole("button", { name: "Switch to dark mode", exact: true }),
-  ).toBeVisible();
+    page.getByRole("button", { name: /Switch to .* mode/ }),
+  ).toHaveCount(0);
+  await page.setViewportSize({ width: 390, height: 844 });
   expect(
     await page.evaluate(
       () => document.documentElement.scrollWidth <= innerWidth,

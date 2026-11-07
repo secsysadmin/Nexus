@@ -1,100 +1,145 @@
 "use client";
-import { ArrowUpRight, CalendarDays, FileText, Users } from "lucide-react";
-import SocietySignIn from "./society-sign-in";
-import ThemeToggle from "./theme-toggle";
-const LANDING_CAPABILITIES = [
-  {
-    title: "Events & check-in",
-    description: "Find your next event. Make your attendance count.",
-    icon: CalendarDays,
-  },
-  {
-    title: "Funding & applications",
-    description: "Keep your plans, submissions, and decisions together.",
-    icon: FileText,
-  },
-  {
-    title: "Cross-society collaboration",
-    description: "Turn shared ideas into something bigger.",
-    icon: Users,
-  },
-];
+import { useState } from "react";
+import { ArrowRight, KeyRound } from "lucide-react";
+import { Button, Field, PasswordInput } from "./ui";
+import MaroonRibbons from "./maroon-ribbons";
 type AuthScreenProps = {
   activate?: boolean;
   token?: string;
   checkin?: boolean;
   error: string;
   busy: boolean;
-  onSubmit: (body: unknown) => Promise<void>;
+  onSubmit: (b: unknown) => Promise<void>;
 };
-export default function AuthScreen(props: AuthScreenProps) {
-  const focused = props.activate || props.checkin;
+export default function AuthScreen({
+  activate = false,
+  token = "",
+  checkin = false,
+  error,
+  busy,
+  onSubmit,
+}: AuthScreenProps) {
+  const [username, setUsername] = useState(""),
+    [password, setPassword] = useState(""),
+    [confirm, setConfirm] = useState(""),
+    [localError, setLocalError] = useState("");
   return (
-    <main className={"auth-page" + (focused ? " auth-flow" : "")}>
-      <header className="landing-nav">
+    <main className="auth-page">
+      <section className="auth-story">
+        <MaroonRibbons />
         <a className="brand" href="/">
           <img
-            src="/societyhub-mark.svg"
-            alt=""
-            width={40}
-            height={40}
+            src="/sec-logo.png"
+            alt="Student Engineers’ Council"
+            width={48}
+            height={48}
             className="brand-logo"
           />
-          <span>
-            SocietyHub<small>A place to move forward.</small>
-          </span>
+          <span>SocietyHub</span>
         </a>
-        <nav aria-label="Landing navigation">
-          <a href="mailto:society@sec.tamu.edu">
-            Get in touch <ArrowUpRight size={15} aria-hidden="true" />
-          </a>
-        </nav>
-        <ThemeToggle />
-      </header>
-      <div className="landing-stage">
-        <section className="auth-story">
-          <div className="auth-hero-copy">
-            <h1>
-              Your society.
-              <br />
-              <span>A shared home.</span>
-            </h1>
-            <p>A little less keeping track. A lot more coming together.</p>
-          </div>
-          <ul
-            className="landing-capabilities"
-            id="society-features"
-            aria-label="What you can do in SocietyHub"
-          >
-            {LANDING_CAPABILITIES.map((capability) => (
-              <li key={capability.title}>
-                <span className="capability-icon">
-                  <capability.icon size={21} aria-hidden="true" />
-                </span>
-                <div>
-                  <strong>{capability.title}</strong>
-                  <p>{capability.description}</p>
-                </div>
-              </li>
-            ))}
-          </ul>
-          <p className="landing-context">
-            For Texas A&M engineering societies and the Student Engineers’
-            Council.
+        <p className="auth-description">
+          The home for Texas A&M engineering societies and SEC.
+        </p>
+      </section>
+      <section className="auth-main">
+        <div className="auth-form">
+          <h1>
+            {activate
+              ? "Set your account password"
+              : checkin
+                ? "Sign in to check in"
+                : "Welcome to SocietyHub"}
+          </h1>
+          <p>
+            {activate
+              ? "Your society can share this password with its authorized officers."
+              : "Sign in with your society username and shared password."}
           </p>
-        </section>
-        <section
-          id="society-sign-in"
-          className="auth-main"
-          aria-label="Society sign-in"
-        >
-          <SocietySignIn {...props} />
-        </section>
-      </div>
-      <footer className="landing-footer">
-        <p>SocietyHub</p>
-        <p className="auth-description">Built for engineering societies.</p>
-      </footer>
+          {(error || localError) && (
+            <div className="alert error" role="alert">
+              {localError || error}
+            </div>
+          )}
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              setLocalError("");
+              if (activate && password !== confirm) {
+                setLocalError("Passwords do not match.");
+                return;
+              }
+              void onSubmit(
+                activate ? { token, password } : { username, password },
+              );
+            }}
+          >
+            {!activate && (
+              <Field label="Society username">
+                <input
+                  required
+                  autoComplete="username"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  placeholder="Your society username"
+                  maxLength={40}
+                />
+              </Field>
+            )}
+            <Field
+              label={activate ? "New password" : "Password"}
+              hint={activate ? "Use at least 15 characters." : undefined}
+            >
+              <PasswordInput
+                required
+                autoComplete={activate ? "new-password" : "current-password"}
+                minLength={activate ? 15 : 1}
+                maxLength={128}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+            </Field>
+            {activate && (
+              <Field label="Confirm password">
+                <PasswordInput
+                  required
+                  autoComplete="new-password"
+                  minLength={15}
+                  maxLength={128}
+                  value={confirm}
+                  onChange={(e) => setConfirm(e.target.value)}
+                />
+              </Field>
+            )}
+            <Button type="submit" disabled={busy || (activate && !token)}>
+              {busy
+                ? "Please wait…"
+                : activate
+                  ? "Set password & continue"
+                  : "Sign in"}
+              <ArrowRight size={17} />
+            </Button>
+          </form>
+          <div className="auth-help">
+            <span className="auth-help-icon" aria-hidden="true">
+              <KeyRound size={17} />
+            </span>
+            <div>
+              <strong>
+                {activate
+                  ? "Link not working?"
+                  : "New society or forgot your password?"}
+              </strong>
+              <p>Request a one-time setup or password reset link.</p>
+              <a
+                className="auth-help-action"
+                href="mailto:society@sec.tamu.edu?subject=SocietyHub%20account%20help"
+              >
+                Contact an SEC chair <ArrowRight size={17} aria-hidden="true" />
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
     </main>
   );
 }

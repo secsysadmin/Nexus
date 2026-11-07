@@ -3,10 +3,10 @@ export default function NotFound() {
     <main className="standalone">
       <img
         className="brand-logo standalone-logo"
-        src="/societyhub-mark.svg"
+        src="/sec-logo.png"
         width={48}
         height={48}
-        alt="SocietyHub"
+        alt="Student Engineers’ Council"
       />
       <h1>This page isn’t here.</h1>
       <a className="button" href="/">

@@ -183,7 +183,7 @@ strong {
 }
 .nav.active {
   color: var(--maroon);
-  background: var(--tint);
+  background: #f5e9ed;
   font-weight: 650;
 }
 .nav:not(.active):hover {
@@ -218,7 +218,7 @@ strong {
   font-size: 12px;
 }
 .avatar {
-  background: var(--tint);
+  background: #f5e9ed;
   color: var(--maroon);
   width: 34px;
   height: 34px;
@@ -243,7 +243,7 @@ strong {
 }
 .topbar {
   height: 78px;
-  background: var(--paper);
+  background: #fff;
   border-bottom: 1px solid var(--line);
   display: flex;
   align-items: center;
@@ -378,7 +378,7 @@ strong {
   border-radius: 5px;
   display: inline-flex;
   align-items: center;
-  background: var(--tint);
+  background: #f5f4f4;
   color: var(--muted);
   white-space: nowrap;
   font-weight: 650;
@@ -393,7 +393,7 @@ strong {
   color: var(--amber);
 }
 .pill.maroon {
-  background: var(--tint);
+  background: #f5e9ed;
   color: var(--maroon);
 }
 .point-trackers {
@@ -544,7 +544,7 @@ th {
   font-weight: 500;
   color: var(--muted);
   font-size: 12px;
-  background: var(--tint);
+  background: #faf9fa;
   padding: 12px 14px;
   white-space: nowrap;
 }
@@ -576,7 +576,7 @@ td strong {
   flex-direction: column;
   align-items: center;
   color: var(--maroon);
-  background: var(--tint);
+  background: #f7eef1;
   border-radius: 8px;
   padding: 8px 12px;
 }
@@ -642,7 +642,7 @@ select,
 textarea {
   border: 1px solid var(--input-line);
   border-radius: 6px;
-  background: var(--paper);
+  background: #fff;
   color: var(--ink);
   width: 100%;
   padding: 11px 12px;
@@ -657,7 +657,7 @@ textarea::placeholder {
 input:disabled,
 textarea:disabled,
 select:disabled {
-  background: var(--tint);
+  background: #f6f4f5;
   color: var(--muted);
 }
 textarea {
@@ -761,7 +761,7 @@ input[type="checkbox"] {
   overflow-wrap: anywhere;
   font: 11px/1.7 var(--sans);
   max-width: 600px;
-  background: var(--tint);
+  background: #faf9fa;
   padding: 12px;
   border-radius: 6px;
 }
@@ -815,7 +815,7 @@ summary {
   font-size: 12px;
 }
 .activation-result {
-  background: var(--amber-bg);
+  background: #fff5dd;
   border: 1px solid #dccca5;
   padding: 22px;
   border-radius: var(--radius);
@@ -843,7 +843,7 @@ summary {
   height: auto;
 }
 .review-note {
-  background: var(--tint);
+  background: #faf7f8;
   border-radius: 8px;
   padding: 18px;
   margin-top: 20px;
@@ -977,7 +977,7 @@ summary {
   display: grid;
   grid-template-columns: 32px minmax(0, 1fr);
   gap: 12px;
-  background: var(--tint);
+  background: #fcf5f5;
   border: 1px solid #ead4d8;
   border-radius: 6px;
   padding: 18px;
@@ -996,7 +996,7 @@ summary {
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background: var(--paper);
+  background: #fff;
   color: var(--maroon);
 }
 .auth-help-action {
@@ -1324,7 +1324,7 @@ td strong {
   top: 12px;
   left: 12px;
   transform: translateY(-200%);
-  background: var(--paper);
+  background: white;
   color: var(--maroon);
   padding: 12px 18px;
   z-index: 100;
@@ -1392,9 +1392,20 @@ td strong {
   overflow: hidden;
   isolation: isolate;
 }
-.auth-story > * {
+.auth-story > :not(.maroon-ribbons) {
   position: relative;
   z-index: 1;
+}
+.maroon-ribbons {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: #fff;
+}
+.maroon-ribbons img {
+  display: block;
+  width: 100%;
+  height: 100%;
 }
 .receipt-status {
   margin: 16px 0 22px;
@@ -1403,11 +1414,13 @@ td strong {
 }
 
 .auth-page {
-  background: var(--paper);
+  background: #fff;
+  --ground: #fff;
+  --line: #e5e2df;
 }
 .auth-story,
 .auth-main {
-  background: var(--paper);
+  background: #fff;
 }
 .auth-story {
   color: var(--ink);
@@ -1417,6 +1430,18 @@ td strong {
 }
 .auth-story p {
   color: var(--muted);
+}
+.maroon-ribbons::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    #fff 38%,
+    rgba(255, 255, 255, 0.94) 60%,
+    rgba(255, 255, 255, 0.65) 72%,
+    rgba(255, 255, 255, 0) 94%
+  );
 }
 .auth-page :focus-visible {
   outline-color: #8c4658;
@@ -1457,6 +1482,10 @@ td strong {
   -webkit-text-fill-color: var(--ink);
   caret-color: var(--maroon);
   box-shadow: 0 0 0 1000px #fff inset;
+}
+.auth-story .maroon-ribbons {
+  -webkit-mask-image: linear-gradient(90deg, #000 82%, transparent 100%);
+  mask-image: linear-gradient(90deg, #000 82%, transparent 100%);
 }
 
 .is-dashboard .page-heading {
@@ -1670,7 +1699,7 @@ td strong {
 }
 .points-share-track {
   height: 7px;
-  background: var(--tint);
+  background: #f5e9ed;
   border-radius: 4px;
   margin: 12px 0 0 31px;
   overflow: hidden;
@@ -1848,7 +1877,7 @@ td strong {
   padding: 3px;
   border: 1px solid var(--line);
   border-radius: 6px;
-  background: var(--paper);
+  background: #fff;
 }
 .view-switch button {
   border: 0;
@@ -1860,7 +1889,7 @@ td strong {
   font-weight: 600;
 }
 .view-switch button[aria-pressed="true"] {
-  background: var(--tint);
+  background: #f5e9ed;
   color: var(--maroon);
 }
 .calendar-toolbar {
@@ -1890,7 +1919,7 @@ td strong {
   padding: 10px 8px;
   font-size: 12px;
   color: var(--muted);
-  background: var(--tint);
+  background: #faf9fa;
 }
 .calendar-cell {
   border-top: 1px solid var(--line);
@@ -1901,7 +1930,7 @@ td strong {
   border-right: 0;
 }
 .calendar-cell.outside {
-  background: var(--tint);
+  background: #faf9fa;
 }
 .calendar-day {
   display: flex;
@@ -1913,15 +1942,15 @@ td strong {
   width: 100%;
   padding: 8px;
   border: 0;
-  background: var(--paper);
+  background: #fff;
   color: var(--ink);
   text-align: left;
 }
 .calendar-day:hover {
-  background: var(--tint);
+  background: #fcf5f5;
 }
 .calendar-day.selected {
-  background: var(--tint);
+  background: #fcf5f5;
   box-shadow: inset 0 0 0 1px #b58e98;
 }
 .calendar-day:focus-visible {
@@ -2074,6 +2103,19 @@ td strong {
   padding: 48px 56px;
   border-right: 1px solid var(--line);
 }
+.auth-story .maroon-ribbons {
+  inset: 112px 2% 120px;
+  background: transparent;
+  -webkit-mask-image: none;
+  mask-image: none;
+}
+.auth-story .maroon-ribbons::after {
+  content: none;
+}
+.auth-story .maroon-ribbons img {
+  object-fit: contain;
+  opacity: 0.88;
+}
 .auth-story p.auth-description {
   align-self: center;
   text-align: center;
@@ -2156,7 +2198,7 @@ td strong {
   padding: 0;
   border: 0;
   border-radius: 14px;
-  background: var(--paper);
+  background: #fff;
   color: var(--ink);
   box-shadow: 0 24px 80px #1d001a30;
 }
@@ -2252,7 +2294,7 @@ td strong {
   text-transform: capitalize;
 }
 .pill.rose {
-  background: var(--tint);
+  background: #f5e9ed;
   color: var(--maroon);
 }
 .application-meta > small {
@@ -2281,7 +2323,7 @@ td strong {
   min-height: 30px;
 }
 .application-receipt {
-  background: var(--tint);
+  background: #fcf5f5;
   border: 1px solid #ead4d8;
   border-radius: 6px;
   padding: 18px 20px;
@@ -2399,7 +2441,7 @@ td strong {
   margin-top: 4px;
 }
 .ledger-row.removed .ledger-date {
-  background: var(--tint);
+  background: #f5f4f3;
   color: var(--muted);
 }
 .calendar-details-heading {
@@ -2618,14 +2660,14 @@ td strong {
   min-width: var(--control-hit);
 }
 .button:disabled {
-  background: var(--tint);
+  background: #f1eded;
   border-color: var(--line);
   color: var(--muted);
   box-shadow: none;
   opacity: 1;
 }
 .button.secondary:disabled {
-  background: var(--tint);
+  background: #f6f4f5;
   color: var(--muted);
 }
 .text-button:disabled,
@@ -2965,7 +3007,7 @@ textarea {
   width: min(540px, calc(100% - 32px));
   padding: 32px;
   color: var(--ink);
-  background: var(--paper);
+  background: white;
   box-shadow: 0 24px 80px #211d2030;
 }
 .reset-modal::backdrop {
@@ -3530,4 +3572,30 @@ textarea {
   .activity-date {
     font-size: 10px;
   }
+}
+
+.password-input {
+  position: relative;
+}
+.password-input input {
+  width: 100%;
+  padding-right: 54px !important;
+}
+.password-input button {
+  position: absolute;
+  right: 5px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  background: transparent;
+  color: var(--muted);
+  border: 0;
+  border-radius: 6px;
+}
+.password-input button:hover {
+  background: var(--tint);
+  color: var(--ink);
 }

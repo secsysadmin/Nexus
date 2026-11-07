@@ -7,10 +7,10 @@ export default function ErrorPage({ reset }: { reset: () => void }) {
     <main className="standalone">
       <img
         className="brand-logo standalone-logo"
-        src="/societyhub-mark.svg"
+        src="/sec-logo.png"
         width={48}
         height={48}
-        alt="SocietyHub"
+        alt="Student Engineers’ Council"
       />
       <h1>We couldn’t load SocietyHub.</h1>
       <p>Please try again. If this continues, contact SEC.</p>
